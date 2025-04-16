@@ -96,7 +96,6 @@ A Steering Committee oversees policy adherence, authorship transparency, and dis
 ### 4.2 Composition
 
 The committee includes one representative from each lab contributing data, along with representatives from major data analysis groups.
-To be determined. 
 - Member 1
 - Member 2
 - …
