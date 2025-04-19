@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://allenneuraldynamics.github.io/openscope-community-predictive-processing/hardware-overview/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Hardware Overview - OpenScope Community Predictive Processing</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Hardware Overview";
+        var mkdocs_page_input_path = "hardware-overview.md";
+        var mkdocs_page_url = "/openscope-community-predictive-processing/hardware-overview/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> OpenScope Community Predictive Processing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Experimental Plan</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../experimental-plan/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../detailed-experimental-plan/">Detailed Plan</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Resources</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" >Stimuli</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/bonsai_instructions/">Bonsai Instructions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/list_scripts/">List of scripts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/standard-oddball/">Standard Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/sensory-motor-closed-loop/">Sensory-Motor Closed-Loop</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Hardware</a>
+    <ul class="current">
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Hardware Overview</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview-of-recording-systems">Overview of Recording Systems</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#quick-links-to-detailed-hardware-documentation">Quick Links to Detailed Hardware Documentation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#hardware-selection-rationale">Hardware Selection Rationale</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#two-photon-imaging-slap2">Two-Photon Imaging (SLAP2)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#neuropixels-recordings">Neuropixels Recordings</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#wide-field-imaging-mesoscope">Wide-Field Imaging (Mesoscope)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#hardware-integration">Hardware Integration</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/allen_institute_slap2_hardware/">SLAP2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/allen_institute_neuropixels_hardware/">Neuropixels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/allen_institute_mesoscope_hardware/">Mesoscope</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Templates</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../template-files/mouse_experiment_template/">Experiment Template</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../template-files/meeting_template/">Meeting Template</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Experiments</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../experiments/allen_institute_787727_2025-03-27/">allen_institute_787727_2025-03-27</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../experiments/allen_institute_794237_2025-04-03/">allen_institute_794237_2025-04-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../experiments/allen_institute_NA_2025-03-20/">allen_institute_NA_2025-03-20</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../people/">Team</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../how_to_contribute/">How to Contribute</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../collaboration-policy/">Collaboration Policy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../project-tracking/">Project Tracking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Meetings</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2024-04-21/">2024-04-21</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../faq/">FAQ</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">OpenScope Community Predictive Processing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Project Resources</li>
+          <li class="breadcrumb-item">Hardware</li>
+      <li class="breadcrumb-item active">Hardware Overview</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/edit/main/docs/hardware-overview.md">Edit</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="hardware-documentation">Hardware Documentation</h1>
+<p>This page provides an overview of the hardware setups used in the OpenScope Community Predictive Processing project. Each hardware configuration has been carefully selected to support specific aspects of the experimental design.</p>
+<h2 id="overview-of-recording-systems">Overview of Recording Systems</h2>
+<p>The project utilizes three primary recording systems:</p>
+<ol>
+<li><strong>SLAP2 (Swept Line Active Polarization)</strong> - For high-speed subcellular imaging</li>
+<li><strong>Neuropixels Probes</strong> - For high-density electrophysiological recordings</li>
+<li><strong>Mesoscope</strong> - For wide-field calcium imaging</li>
+</ol>
+<p>Each system offers unique advantages for studying predictive processing mechanisms at different spatial and temporal scales.</p>
+<hr />
+<h2 id="quick-links-to-detailed-hardware-documentation">Quick Links to Detailed Hardware Documentation</h2>
+<ul>
+<li><a href="../hardware/allen_institute_slap2_hardware/">SLAP2 Setup</a> - High-speed subcellular imaging</li>
+<li><a href="../hardware/allen_institute_neuropixels_hardware/">Neuropixels Setup</a> - High-density neural recordings</li>
+<li><a href="../hardware/allen_institute_mesoscope_hardware/">Mesoscope Setup</a> - Wide-field calcium imaging</li>
+</ul>
+<hr />
+<h2 id="hardware-selection-rationale">Hardware Selection Rationale</h2>
+<h3 id="two-photon-imaging-slap2">Two-Photon Imaging (SLAP2)</h3>
+<p>Two-photon calcium imaging using the SLAP2 system provides:
+- Cellular-level recording with the ability to track specific cell types
+- Ability to image dendrites and somata simultaneously
+- Access to genetically defined cell populations through viral labeling</p>
+<p>This approach is ideal for studying:
+- Cell-type specific contributions to predictive processing
+- Dendritic computation during prediction and surprise
+- Layer-specific dynamics in cortical circuits</p>
+<h3 id="neuropixels-recordings">Neuropixels Recordings</h3>
+<p>Neuropixels probes enable:
+- Millisecond-precision spike timing across hundreds of neurons
+- Simultaneous recording from multiple brain regions
+- Layer-specific activity patterns</p>
+<p>This approach is crucial for:
+- Determining the precise timing of prediction signals
+- Tracking prediction-related activity across distributed networks
+- Relating spike timing to local field potentials</p>
+<h3 id="wide-field-imaging-mesoscope">Wide-Field Imaging (Mesoscope)</h3>
+<p>The mesoscope system allows:
+- Simultaneous imaging across multiple cortical regions
+- Tracking of global activity patterns
+- Low-resolution but high-coverage neural recordings</p>
+<p>This approach helps with:
+- Identifying which brain regions participate in different prediction tasks
+- Understanding large-scale dynamics during prediction formation
+- Relating local processing to global brain states</p>
+<hr />
+<h2 id="hardware-integration">Hardware Integration</h2>
+<p>All hardware systems are integrated with the same stimulus delivery system to ensure comparability of results. The Bonsai software framework is used for stimulus presentation, hardware synchronization, and data logging.</p>
+<p>For details on stimulus implementation, see the <a href="../stimuli/bonsai_instructions/">Bonsai Instructions</a>.</p>
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../stimuli/sensory-motor-closed-loop/" class="btn btn-neutral float-left" title="Sensory-Motor Closed-Loop"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../hardware/allen_institute_slap2_hardware/" class="btn btn-neutral float-right" title="SLAP2">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../stimuli/sensory-motor-closed-loop/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../hardware/allen_institute_slap2_hardware/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../js/discussion-links.js"></script>
+      <script src="../js/github-profiles.js"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
