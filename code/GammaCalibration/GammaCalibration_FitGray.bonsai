@@ -1,0 +1,145 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.4.1"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
+                 xmlns:ard="clr-namespace:Bonsai.Arduino;assembly=Bonsai.Arduino"
+                 xmlns:scr="clr-namespace:Bonsai.Scripting;assembly=Bonsai.Scripting"
+                 xmlns:wie="clr-namespace:Bonsai.Windows.Input;assembly=Bonsai.Windows.Input"
+                 xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
+                 xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
+                 xmlns:res="clr-namespace:Bonsai.Resources;assembly=Bonsai.System"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:CreateWindow">
+          <gl:Width>640</gl:Width>
+          <gl:Height>480</gl:Height>
+          <gl:VSync>On</gl:VSync>
+          <gl:SwapSync>false</gl:SwapSync>
+          <gl:ClearColor>Gray</gl:ClearColor>
+          <gl:ClearMask>DepthBufferBit ColorBufferBit</gl:ClearMask>
+          <gl:CursorVisible>true</gl:CursorVisible>
+          <gl:Location>
+            <gl:X>0</gl:X>
+            <gl:Y>300</gl:Y>
+          </gl:Location>
+          <gl:WindowBorder>Resizable</gl:WindowBorder>
+          <gl:WindowState>Normal</gl:WindowState>
+          <gl:DisplayDevice>Primary</gl:DisplayDevice>
+          <gl:TargetRenderFrequency>0</gl:TargetRenderFrequency>
+          <gl:TargetUpdateFrequency xsi:nil="true" />
+          <gl:RenderState />
+          <gl:GraphicsMode>
+            <gl:ColorFormat>
+              <gl:Red>8</gl:Red>
+              <gl:Green>8</gl:Green>
+              <gl:Blue>8</gl:Blue>
+              <gl:Alpha>8</gl:Alpha>
+            </gl:ColorFormat>
+            <gl:Depth>16</gl:Depth>
+            <gl:Stencil>0</gl:Stencil>
+            <gl:Samples>0</gl:Samples>
+            <gl:AccumulatorFormat>
+              <gl:Red>0</gl:Red>
+              <gl:Green>0</gl:Green>
+              <gl:Blue>0</gl:Blue>
+              <gl:Alpha>0</gl:Alpha>
+            </gl:AccumulatorFormat>
+            <gl:Buffers>2</gl:Buffers>
+            <gl:Stereo>false</gl:Stereo>
+          </gl:GraphicsMode>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.BonVisionResources.bonsai" />
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="res:LoadResources" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:RenderFrame" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:CreateOrthographic">
+          <gl:Width>1</gl:Width>
+          <gl:Height>1</gl:Height>
+          <gl:NearClip>0.1</gl:NearClip>
+          <gl:FarClip>1000</gl:FarClip>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="PublishSubject">
+        <Name>DrawStimuli</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="ard:AnalogInput">
+          <ard:Pin>0</ard:Pin>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>single(it)</scr:Expression>
+      </Expression>
+      <Expression xsi:type="PublishSubject">
+        <Name>Analog</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="wie:KeyDown">
+          <wie:Filter>None</wie:Filter>
+          <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:First" />
+      </Expression>
+      <Expression xsi:type="SelectMany">
+        <Name>GrayRamp</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="WeightR" />
+              <Property Name="WeightG" />
+              <Property Name="WeightB" />
+              <Property Name="Count" />
+              <Property Name="Period" />
+            </Expression>
+            <Expression xsi:type="IncludeWorkflow" Path="Extensions\BrightnessRamp.bonsai">
+              <WeightR>1</WeightR>
+              <WeightG>1</WeightG>
+              <WeightB>1</WeightB>
+              <Count>80</Count>
+              <Period>PT0.2S</Period>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:ConvertToImage" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="cv:SaveImage">
+          <cv:FileName>gammalut.bmp</cv:FileName>
+          <cv:Suffix>None</cv:Suffix>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Repeat" />
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="3" To="4" Label="Source1" />
+      <Edge From="4" To="5" Label="Source1" />
+      <Edge From="6" To="7" Label="Source1" />
+      <Edge From="7" To="8" Label="Source1" />
+      <Edge From="9" To="10" Label="Source1" />
+      <Edge From="10" To="11" Label="Source1" />
+      <Edge From="11" To="12" Label="Source1" />
+      <Edge From="12" To="13" Label="Source1" />
+      <Edge From="13" To="14" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>
