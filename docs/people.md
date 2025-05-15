@@ -42,7 +42,7 @@ Full team information including GitHub handles:
 | Kevin Nejad | kevin.kermaninejad@dpag.ox.ac.uk | |
 | Hamed Nejat | hamed.nejat@vanderbilt.edu | |
 | Karim Oweiss | koweiss@ufl.edu | @koweiss |
-| Mihai A. Petrovici | mihai.petrovici@unibe.ch | |
+| Mihai A. Petrovici | mihai.petrovici@unibe.ch | @petrovici |
 | Viola Priesemann | viola.priesemann@ds.mpg.de | |
 | Lucas Rudelt | lucas.rudelt@ds.mpg.de | |
 | Sarah Ruediger | s.ruediger@ucl.ac.uk | @Sarruedi |
