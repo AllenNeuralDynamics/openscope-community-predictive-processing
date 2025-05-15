@@ -44,6 +44,7 @@ Full team information including GitHub handles:
 | Karim Oweiss | koweiss@ufl.edu | @koweiss |
 | Mihai A. Petrovici | mihai.petrovici@unibe.ch | |
 | Viola Priesemann | viola.priesemann@ds.mpg.de | |
+| Nicholas Adam Rodriguez | statius9@ufl.edu | @Dedalus9 |
 | Lucas Rudelt | lucas.rudelt@ds.mpg.de | |
 | Sarah Ruediger | s.ruediger@ucl.ac.uk | @Sarruedi |
 | Simone Russo | srusso30@gatech.edu | |
