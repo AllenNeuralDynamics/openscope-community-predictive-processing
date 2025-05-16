@@ -1,14 +1,14 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<WorkflowBuilder Version="2.4.1"
+<WorkflowBuilder Version="2.8.5"
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
-                 xmlns:ard="clr-namespace:Bonsai.Arduino;assembly=Bonsai.Arduino"
-                 xmlns:scr="clr-namespace:Bonsai.Scripting;assembly=Bonsai.Scripting"
-                 xmlns:wie="clr-namespace:Bonsai.Windows.Input;assembly=Bonsai.Windows.Input"
+                 xmlns:res="clr-namespace:Bonsai.Resources;assembly=Bonsai.System"
                  xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
+                 xmlns:ard="clr-namespace:Bonsai.Arduino;assembly=Bonsai.Arduino"
+                 xmlns:scr="clr-namespace:Bonsai.Scripting.Expressions;assembly=Bonsai.Scripting.Expressions"
+                 xmlns:wie="clr-namespace:Bonsai.Windows.Input;assembly=Bonsai.Windows.Input"
                  xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
                  xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
-                 xmlns:res="clr-namespace:Bonsai.Resources;assembly=Bonsai.System"
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
     <Nodes>
@@ -67,18 +67,33 @@
           <gl:FarClip>1000</gl:FarClip>
         </Combinator>
       </Expression>
-      <Expression xsi:type="PublishSubject">
+      <Expression xsi:type="rx:PublishSubject">
         <Name>DrawStimuli</Name>
       </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="ard:AnalogInput">
+            <ard:Pin>0</ard:Pin>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="scr:ExpressionTransform">
+          <scr:Expression>single(it)</scr:Expression>
+        </Builder>
+      </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="ard:AnalogInput">
-          <ard:Pin>0</ard:Pin>
+        <Combinator xsi:type="gl:Timer">
+          <gl:DueTime>PT0S</gl:DueTime>
+          <gl:Period>PT0.2S</gl:Period>
         </Combinator>
       </Expression>
-      <Expression xsi:type="scr:ExpressionTransform">
-        <scr:Expression>single(it)</scr:Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="FloatProperty">
+          <Value>0</Value>
+        </Combinator>
       </Expression>
-      <Expression xsi:type="PublishSubject">
+      <Expression xsi:type="rx:PublishSubject">
         <Name>Analog</Name>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -90,7 +105,7 @@
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:First" />
       </Expression>
-      <Expression xsi:type="SelectMany">
+      <Expression xsi:type="rx:SelectMany">
         <Name>BlueRamp</Name>
         <Workflow>
           <Nodes>
@@ -102,11 +117,11 @@
               <Property Name="Period" />
             </Expression>
             <Expression xsi:type="IncludeWorkflow" Path="Extensions\BrightnessRamp.bonsai">
+              <Count>80</Count>
+              <Period>PT0.2S</Period>
               <WeightR>0</WeightR>
               <WeightG>0</WeightG>
               <WeightB>1</WeightB>
-              <Count>80</Count>
-              <Period>PT0.2S</Period>
             </Expression>
             <Expression xsi:type="WorkflowOutput" />
           </Nodes>
@@ -116,7 +131,7 @@
           </Edges>
         </Workflow>
       </Expression>
-      <Expression xsi:type="SelectMany">
+      <Expression xsi:type="rx:SelectMany">
         <Name>GreenRamp</Name>
         <Workflow>
           <Nodes>
@@ -128,11 +143,11 @@
               <Property Name="Period" />
             </Expression>
             <Expression xsi:type="IncludeWorkflow" Path="Extensions\BrightnessRamp.bonsai">
+              <Count>80</Count>
+              <Period>PT0.2S</Period>
               <WeightR>0</WeightR>
               <WeightG>1</WeightG>
               <WeightB>0</WeightB>
-              <Count>80</Count>
-              <Period>PT0.2S</Period>
             </Expression>
             <Expression xsi:type="WorkflowOutput" />
           </Nodes>
@@ -142,7 +157,7 @@
           </Edges>
         </Workflow>
       </Expression>
-      <Expression xsi:type="SelectMany">
+      <Expression xsi:type="rx:SelectMany">
         <Name>RedRamp</Name>
         <Workflow>
           <Nodes>
@@ -154,11 +169,11 @@
               <Property Name="Period" />
             </Expression>
             <Expression xsi:type="IncludeWorkflow" Path="Extensions\BrightnessRamp.bonsai">
+              <Count>80</Count>
+              <Period>PT0.2S</Period>
               <WeightR>1</WeightR>
               <WeightG>0</WeightG>
               <WeightB>0</WeightB>
-              <Count>80</Count>
-              <Period>PT0.2S</Period>
             </Expression>
             <Expression xsi:type="WorkflowOutput" />
           </Nodes>
@@ -202,20 +217,22 @@
       <Edge From="4" To="5" Label="Source1" />
       <Edge From="6" To="7" Label="Source1" />
       <Edge From="7" To="8" Label="Source1" />
+      <Edge From="8" To="9" Label="Source1" />
       <Edge From="9" To="10" Label="Source1" />
-      <Edge From="10" To="11" Label="Source1" />
-      <Edge From="11" To="14" Label="Source1" />
       <Edge From="11" To="12" Label="Source1" />
-      <Edge From="12" To="14" Label="Source2" />
       <Edge From="12" To="13" Label="Source1" />
-      <Edge From="13" To="14" Label="Source3" />
+      <Edge From="13" To="14" Label="Source1" />
+      <Edge From="13" To="16" Label="Source1" />
       <Edge From="14" To="15" Label="Source1" />
-      <Edge From="14" To="18" Label="Source1" />
-      <Edge From="15" To="16" Label="Source1" />
+      <Edge From="14" To="16" Label="Source2" />
+      <Edge From="15" To="16" Label="Source3" />
       <Edge From="16" To="17" Label="Source1" />
-      <Edge From="17" To="19" Label="Source1" />
-      <Edge From="18" To="19" Label="Source2" />
-      <Edge From="19" To="20" Label="Source1" />
+      <Edge From="16" To="20" Label="Source1" />
+      <Edge From="17" To="18" Label="Source1" />
+      <Edge From="18" To="19" Label="Source1" />
+      <Edge From="19" To="21" Label="Source1" />
+      <Edge From="20" To="21" Label="Source2" />
+      <Edge From="21" To="22" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
