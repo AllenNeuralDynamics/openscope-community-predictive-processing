@@ -15,12 +15,14 @@ In visual neuroscience experiments, we need precise control over the actual ligh
 To perform gamma calibration, you need:
 
 1. **Light Sensor/Photodiode**: 
-   - To be defined
+        
+        - To be defined
 
 2. **Data Acquisition Device (DAQ)**:
-   - Arduino board
-   - HARP board
-   - Any other DAQ that can be read with Bonsai
+        
+        - Arduino board
+        - HARP board
+        - Any other DAQ that can be read with Bonsai
 
 ## Software Requirements
 
@@ -28,7 +30,7 @@ Our gamma calibration workflows are built using [Bonsai](https://bonsai-rx.org/)
 
 1. **Bonsai** (version 2.4 or higher)
 2. **BonVision** package for Bonsai
-3. Our custom [gamma calibration extensions](https://github.com/allenneuraldynamics/openscope-community-predictive-processing/tree/main/code/GammaCalibration/Extensions) (included in this repository)
+3. Our custom [gamma calibration extensions](https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/tree/main/code/Gamma) (included in this repository)
 
 ## Gamma Calibration Procedure
 
@@ -41,7 +43,7 @@ Our gamma calibration workflows are built using [Bonsai](https://bonsai-rx.org/)
 
 ### Step 2: Calibrating the Display
 
-1. Open either [`GammaCalibration_FitGray.bonsai`](https://github.com/allenneuraldynamics/openscope-community-predictive-processing/blob/main/code/GammaCalibration/GammaCalibration_FitGray.bonsai) (for grayscale calibration)
+1. Open either [`GammaCalibration_FitGray.bonsai`](https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/blob/main/code/Gamma/GammaCalibration_FitGray.bonsai) (for grayscale calibration)
 2. Configure the `AnalogInput` node to match your DAQ setup.
 3. Adjust the `CreateWindow` node properties to match your display settings.
 4. Position your photodiode on the screen. 
@@ -60,7 +62,7 @@ After calibration, include the generated lookup table in your stimuli presentati
 
 To verify your gamma calibration and see how to use the calibrated lookup table in practice:
 
-1. Open the [`GammaCalibration_Test.bonsai`](https://github.com/allenneuraldynamics/openscope-community-predictive-processing/blob/main/code/GammaCalibration/GammaCalibration_Test.bonsai) workflow.
+1. Open the [`GammaCalibration_Test.bonsai`](https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/blob/main/code/Gamma/GammaCalibration_Test.bonsai) workflow.
 2. Configure the `AnalogInput` node to match your DAQ setup.
 3. Make sure the `GammaCorrection` node is enabled in the workflow.
 4. Set the `GammaLut` property of the `GammaCorrection` node to point to your saved calibration image.
