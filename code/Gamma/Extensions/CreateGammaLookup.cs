@@ -22,10 +22,11 @@ public class CreateGammaLookup
             // var p = Fit.LogarithmFunc(y, x);
             var p = Fit.PolynomialFunc(y, x, 6);
             var vmax = MathNet.Numerics.Statistics.ArrayStatistics.Maximum(y);
+            var vmin = MathNet.Numerics.Statistics.ArrayStatistics.Minimum(y);
 
             // var p = Fit.Logarithm(y, x);
             //  return  Generate.Map(x, v => p.Item1 + p.Item2 * Math.Log(v));  
-            return Generate.Map(x, v => Math.Max(0, p(v * vmax)));
+            return Generate.Map(x, v => Math.Max(0, p(v *(vmax-vmin)+vmin)));
         });
     }
 }

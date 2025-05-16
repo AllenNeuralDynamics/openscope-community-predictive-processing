@@ -72,6 +72,11 @@
       <Expression xsi:type="scr:ExpressionTransform">
         <scr:Expression>single(it)</scr:Expression>
       </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:DelaySubscription">
+          <rx:DueTime>PT0.5S</rx:DueTime>
+        </Combinator>
+      </Expression>
       <Expression xsi:type="rx:PublishSubject">
         <Name>Analog</Name>
       </Expression>
@@ -133,7 +138,7 @@
           <harp:VisualIndicators>On</harp:VisualIndicators>
           <harp:Heartbeat>Disabled</harp:Heartbeat>
           <harp:IgnoreErrors>false</harp:IgnoreErrors>
-          <harp:PortName>COM7</harp:PortName>
+          <harp:PortName>COM11</harp:PortName>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:PublishSubject">
@@ -149,13 +154,14 @@
       <Edge From="7" To="8" Label="Source1" />
       <Edge From="8" To="9" Label="Source1" />
       <Edge From="9" To="10" Label="Source1" />
-      <Edge From="11" To="12" Label="Source1" />
+      <Edge From="10" To="11" Label="Source1" />
       <Edge From="12" To="13" Label="Source1" />
       <Edge From="13" To="14" Label="Source1" />
       <Edge From="14" To="15" Label="Source1" />
       <Edge From="15" To="16" Label="Source1" />
-      <Edge From="17" To="18" Label="Source1" />
+      <Edge From="16" To="17" Label="Source1" />
       <Edge From="18" To="19" Label="Source1" />
+      <Edge From="19" To="20" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
