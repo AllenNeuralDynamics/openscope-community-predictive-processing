@@ -18,6 +18,7 @@ nav:
     - Standard Oddball Jitter Random: stimuli/standard-oddball-jitter-random.md
     - Sensory-Motor Closed-Loop: stimuli/sensory-motor-closed-loop.md
     - Sequence Mismatch: stimuli/sequence-mismatch.md
+    - Gamma Calibration: stimuli/gamma-calibration.md
   - Hardware:
     - Hardware Overview: hardware-overview.md
     - Behavioral: hardware/behavior_training.md

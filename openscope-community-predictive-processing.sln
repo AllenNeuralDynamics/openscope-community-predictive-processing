@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.5.2.0
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "code", "code", "{314C6247-30EA-3492-19B6-DF847E3B326F}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Extensions", "code\GammaCalibration\Extensions.csproj", "{B6151626-AC95-1BBA-5FDF-02648C302BD9}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B6151626-AC95-1BBA-5FDF-02648C302BD9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B6151626-AC95-1BBA-5FDF-02648C302BD9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B6151626-AC95-1BBA-5FDF-02648C302BD9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B6151626-AC95-1BBA-5FDF-02648C302BD9}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{B6151626-AC95-1BBA-5FDF-02648C302BD9} = {314C6247-30EA-3492-19B6-DF847E3B326F}
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {A5119B92-D88D-41EB-A5BE-08FD729E98CE}
+	EndGlobalSection
+EndGlobal
