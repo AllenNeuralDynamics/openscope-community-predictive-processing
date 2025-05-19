@@ -10,10 +10,10 @@ The project utilizes three complementary neural recording platforms, each offeri
 
 | Date | Mouse ID | Protocol | Session Notes |
 |------|----------|----------|---------------|
-| 2025-04-24 | 794237 | Glutamate imaging, 50 min experiment | [Session Details](experiments/allen_institute_794237_2025-04-24.md) |
-| 2025-04-03 | 794237 | Glutamate imaging, 30 min experiment | [Session Details](experiments/allen_institute_794237_2025-04-03.md) |
-| 2025-03-27 | 787727 | Full integration test min experiment | [Session Details](experiments/allen_institute_787727_2025-03-27.md) |
-| 2025-03-20 | N | Full stimulus and blank recording | [Session Details](experiments/allen_institute_NA_2025-03-20.md) |
+| 2025-04-24 | 794237 | Glutamate imaging, 50 min experiment | [Session Details](experiments/allen_institute/slap2/allen_institute_794237_2025-04-24.md) |
+| 2025-04-03 | 794237 | Glutamate imaging, 30 min experiment | [Session Details](experiments/allen_institute/slap2/allen_institute_794237_2025-04-03.md) |
+| 2025-03-27 | 787727 | Full integration test min experiment | [Session Details](experiments/allen_institute/slap2/allen_institute_787727_2025-03-27.md) |
+| 2025-03-20 | N | Full stimulus and blank recording | [Session Details](experiments/allen_institute/slap2/allen_institute_NA_2025-03-20.md) |
 
 
 ### Neuropixels Experiments
