@@ -94,48 +94,7 @@ If you've added images, ensure they display correctly. Images should be placed i
 
 Test that Markdown formatting appears as expected, especially for:
 - Code blocks
-- Tables
-- Admonitions (note, warning, etc.)
 - Nested lists
-
-### 5. Mobile View
-
-Use your browser's developer tools to test how the site appears on mobile devices by toggling the device view.
-
-## Common Issues and Solutions
-
-### Site Navigation Not Updating
-
-If your changes to the navigation structure in `mkdocs.yml` don't appear:
-
-1. Stop the server (`Ctrl+C`)
-2. Start it again with `mkdocs serve`
-
-### Syntax Errors in YAML
-
-If the server fails to start due to errors in `mkdocs.yml`:
-
-1. Check the error message for the line number with the issue
-2. Verify proper indentation and formatting in that section
-3. Ensure all strings that contain special characters are properly quoted
-
-### Page Not Found Errors
-
-If you encounter 404 errors:
-
-1. Check that the file exists in the specified location
-2. Ensure the file is correctly listed in the `mkdocs.yml` navigation
-3. Verify that the file has a `.md` extension in the file system
-
-## Building the Site
-
-To build a static version of the site (useful for verifying the final result):
-
-```bash
-mkdocs build
-```
-
-This creates a `site` directory containing the built website. You can open `site/index.html` in your browser to view it.
 
 ## Website Structure and Deployment Process
 
@@ -214,14 +173,6 @@ When contributing to the documentation, follow this workflow:
    - Once approved, your changes will be merged into main
    - GitHub Actions will automatically build and deploy the updated site
    - Your changes will be visible on the live site shortly after merging
-
-### Best Practices
-
-1. **Make Focused Changes**: Each branch should address a specific feature or fix
-2. **Keep Changes Small**: Smaller PRs are easier to review and less prone to conflicts
-3. **Update Navigation**: If adding new pages, ensure they're properly added to the `nav` section in `mkdocs.yml`
-4. **Test Thoroughly**: Always test your changes locally before submitting a PR
-5. **Document Your Changes**: Provide clear descriptions of what you've changed and why
 
 ## Additional Resources
 
