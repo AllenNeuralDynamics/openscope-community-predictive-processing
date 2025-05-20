@@ -38,8 +38,11 @@ def extract_info_from_file(file_path):
     rig_match = re.search(RIG_REGEX, content)
     protocol_match = re.search(PROTOCOL_REGEX, content)
     
-    # Create a relative path for the link
-    rel_path = str(Path(file_path).relative_to(DOCS_DIR))
+    # Create a relative path for the link - this should work with nested paths
+    rel_path = os.path.relpath(file_path, DOCS_DIR)
+    
+    # Replace backslashes with forward slashes for web links
+    rel_path = rel_path.replace('\\', '/')
     
     return {
         'mouse_id': mouse_id_match.group(1) if mouse_id_match else "N/A",
