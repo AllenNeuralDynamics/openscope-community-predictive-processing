@@ -126,13 +126,11 @@ The project utilizes three complementary neural recording platforms, each offeri
 
 def main():
     """Main function to sync experiment summary with individual files."""
-    # Find all experiment markdown files
-    experiment_files = []
     
     # Check both direct files in experiments/ and nested directories
-    experiment_files.extend(glob.glob(str(EXPERIMENTS_DIR / "*.md")))
-    experiment_files.extend(glob.glob(str(EXPERIMENTS_DIR / "**" / "*.md")))
-    
+    experiment_files = glob.glob(str(EXPERIMENTS_DIR / "**" / "*.md"), recursive=True)
+    print(f"Found {len(experiment_files)} experiment files")
+
     # Extract information from each file and categorize by platform
     platform_experiments = defaultdict(list)
     
