@@ -16,7 +16,7 @@ To perform gamma calibration, you need:
 
 1. **Light Sensor/Photodiode**: 
         
-        - To be defined
+   [PDB-C156](https://www.digikey.com/en/products/detail/advanced-photonix/PDB-C156/480587)
 
 2. **Data Acquisition Device (DAQ)**:
         
