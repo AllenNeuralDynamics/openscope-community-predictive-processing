@@ -21,15 +21,14 @@ We welcome contributions from students, postdocs, labs, and researchers at all l
         <h3>🤝 Express Interest / Ask Questions</h3>
         <p>New to the project or have questions? Start here!</p>
         <ul>
-            <li>Fill out our <a href="https://forms.gle/E2hCuS2hZQhsJPKU9">Get Involved Form</a>.</li>
-            <li>Join the <a href="https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/discussions">GitHub Discussions</a>.</li>
+            <li>Join the <a href="https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/discussions">GitHub Discussion Forum and introduce yourself</a>.</li>
         </ul>
     </div>
     <div class="grid-item">
         <h3>🧠 Contribute Experimental Data</h3>
         <p>Share your relevant experimental data with the community.</p>
         <ol>
-            <li><strong>Discuss First:</strong> Contact us via the form or discussions before collecting/submitting data.</li>
+            <li><strong>Discuss First:</strong> Contact us via the discussions forum before collecting/submitting data.</li>
             <li>Use the <a href="template-files/mouse_experiment_template/">Experiment Template</a>.</li>
             <li>Submit template via Pull Request.</li>
             <li>Coordinate data transfer.</li>
