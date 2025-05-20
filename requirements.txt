@@ -4,6 +4,7 @@ certifi
 charset-normalizer
 click
 colorama
+dandi
 ghp-import
 idna
 importlib_metadata
@@ -11,12 +12,16 @@ Jinja2
 Markdown
 MarkupSafe
 mergedeep
+matplotlib
 mkdocs
 mkdocs-get-deps
+mkdocs-jupyter
 mkdocs-material
 mkdocs-material-extensions
+numpy
 packaging
 paginate
+pandas
 pathspec
 platformdirs
 Pygments
@@ -25,9 +30,11 @@ PyMuPDF  # Used for PDF text and image extraction
 Pillow  # For image processing
 pyyaml  # For updating mkdocs.yml
 python-dateutil
+pynwb
 PyYAML
 pyyaml_env_tag
 requests
+scipy
 six
 urllib3
 watchdog

@@ -30,12 +30,14 @@ nav:
     - Meeting Template: template-files/meeting_template.md
   - Analysis:
     - SLAP2 pilot data analysis: pilotanalysis.md
+    - SLAP2 pilot notebook: notebooks/pilot_analysis_rfs.ipynb
   - Experiments:
     - allen_institute:
       - slap2:
         - allen_institute_787727_2025-03-27: experiments/allen_institute/slap2/allen_institute_787727_2025-03-27.md
         - allen_institute_794237_2025-04-03: experiments/allen_institute/slap2/allen_institute_794237_2025-04-03.md
         - allen_institute_794237_2025-04-24: experiments/allen_institute/slap2/allen_institute_794237_2025-04-24.md
+        - allen_institute_794237_2025-05-08: experiments/allen_institute/slap2/allen_institute_794237_2025-05-08.md
         - allen_institute_NA_2025-03-20: experiments/allen_institute/slap2/allen_institute_NA_2025-03-20.md
 - Project Management:
   - Team: people.md
@@ -54,6 +56,7 @@ theme:
 docs_dir: docs
 plugins:
 - search
+- mkdocs-jupyter
 edit_uri: https://github.com/allenneuraldynamics/openscope-community-predictive-processing/edit/main/docs/
 extra_css:
 - custom.css
