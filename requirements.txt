@@ -15,6 +15,7 @@ mergedeep
 matplotlib
 mkdocs
 mkdocs-get-deps
+mkdocs-jupyter
 mkdocs-material
 mkdocs-material-extensions
 numpy

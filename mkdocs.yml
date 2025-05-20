@@ -30,6 +30,7 @@ nav:
     - Meeting Template: template-files/meeting_template.md
   - Analysis:
     - SLAP2 pilot data analysis: pilotanalysis.md
+    - SLAP2 pilot notebook: notebooks/pilot_analysis_rfs.ipynb
   - Experiments:
     - allen_institute:
       - slap2:
@@ -53,6 +54,7 @@ theme:
 docs_dir: docs
 plugins:
 - search
+- mkdocs-jupyter
 edit_uri: https://github.com/allenneuraldynamics/openscope-community-predictive-processing/edit/main/docs/
 extra_css:
 - custom.css
