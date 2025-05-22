@@ -6,9 +6,10 @@ using System.Linq;
 using System.Reactive.Linq;
 using MathNet.Numerics.Distributions;
 using MathNet.Numerics;
+using MathNet.Numerics.Interpolation;
 
 [Combinator]
-[Description("")]
+[Description("Creates a lookup table for gamma correction using linear interpolation")]
 [WorkflowElementCategory(ElementCategory.Transform)]
 public class CreateGammaLookup
 {
@@ -18,15 +19,12 @@ public class CreateGammaLookup
         {
             var x = Generate.Map(value, v => v.Item2);
             var y = Generate.Map(value, v => (double)v.Item1);
-
-            // var p = Fit.LogarithmFunc(y, x);
-            var p = Fit.PolynomialFunc(y, x, 6);
             var vmax = MathNet.Numerics.Statistics.ArrayStatistics.Maximum(y);
             var vmin = MathNet.Numerics.Statistics.ArrayStatistics.Minimum(y);
 
-            // var p = Fit.Logarithm(y, x);
-            //  return  Generate.Map(x, v => p.Item1 + p.Item2 * Math.Log(v));  
-            return Generate.Map(x, v => Math.Max(0, p(v *(vmax-vmin)+vmin)));
+            // Linear interpolation instead of polynomial
+            var linearInterp = Interpolate.Linear(y, x);
+            return Generate.Map(x, v => Math.Max(0, linearInterp.Interpolate(v * (vmax - vmin) + vmin)));
         });
     }
 }
