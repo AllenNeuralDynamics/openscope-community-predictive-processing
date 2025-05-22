@@ -19,14 +19,14 @@ The core behavior platform design is adapted for different neural recording syst
 ### Standard Behavior Platform
 
 <figure>
-  <img src="../../img/behavior/0107-020-00-Behavior Platform Assembly Visual Guide_page001_img001_1745x905.png" alt="Behavior Platform Assembly">
+  <img src="../../img/behavior/0107-020-00-Behavior Platform Assembly Visual Guide_page001_img001_1745x905.png" alt="Behavior Platform Assembly" width="100%" style="max-width: 800px; height: auto;">
   <figcaption>Figure 1: Standard behavior platform setup showing the complete assembly with running wheel, screen mount, and headplate holder.</figcaption>
 </figure>
 
 ### SLAP2-Integrated Behavior Platform
 
 <figure>
-  <img src="../../img/slap2/slap2_behavior.png" alt="SLAP2 Behavior Platform">
+  <img src="../../img/slap2/slap2_behavior.png" alt="SLAP2 Behavior Platform" width="100%" style="max-width: 800px; height: auto;">
   <figcaption>Figure 2: Behavior platform integrated with the SLAP2 microscope. This configuration allows for simultaneous high-speed synaptic imaging while the mouse engages with the running wheel and visual stimuli.</figcaption>
 </figure>
 

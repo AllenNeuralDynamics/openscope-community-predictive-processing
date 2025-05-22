@@ -41,11 +41,13 @@ The SLAP2 system is fully synchronized with:
 
 ## Behavior Platform Integration
 
-The SLAP2 system incorporates a specialized behavior platform for head-fixed mice:
+The SLAP2 system incorporates a standardized behavior platform for head-fixed mice:
 
-![SLAP2 Behavior Platform](../img/slap2/slap2_behavior.png)
+<figure>
+  <img src="../img/slap2/slap2_behavior.png" alt="SLAP2 Behavior Platform" width="100%" style="max-width: 800px; height: auto;">
+  <figcaption>The behavior platform mounted on the SLAP2 microscope. This setup allows simultaneous recording of neural activity at synaptic resolution while the mouse engages with visual stimuli and runs on the wheel.</figcaption>
+</figure>
 
-*The behavior platform mounted on the SLAP2 microscope. This setup allows simultaneous recording of neural activity at synaptic resolution while the mouse engages with visual stimuli and runs on the wheel.*
 
 ## Related Hardware
 
