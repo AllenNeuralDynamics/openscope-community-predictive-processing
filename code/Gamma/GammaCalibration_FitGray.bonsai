@@ -102,7 +102,7 @@
             </Expression>
             <Expression xsi:type="IncludeWorkflow" Path="Extensions\BrightnessRamp.bonsai">
               <Count>80</Count>
-              <Period>PT0.2S</Period>
+              <Period>PT1S</Period>
               <WeightR>1</WeightR>
               <WeightG>1</WeightG>
               <WeightB>1</WeightB>

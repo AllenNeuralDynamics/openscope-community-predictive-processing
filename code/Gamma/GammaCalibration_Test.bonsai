@@ -59,7 +59,7 @@
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.GammaCorrection.bonsai">
         <ClearColor>Gray</ClearColor>
-        <GammaLut>gammalut.bmp</GammaLut>
+        <GammaLut>Rigs\2025-05-22-SLAP2-gammalut.bmp</GammaLut>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
         <Name>BehaviorEvents</Name>
