@@ -39,6 +39,14 @@ The SLAP2 system is fully synchronized with:
 - Visual stimulus presentation through the Bonsai framework
 - Data acquisition systems for behavioral tracking
 
+## Behavior Platform Integration
+
+The SLAP2 system incorporates a specialized behavior platform for head-fixed mice:
+
+![SLAP2 Behavior Platform](../img/slap2/slap2_behavior.png)
+
+*The behavior platform mounted on the SLAP2 microscope. This setup allows simultaneous recording of neural activity at synaptic resolution while the mouse engages with visual stimuli and runs on the wheel.*
+
 ## Related Hardware
 
 - [Behavior Platform](behavior_training.md)

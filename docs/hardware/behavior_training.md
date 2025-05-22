@@ -12,9 +12,22 @@ Our behavior platform is designed to record mouse behavior during visual stimulu
 - Reward delivery system
 - Headplate holder for head-fixed recordings
 
+## Platform Variants
+
+The core behavior platform design is adapted for different neural recording systems used in the project:
+
+### Standard Behavior Platform
+
 <figure>
   <img src="../../img/behavior/0107-020-00-Behavior Platform Assembly Visual Guide_page001_img001_1745x905.png" alt="Behavior Platform Assembly">
-  <figcaption>Figure 1: Behavior platform setup showing the complete assembly with running wheel, screen mount, and headplate holder. This platform is used for all experimental paradigms in our project, including standard mismatch, sensorimotor mismatch, sequence mismatch, and temporal mismatch sessions.</figcaption>
+  <figcaption>Figure 1: Standard behavior platform setup showing the complete assembly with running wheel, screen mount, and headplate holder.</figcaption>
+</figure>
+
+### SLAP2-Integrated Behavior Platform
+
+<figure>
+  <img src="../../img/slap2/slap2_behavior.png" alt="SLAP2 Behavior Platform">
+  <figcaption>Figure 2: Behavior platform integrated with the SLAP2 microscope. This configuration allows for simultaneous high-speed synaptic imaging while the mouse engages with the running wheel and visual stimuli.</figcaption>
 </figure>
 
 ## Technical Specifications
