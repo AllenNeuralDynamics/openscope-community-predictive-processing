@@ -19,6 +19,9 @@ from scipy.spatial.distance import pdist, squareform
 import seaborn as sns
 import pandas as pd
 from scipy.stats import spearmanr
+import warnings
+from collections import defaultdict
+import matplotlib.gridspec as gridspec
 
 # =============================================================================
 # =========================================================================
@@ -38,47 +41,51 @@ from scipy.stats import spearmanr
 output_dir = Path('/content')
 output_dir.mkdir(exist_ok=True)
 
-# Define DANDI details
 dandiset_id = "001424"
 dandi_filepath = "sub-794237/sub-794237_ses-20250508T145040_image+ophys.nwb"
 filename = dandi_filepath.split("/")[-1]
 filepath = output_dir / filename
 
-# Download file if not already present
-if not filepath.exists():
-    with dandiapi.DandiAPIClient() as client:
-        dandiset = client.get_dandiset(dandiset_id)
-        asset = dandiset.get_asset_by_path(dandi_filepath)
-        file_url = asset.download_url
+if filepath.exists():
+    print(f"{filename} already exists.")
+else:
+    client = dandiapi.DandiAPIClient()
+    dandiset = client.get_dandiset(dandiset_id)
+    file = dandiset.get_asset_by_path(dandi_filepath)
+    file_url = file.download_url
 
-        response = requests.get(file_url, stream=True)
-        total_size = int(response.headers.get('content-length', 0))
-        block_size = 1024
+    # Stream download
+    response = requests.get(file_url, stream=True)
+    total_size = int(response.headers.get('content-length', 0))
+    block_size = 1024  # 1 Kibibyte
 
-        with open(filepath, 'wb') as f, tqdm(
-            desc=f"Downloading {filename}",
-            total=total_size,
-            unit='iB',
-            unit_scale=True,
-            unit_divisor=1024,
-        ) as bar:
-            for data in response.iter_content(block_size):
-                f.write(data)
-                bar.update(len(data))
+    with open(filepath, 'wb') as f, tqdm(
+        desc=f"Downloading {filename}",
+        total=total_size,
+        unit='iB',
+        unit_scale=True,
+        unit_divisor=1024,
+    ) as bar:
+        for data in response.iter_content(block_size):
+            f.write(data)
+            bar.update(len(data))
 
     print(f"Downloaded file to {filepath}")
-else:
-    print(f"{filename} already exists.")
 
-# Load NWB file
 with warnings.catch_warnings():
     warnings.filterwarnings("ignore", category=UserWarning, message=".*Date is missing timezone information.*")
-    with NWBHDF5IO(filepath, mode="r", load_namespaces=True) as io:
-        nwb = io.read()
+    io = NWBHDF5IO(filepath, mode="r", load_namespaces=True)
+    nwb = io.read() 
+        
+with dandiapi.DandiAPIClient() as client:
+    dandiset = client.get_dandiset(dandiset_id, lazy=False)
+    for asset in dandiset.get_assets():
+        print(asset.path)
 
 # Extract and display the first few rows of the stimulus table
 stim_table = nwb.intervals["stimulus_presentations"].to_dataframe()
 print(stim_table.head(10))
+
 
 # Plot orientation over time
 plt.figure(figsize=(14, 4))
@@ -595,7 +602,7 @@ for dmd in [1, 2]:
     )
 
 # --- Set z-score threshold ---
-z_thresh = 1.0
+z_thresh = 0.5
 
 # --- Helper: Get significant ROIs (z > threshold during stimulus) ---
 def get_significant_rois(responses, trace_window, z_thresh=1.0):
@@ -610,6 +617,57 @@ def get_significant_rois(responses, trace_window, z_thresh=1.0):
         sig_rois = np.where(mean_response > z_thresh)[0]
         roi_set.update(sig_rois)
     return sorted(list(roi_set))
+
+def compute_mean_zscore_per_roi(responses, trace_window, stim_start=0.0, stim_end=0.343):
+    # Create a mask for the stimulus period
+    stim_period = (trace_window >= stim_start) & (trace_window <= stim_end)
+    mean_zscores = []
+
+    for cond_data in responses.values():
+        if not cond_data['traces']:
+            continue
+        traces = np.stack(cond_data['traces'])  # [trials, time, rois]
+        stim_traces = traces[:, stim_period, :]  # [trials, stim_time, rois]
+        mean_response = np.nanmean(stim_traces, axis=(0, 1))  # [n_rois]
+        mean_zscores.append(mean_response)
+
+    if mean_zscores:
+        all_means = np.vstack(mean_zscores)  # [conditions, n_rois]
+        roi_mean = np.nanmean(all_means, axis=0)  # mean across conditions
+        return roi_mean
+    else:
+        return np.array([])
+
+# Collect and plot for both DMDs
+cumulative_data = {}
+
+for dmd in [1, 2]:
+    dff = np.array(nwb.processing['ophys']['DfOverF'][f"DMD{dmd}_DfOverF"].data)
+    timestamps = np.array(nwb.processing['ophys']['DfOverF'][f"DMD{dmd}_DfOverF"].timestamps)
+
+    responses, trace_window = extract_oddball_responses(
+        dff, timestamps, oddball_block,
+        onset_delay=0, window_duration=0.6, baseline_duration=0.5
+    )
+
+    roi_mean = compute_mean_zscore_per_roi(responses, trace_window, stim_start=0.0, stim_end=0.343)
+    sorted_z = np.sort(roi_mean)
+    cumulative_percent = np.linspace(0, 100, len(sorted_z))
+    cumulative_data[dmd] = (sorted_z, cumulative_percent)
+
+# Plot cumulative distributions
+plt.figure(figsize=(8, 5))
+for dmd, (sorted_z, cumulative_percent) in cumulative_data.items():
+    plt.plot(sorted_z, cumulative_percent, label=f"DMD{dmd}", linewidth=2)
+
+plt.axvline(x=0.5, color='gray', linestyle='--', label='z = 0.5')
+plt.xlabel("Mean z-scored ΔF (0–0.343s post-stimulus)")
+plt.ylabel("Cumulative percentage of ROIs (%)")
+plt.title("Cumulative Distribution of ROI Responses During Stimulus")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
 
 # --- Helper: Summarize traces for selected ROIs ---
 def summarize_by_condition(responses, significant_rois):
@@ -819,50 +877,7 @@ for dmd in [1, 2]:
     
 
 
-for dmd in [1, 2]:
-    print(f"Processing DMD{dmd} with custom ΔF")
 
-    # Use raw fluorescence, not pre-computed DfOverF
-    raw_fluo = np.array(nwb.processing['ophys']['DfOverF'][f"DMD{dmd}_DfOverF"].data)
-    timestamps = np.array(nwb.processing['ophys']['DfOverF'][f"DMD{dmd}_DfOverF"].timestamps)
-
-    # Compute custom ΔF/F using 10th percentile baseline
-    dff = compute_dff_low10(raw_fluo)
-
-    # Extract trial-aligned responses
-    responses, trace_window = extract_oddball_responses(
-        dff, timestamps, oddball_block,
-        onset_delay=onset_delay,
-        window_duration=window_duration,
-        baseline_duration=baseline_duration
-    )
-
-    # Plot per ROI traces
-    n_rois = dff.shape[1]
-    conditions = ['standard', 'static', '45', '90']
-    colors = {'standard': 'gray', 'static': 'black', '45': 'red', '90': 'green'}
-    dmd_dir = output_dir / f"DMD{dmd}"
-    dmd_dir.mkdir(exist_ok=True)
-
-    for roi in range(n_rois):
-        plt.figure(figsize=(12, 4))
-        for cond in conditions:
-            if cond in responses and len(responses[cond]['traces']) > 0:
-                traces = np.stack(responses[cond]['traces'])  # [trials, time, rois]
-                if traces.shape[0] > 0 and roi < traces.shape[2]:
-                    roi_traces = traces[:, :, roi]
-                    mean_trace = np.nanmean(roi_traces, axis=0)
-                    plt.plot(trace_window, mean_trace, label=cond, color=colors.get(cond, 'black'))
-        plt.title(f"DMD{dmd} ROI {roi} – Oddball Responses (custom ΔF/F)")
-        plt.xlabel("Time (s)")
-        plt.ylabel("Z-scored ΔF")
-        plt.axvline(0, color='black', linestyle='--', linewidth=1)
-        plt.axvline(window_duration, color='black', linestyle='--', linewidth=1)
-        plt.legend()
-        plt.tight_layout()
-        plt.savefig(dmd_dir / f"roi_{roi}_oddball_traces.png", dpi=150)
-        plt.close()
-        
         
 def compute_rf_similarity(dmd_id, dff, timestamps, stim_table, roi_masks, onset_delay=0.1, window_duration=0.6):
     # 1. Identify RF trials (non-zero screen position)
