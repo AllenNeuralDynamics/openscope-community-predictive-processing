@@ -59,6 +59,7 @@ Full team information including GitHub handles:
 | Jacob A. Westerberg | j.westerberg@nin.knaw.nl | |
 | Katharina Wilmes | katharina.wilmes@gmail.com | |
 | Yihan Sophy Xiong | yihan.xiong@vanderbilt.edu | |
+| Hajar Almutairi | hajaralm@uw.edu | @HajarAlm |
 
 ## Contributing Laboratories
 
