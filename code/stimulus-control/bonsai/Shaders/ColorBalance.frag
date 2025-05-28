@@ -11,5 +11,5 @@ out vec4 fragColor;
 void main()
 {
     vec4 color = texture(tex, texCoord * scale + shift);
-    fragColor = (color +  colorGain);
+    fragColor = color *  colorGain;
 }
