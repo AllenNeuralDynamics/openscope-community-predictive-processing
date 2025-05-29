@@ -9,6 +9,8 @@
                  xmlns:num="clr-namespace:Bonsai.Numerics;assembly=Bonsai.Numerics"
                  xmlns:io="clr-namespace:Bonsai.IO;assembly=Bonsai.System"
                  xmlns:scr="clr-namespace:Bonsai.Scripting.Expressions;assembly=Bonsai.Scripting.Expressions"
+                 xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
+                 xmlns:mx="clr-namespace:Bonsai.DAQmx;assembly=Bonsai.DAQmx"
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
     <Nodes>
@@ -638,6 +640,52 @@ double.Parse(it[2]) as Y)</scr:Expression>
         <io:Suffix>FileCount</io:Suffix>
         <io:IncludeHeader>false</io:IncludeHeader>
       </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:RenderFrame" />
+      </Expression>
+      <Expression xsi:type="rx:SelectMany">
+        <Name>Frame_flip</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="dsp:FunctionGenerator">
+                <dsp:BufferLength>10</dsp:BufferLength>
+                <dsp:Frequency>100</dsp:Frequency>
+                <dsp:Waveform>Square</dsp:Waveform>
+                <dsp:SampleRate>1000</dsp:SampleRate>
+                <dsp:Amplitude>1</dsp:Amplitude>
+                <dsp:Offset>0</dsp:Offset>
+                <dsp:Phase>180</dsp:Phase>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="mx:DigitalOutput">
+                <mx:SignalSource />
+                <mx:SampleRate>100</mx:SampleRate>
+                <mx:ActiveEdge>Rising</mx:ActiveEdge>
+                <mx:SampleMode>FiniteSamples</mx:SampleMode>
+                <mx:BufferSize>10</mx:BufferSize>
+                <mx:Channels>
+                  <mx:DigitalOutputChannelConfiguration>
+                    <mx:ChannelName>camstim_frame_port</mx:ChannelName>
+                    <mx:Grouping>OneChannelForEachLine</mx:Grouping>
+                    <mx:Lines>Dev1/port0/line0</mx:Lines>
+                  </mx:DigitalOutputChannelConfiguration>
+                </mx:Channels>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+            <Edge From="2" To="3" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
     </Nodes>
     <Edges>
       <Edge From="0" To="1" Label="Source1" />
@@ -721,6 +769,7 @@ double.Parse(it[2]) as Y)</scr:Expression>
       <Edge From="82" To="83" Label="Source1" />
       <Edge From="83" To="85" Label="Source2" />
       <Edge From="84" To="85" Label="Source3" />
+      <Edge From="86" To="87" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
