@@ -11,6 +11,7 @@
                  xmlns:io="clr-namespace:Bonsai.IO;assembly=Bonsai.System"
                  xmlns:scr="clr-namespace:Bonsai.Scripting.Expressions;assembly=Bonsai.Scripting.Expressions"
                  xmlns:dsp="clr-namespace:Bonsai.Dsp;assembly=Bonsai.Dsp"
+                 xmlns:p2="clr-namespace:Aind.Behavior.Amt10Encoder;assembly=Aind.Behavior.Amt10Encoder"
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
     <Nodes>
@@ -725,6 +726,14 @@ double.Parse(it[2]) as Y)</scr:Expression>
             <Edge From="2" To="3" Label="Source1" />
           </Edges>
         </Workflow>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:AMT10EncoderSource">
+          <p2:BaudRate>9600</p2:BaudRate>
+          <p2:Timeout>500</p2:Timeout>
+          <p2:CountsPerRevolution>8192</p2:CountsPerRevolution>
+          <p2:Debug>false</p2:Debug>
+        </Combinator>
       </Expression>
     </Nodes>
     <Edges>
