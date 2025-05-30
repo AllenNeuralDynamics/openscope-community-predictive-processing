@@ -25,6 +25,7 @@ nav:
     - SLAP2: hardware/allen_institute_slap2_hardware.md
     - Neuropixels: hardware/allen_institute_neuropixels_hardware.md
     - Mesoscope: hardware/allen_institute_mesoscope_hardware.md
+    - Wheel Encoder Plugin: hardware/wheel_encoder_plugin.md
   - Templates:
     - Experiment Template: template-files/mouse_experiment_template.md
     - Meeting Template: template-files/meeting_template.md
