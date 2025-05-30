@@ -11,6 +11,7 @@ This document describes the C# wheel encoder plugin, specifically the [**aind-be
 ## Purpose
 
 The primary purpose of this plugin within the Allen Institute's setup is to:
+
 - Provide real-time access to wheel position and speed from AMT10 encoders.
 - Offer a standardized interface within Bonsai workflows for these specific digital wheel encoders.
 - Facilitate synchronization of behavioral data (running) with neural recordings and visual stimuli, which is critical for experiments such as sensory-motor oddballs.
@@ -18,6 +19,7 @@ The primary purpose of this plugin within the Allen Institute's setup is to:
 ## Hardware and Communication Architecture
 
 The system relies on a specific hardware and software chain:
+
 1.  **AMT10 Encoder:** A digital rotary encoder measures the wheel's rotation.
 2.  **LS7366R Quadrature Counter Chip:** This chip interfaces directly with the encoder.
 3.  **Arduino:** An Arduino board, running custom firmware (`LS7366R_quadrature_counter.ino`), reads data from the LS7366R chip.
@@ -30,6 +32,7 @@ This architecture allows C# applications, primarily Bonsai workflows, to access 
 
 - **Repository Link:** [https://github.com/AllenNeuralDynamics/aind-behavior-amt10-encoder](https://github.com/AllenNeuralDynamics/aind-behavior-amt10-encoder)
 - **Key Files/Modules:**
+  
     - `src/Aind.Behavior.Amt10Encoder/`: Contains the C# source code for the Bonsai nodes.
     - `reference/LS7366R_quadrature_counter.ino`: The Arduino firmware.
     - `reference/AMT10_quadrature_encoder.py`: Python reference implementation of the communication protocol.
