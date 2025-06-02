@@ -206,8 +206,8 @@ class BonsaiExperiment(object):
         try:
             if param_file:
                 with open(param_file, 'r') as f:
-                    # Use yaml.load to avoid Unicode issues, just like in ExperimentCode.py
-                    self.params = yaml.load(f)
+                    import json
+                    self.params = json.load(f)
                     logging.info("Loaded parameters from %s" % param_file)
                     
                     # Generate parameter checksum for provenance tracking, like in camstim agent
@@ -217,6 +217,13 @@ class BonsaiExperiment(object):
             else:
                 logging.warning("No parameter file provided, using default parameters. THIS IS NOT THE EXPECTED BEHAVIOR FOR PRODUCTION RUNS")
                 self.params = {}
+            
+            # Set default values for optional parameters
+            if 'bonsai_exe_path' not in self.params:
+                self.params['bonsai_exe_path'] = 'code/stimulus-control/bonsai/Bonsai.exe'
+            
+            if 'bonsai_setup_script' not in self.params:
+                self.params['bonsai_setup_script'] = 'code/stimulus-control/bonsai/setup.cmd'
                 
             # Extract mouse_id and user_id specifically, matching camstim's agent behavior
             self.mouse_id = self.params.get("mouse_id", "")
@@ -487,7 +494,7 @@ class BonsaiExperiment(object):
             thread.start()
 
     def _monitor_bonsai(self):
-        """Monitor the Bonsai process until it completes or timeout occurs"""
+        """Monitor the Bonsai process until it completes"""
         logging.info("Monitoring Bonsai process...")
         
         try:
@@ -497,31 +504,10 @@ class BonsaiExperiment(object):
             except psutil.NoSuchProcess:
                 logging.warning("Process ended unexpectedly")
                 return
-            
-            # Set timeout for the Bonsai process
-            # Default to 30 minutes if stimulus_duration is not specified
-            stimulus_duration = self.params.get('stimulus_duration', 1800)
-            if isinstance(stimulus_duration, (str, unicode)):
-                try:
-                    stimulus_duration = float(stimulus_duration)
-                except (ValueError, TypeError):
-                    stimulus_duration = 1800  # Default 30 minutes
-            
-            # Add a buffer to the timeout (original duration + 60 seconds)
-            timeout_seconds = float(stimulus_duration) + 60.0
-            start_monitoring_time = time.time()
-            logging.info("Setting Bonsai process timeout to %.1f seconds", timeout_seconds)
                 
-            # Wait for Bonsai process to complete, check for runaway memory usage, or timeout
+            # Wait for Bonsai process to complete or check for runaway memory usage
             while self.bonsai_process.poll() is None:
                 try:
-                    # Check if we've exceeded the timeout
-                    elapsed_time = time.time() - start_monitoring_time
-                    if elapsed_time > timeout_seconds:
-                        logging.warning("Bonsai process timeout reached (%.1f seconds). Terminating process.", elapsed_time)
-                        self.kill_process()
-                        break
-                        
                     # Check for memory usage every second
                     vmem = psutil.virtual_memory()
                     if vmem.percent > float(self._percent_used) + KILL_THRESHOLD:
