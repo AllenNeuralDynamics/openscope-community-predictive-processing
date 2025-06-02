@@ -84,21 +84,13 @@ def main():
     
     # Override Bonsai executable path from JSON if provided
     if 'bonsai_exe_path' in params:
-        bonsai_experiment_launcher.BONSAI_EXE_PATH = params['bonsai_exe_path']
-        logging.info("Using Bonsai executable from JSON: {0}".format(params['bonsai_exe_path']))
+        # Don't set the global path here since we're using relative paths now
+        # Let the main launcher handle the path resolution after repository setup
+        logging.info("Bonsai executable will be resolved from relative path: {0}".format(params['bonsai_exe_path']))
     
-    # Build the full workflow path if needed
-    if 'bonsai_path' in params and 'workflow_dir' in params:
-        # If bonsai_path is not absolute, prepend the workflow_dir
-        if not os.path.isabs(params['bonsai_path']):
-            full_workflow_path = os.path.join(params['workflow_dir'], params['bonsai_path'])
-            params['bonsai_path'] = full_workflow_path
-            logging.info("Using workflow: {0}".format(params['bonsai_path']))
-    
-    # Verify workflow exists
-    if 'bonsai_path' in params and not os.path.exists(params['bonsai_path']):
-        logging.error("Workflow file does not exist: {0}".format(params['bonsai_path']))
-        return False
+    # Don't validate workflow existence here since the repository might not be cloned yet
+    # Let the main BonsaiExperiment class handle repository setup and validation
+    logging.info("Workflow will be resolved from relative path: {0}".format(params.get('bonsai_path', 'Not specified')))
     
     # Create an instance of BonsaiExperiment and run the experiment
     try:

@@ -32,6 +32,7 @@ import hashlib
 import atexit
 import psutil
 import threading
+import shutil  # Added for directory operations
 
 # Import Windows-specific modules for process management
 try:
@@ -371,11 +372,14 @@ class BonsaiExperiment(object):
         if not bonsai_path:
             raise ValueError("No Bonsai workflow path specified in parameters")
             
-        # Full path to Bonsai workflow
-        workflow_path = os.path.abspath(os.path.join(
-            os.path.dirname(__file__),
-            "..", "stimulus-control", "src", bonsai_path
-        ))
+        # Convert relative path to absolute path using repository
+        workflow_path = self.get_absolute_path_from_repo(bonsai_path)
+        if not workflow_path:
+            # Fall back to original relative path logic for backward compatibility
+            workflow_path = os.path.abspath(os.path.join(
+                os.path.dirname(__file__),
+                "..", "stimulus-control", "src", bonsai_path
+            ))
         
         if not os.path.exists(workflow_path):
             raise ValueError("Bonsai workflow not found at: %s" % workflow_path)
@@ -784,7 +788,29 @@ class BonsaiExperiment(object):
             # Load parameters
             self.load_parameters(param_file)
             
-            # Start Bonsai
+            # Step 1: Set up repository (clone or update if needed)
+            logging.info("Step 1: Setting up repository...")
+            if not self.setup_repository():
+                logging.error("Repository setup failed")
+                return False
+            
+            # Step 2: Set up Bonsai installation (install if needed)
+            logging.info("Step 2: Setting up Bonsai installation...")
+            if not self.setup_bonsai():
+                logging.error("Bonsai setup failed")
+                return False
+            
+            # Step 3: Update BONSAI_EXE_PATH to use the installed executable
+            global BONSAI_EXE_PATH
+            bonsai_exe_relative_path = self.params.get('bonsai_exe_path')
+            if bonsai_exe_relative_path:
+                bonsai_exe_path = self.get_absolute_path_from_repo(bonsai_exe_relative_path)
+                if bonsai_exe_path and os.path.exists(bonsai_exe_path):
+                    BONSAI_EXE_PATH = bonsai_exe_path
+                    logging.info("Using Bonsai executable: %s" % BONSAI_EXE_PATH)
+            
+            # Step 4: Start Bonsai
+            logging.info("Step 3: Starting Bonsai experiment...")
             self.start_bonsai()
             
             # Check for errors
@@ -820,6 +846,316 @@ class BonsaiExperiment(object):
         logging.info("Received signal to terminate")
         self.stop()
         sys.exit(0)
+
+    def check_git_available(self):
+        """Check if Git is available on the system"""
+        try:
+            subprocess.check_output(['git', '--version'], stderr=subprocess.STDOUT)
+            return True
+        except (subprocess.CalledProcessError, OSError):
+            logging.error("Git is not available on this system. Please install Git to use repository management features.")
+            return False
+    
+    def get_current_commit_hash(self, repo_path):
+        """Get the current commit hash of a Git repository"""
+        try:
+            os.chdir(repo_path)
+            commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'], stderr=subprocess.STDOUT).strip()
+            return commit_hash
+        except (subprocess.CalledProcessError, OSError) as e:
+            logging.warning("Failed to get current commit hash: %s" % e)
+            return None
+    
+    def clone_repository(self, repo_url, local_path):
+        """Clone a Git repository to the specified local path"""
+        try:
+            logging.info("Cloning repository %s to %s" % (repo_url, local_path))
+            
+            # Create parent directory if it doesn't exist
+            parent_dir = os.path.dirname(local_path)
+            if not os.path.exists(parent_dir):
+                os.makedirs(parent_dir)
+            
+            # Clone the repository
+            subprocess.check_call(['git', 'clone', repo_url, local_path], 
+                                stderr=subprocess.STDOUT)
+            logging.info("Repository cloned successfully")
+            return True
+        except subprocess.CalledProcessError as e:
+            logging.error("Failed to clone repository: %s" % e)
+            return False
+        except OSError as e:
+            logging.error("Git command failed: %s" % e)
+            return False
+    
+    def checkout_commit(self, repo_path, commit_hash):
+        """Checkout a specific commit in the repository"""
+        try:
+            original_dir = os.getcwd()
+            os.chdir(repo_path)
+            
+            logging.info("Checking out commit %s" % commit_hash)
+            
+            # Fetch latest changes first
+            subprocess.check_call(['git', 'fetch'], stderr=subprocess.STDOUT)
+            
+            # Checkout the specific commit
+            subprocess.check_call(['git', 'checkout', commit_hash], stderr=subprocess.STDOUT)
+            
+            logging.info("Successfully checked out commit %s" % commit_hash)
+            return True
+            
+        except subprocess.CalledProcessError as e:
+            logging.error("Failed to checkout commit %s: %s" % (commit_hash, e))
+            return False
+        except OSError as e:
+            logging.error("Git command failed: %s" % e)
+            return False
+        finally:
+            os.chdir(original_dir)
+    
+    def setup_repository(self):
+        """Set up the repository based on parameters in the JSON file"""
+        repo_url = self.params.get('repository_url')
+        commit_hash = self.params.get('repository_commit_hash', 'main')
+        local_repo_path = self.params.get('local_repository_path')
+        
+        if not repo_url or not local_repo_path:
+            logging.info("No repository configuration found, skipping repository setup")
+            return True
+        
+        # Check if Git is available
+        if not self.check_git_available():
+            return False
+        
+        logging.info("Setting up repository: %s" % repo_url)
+        logging.info("Target commit: %s" % commit_hash)
+        logging.info("Local path: %s" % local_repo_path)
+        
+        repo_full_path = os.path.join(local_repo_path, "openscope-community-predictive-processing")
+        
+        # Check if repository already exists
+        if os.path.exists(repo_full_path):
+            if os.path.exists(os.path.join(repo_full_path, '.git')):
+                logging.info("Repository already exists, checking commit hash")
+                
+                # Get current commit hash
+                current_hash = self.get_current_commit_hash(repo_full_path)
+                
+                if current_hash and (current_hash.startswith(commit_hash) or commit_hash == 'main'):
+                    logging.info("Repository is already at the correct commit")
+                    return True
+                else:
+                    logging.info("Repository exists but commit hash doesn't match")
+                    logging.info("Current: %s, Required: %s" % (current_hash, commit_hash))
+                    
+                    # Use Git operations to update instead of deleting
+                    if self.update_repository(repo_full_path, commit_hash):
+                        logging.info("Repository updated successfully")
+                        return True
+                    else:
+                        logging.warning("Failed to update repository, will try fresh clone")
+                        # Only try to remove if update failed
+                        if not self.force_remove_directory(repo_full_path):
+                            logging.error("Failed to remove existing repository for fresh clone")
+                            return False
+            else:
+                logging.info("Directory exists but is not a Git repository, removing it")
+                if not self.force_remove_directory(repo_full_path):
+                    logging.error("Failed to remove existing directory")
+                    return False
+        
+        # Clone the repository
+        if not self.clone_repository(repo_url, repo_full_path):
+            return False
+        
+        # Checkout specific commit if not 'main'
+        if commit_hash != 'main':
+            if not self.checkout_commit(repo_full_path, commit_hash):
+                return False
+        
+        logging.info("Repository setup completed successfully")
+        return True
+    
+    def update_repository(self, repo_path, commit_hash):
+        """Update an existing repository to the specified commit using Git operations"""
+        try:
+            original_dir = os.getcwd()
+            os.chdir(repo_path)
+            
+            logging.info("Updating existing repository to commit %s" % commit_hash)
+            
+            # Reset any local changes
+            subprocess.check_call(['git', 'reset', '--hard'], stderr=subprocess.STDOUT)
+            
+            # Fetch latest changes
+            subprocess.check_call(['git', 'fetch', 'origin'], stderr=subprocess.STDOUT)
+            
+            # Checkout the target commit/branch
+            if commit_hash == 'main':
+                subprocess.check_call(['git', 'checkout', 'main'], stderr=subprocess.STDOUT)
+                subprocess.check_call(['git', 'pull', 'origin', 'main'], stderr=subprocess.STDOUT)
+            else:
+                subprocess.check_call(['git', 'checkout', commit_hash], stderr=subprocess.STDOUT)
+            
+            logging.info("Repository updated successfully")
+            return True
+            
+        except subprocess.CalledProcessError as e:
+            logging.error("Failed to update repository: %s" % e)
+            return False
+        except OSError as e:
+            logging.error("Git command failed: %s" % e)
+            return False
+        finally:
+            os.chdir(original_dir)
+    
+    def force_remove_directory(self, path):
+        """Force remove a directory, handling Windows file locks"""
+        import stat
+        
+        def handle_remove_readonly(func, path, exc):
+            """Error handler for Windows readonly files"""
+            if os.path.exists(path):
+                os.chmod(path, stat.S_IWRITE)
+                func(path)
+        
+        try:
+            logging.info("Removing directory: %s" % path)
+            shutil.rmtree(path, onerror=handle_remove_readonly)
+            return True
+        except Exception as e:
+            logging.error("Failed to remove directory %s: %s" % (path, e))
+            return False
+    
+    def check_bonsai_installation(self):
+        """Check if Bonsai is installed at the expected location"""
+        bonsai_exe_relative_path = self.params.get('bonsai_exe_path')
+        
+        if not bonsai_exe_relative_path:
+            logging.error("No Bonsai executable path specified in parameters")
+            return False
+        
+        # Convert relative path to absolute path
+        bonsai_exe_path = self.get_absolute_path_from_repo(bonsai_exe_relative_path)
+        if not bonsai_exe_path:
+            logging.error("Failed to construct absolute path for Bonsai executable")
+            return False
+        
+        if os.path.exists(bonsai_exe_path):
+            logging.info("Bonsai executable found at: %s" % bonsai_exe_path)
+            return True
+        else:
+            logging.info("Bonsai executable not found at: %s" % bonsai_exe_path)
+            return False
+    
+    def install_bonsai(self):
+        """Install Bonsai using the setup script from the repository"""
+        setup_script_relative_path = self.params.get('bonsai_setup_script')
+        
+        if not setup_script_relative_path:
+            logging.error("No Bonsai setup script path specified in parameters")
+            return False
+        
+        # Convert relative path to absolute path
+        setup_script_path = self.get_absolute_path_from_repo(setup_script_relative_path)
+        if not setup_script_path:
+            logging.error("Failed to construct absolute path for Bonsai setup script")
+            return False
+        
+        if not os.path.exists(setup_script_path):
+            logging.error("Bonsai setup script not found at: %s" % setup_script_path)
+            return False
+        
+        logging.info("Installing Bonsai using setup script: %s" % setup_script_path)
+        
+        try:
+            # Change to the directory containing the setup script
+            script_dir = os.path.dirname(setup_script_path)
+            original_dir = os.getcwd()
+            os.chdir(script_dir)
+            
+            # Execute the setup script
+            process = subprocess.Popen(
+                [setup_script_path],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                universal_newlines=True,
+                shell=True
+            )
+            
+            # Monitor the installation process
+            logging.info("Bonsai installation started...")
+            stdout_lines = []
+            stderr_lines = []
+            
+            # Read output in real-time
+            while True:
+                output = process.stdout.readline()
+                if output == '' and process.poll() is not None:
+                    break
+                if output:
+                    stdout_lines.append(output.strip())
+                    logging.info("Setup: %s" % output.strip())
+            
+            # Get any remaining stderr
+            stderr_output = process.stderr.read()
+            if stderr_output:
+                stderr_lines.extend(stderr_output.split('\n'))
+                for line in stderr_lines:
+                    if line.strip():
+                        logging.warning("Setup stderr: %s" % line.strip())
+            
+            # Wait for process to complete
+            return_code = process.wait()
+            
+            if return_code == 0:
+                logging.info("Bonsai installation completed successfully")
+                
+                # Verify installation
+                if self.check_bonsai_installation():
+                    logging.info("Bonsai installation verified")
+                    return True
+                else:
+                    logging.error("Bonsai installation verification failed")
+                    return False
+            else:
+                logging.error("Bonsai installation failed with return code: %s" % return_code)
+                return False
+                
+        except Exception as e:
+            logging.error("Failed to execute Bonsai setup script: %s" % e)
+            return False
+        finally:
+            os.chdir(original_dir)
+    
+    def setup_bonsai(self):
+        """Set up Bonsai installation if needed"""
+        # Check if Bonsai is already installed
+        if self.check_bonsai_installation():
+            logging.info("Bonsai is already installed")
+            return True
+        
+        # Install Bonsai
+        if not self.install_bonsai():
+            logging.error("Failed to install Bonsai")
+            return False
+        
+        return True
+
+    def get_repository_path(self):
+        """Get the full path to the cloned repository"""
+        local_repo_path = self.params.get('local_repository_path')
+        if not local_repo_path:
+            return None
+        return os.path.join(local_repo_path, "openscope-community-predictive-processing")
+    
+    def get_absolute_path_from_repo(self, relative_path):
+        """Convert a relative path within the repository to an absolute path"""
+        repo_path = self.get_repository_path()
+        if not repo_path or not relative_path:
+            return None
+        return os.path.join(repo_path, relative_path)
 
 def main():
     """Main entry point"""
