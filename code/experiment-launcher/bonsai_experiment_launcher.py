@@ -243,6 +243,10 @@ class BonsaiExperiment(object):
                 
             # Log mouse and user ID
             logging.info("Using mouse_id: %s, user_id: %s" % (self.mouse_id, self.user_id))
+            
+            # Save the merged configuration to a file for Bonsai to access
+            if param_file:
+                self.save_config_file(param_file)
                 
         except Exception as e:
             logging.error("Failed to load parameters: %s" % e)
@@ -285,9 +289,6 @@ class BonsaiExperiment(object):
             self.load_config_section("Display", config)
             self.load_config_section("Datastream", config)
             
-            # Override with any parameters specified in JSON
-            self.merge_params_with_config()
-            
         except Exception as e:
             logging.warning("Error reading config file: %s" % e)
     
@@ -317,19 +318,65 @@ class BonsaiExperiment(object):
         except Exception as e:
             logging.warning("Failed to load config section %s: %s" % (section, e))
     
-    def merge_params_with_config(self):
-        """Merge JSON parameters with config file values"""
-        for section, values in self.config.items():
-            for key, value in values.items():
-                # If the key exists in params, use that value instead
-                if key in self.params:
-                    self.config[section][key] = self.params[key]
-                    
-                # Also add any config values to params if they don't already exist
-                if key not in self.params:
-                    self.params[key] = value
-                    
-        logging.info("Merged parameters with configuration")
+    def save_config_file(self, param_file_path):
+        """
+        Save the configuration data to a JSON file in the same directory
+        as the input parameter file, with '_config' appended to the filename.
+        
+        The saved file contains three distinct sections:
+        - params: stimulus parameters (can change between experiments)
+        - config: hardware configurations associated with the rig (don't change)
+        - metadata: session-specific parameters (change all the time)
+        
+        Args:
+            param_file_path (str): Path to the original parameter file
+        """
+        if not param_file_path:
+            logging.warning("No parameter file path provided, cannot save config file")
+            return None
+            
+        try:
+            # Parse the original filename and create the new config filename
+            param_dir = os.path.dirname(param_file_path)
+            param_basename = os.path.basename(param_file_path)
+            param_name, param_ext = os.path.splitext(param_basename)
+            
+            # Create the config filename with '_config' suffix
+            config_filename = param_name + "_config" + param_ext
+            config_file_path = os.path.join(param_dir, config_filename)
+            
+            # Prepare the data to save with clear separation:
+            # - session_params: stimulus parameters (can change between experiments)
+            # - hardware_config: hardware configurations associated with the rig (don't change)
+            # - session_metadata: session-specific parameters (change all the time)
+            config_data = {
+                'session_params': self.params,
+                'hardware_config': self.config,
+                'session_metadata': {
+                    'generated_from': param_file_path,
+                    'generation_time': datetime.datetime.now().isoformat(),
+                    'session_uuid': self.session_uuid,
+                    'mouse_id': self.mouse_id,
+                    'user_id': self.user_id,
+                    'platform_info': self.platform_info
+                }
+            }
+            
+            # Save to JSON file
+            import json
+            with open(config_file_path, 'w') as f:
+                json.dump(config_data, f, indent=2, default=str)
+            
+            logging.info("Saved configuration with separate params, config, and metadata to: %s" % config_file_path)
+            
+            # Also store the config file path in params so Bonsai can access it
+            self.params['config_file_path'] = config_file_path
+            
+            return config_file_path
+            
+        except Exception as e:
+            logging.error("Failed to save config file: %s" % e)
+            return None
     
     def setup_output_path(self, output_path=None):
         """
@@ -402,8 +449,11 @@ class BonsaiExperiment(object):
         args.append("--start")
         args.append("--no-editor")
         
-        # Do NOT pass any parameters to avoid property errors
-        # The workflow doesn't have properties like 'stimulus_duration' defined
+        # Pass the config file path to Bonsai if available
+        config_file_path = self.params.get('config_file_path')
+        if config_file_path and os.path.exists(config_file_path):
+            args.extend(["--property", "ConfigFilePath=%s" % config_file_path])
+            logging.info("Passing config file to Bonsai: %s" % config_file_path)
         
         # Log the complete command
         logging.info("Command: %s" % " ".join(args))
