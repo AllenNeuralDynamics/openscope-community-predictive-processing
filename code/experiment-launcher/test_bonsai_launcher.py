@@ -18,28 +18,11 @@ import time
 import platform
 import argparse
 
-# Set up advanced logging configuration
-log_formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-# Create a logs directory if it doesn't exist
-log_dir = "logs"
-if not os.path.exists(log_dir):  # Python 2.7 compatible way to check directory
-    os.makedirs(log_dir)  # Using os.makedirs instead of Path.mkdir
-
-# Create file handler
-log_file = os.path.join(log_dir, "bonsai_launcher_{0}.log".format(datetime.datetime.now().strftime('%Y%m%d_%H%M%S')))
-file_handler = logging.FileHandler(log_file)  # No need to convert Path to string
-file_handler.setFormatter(log_formatter)
-
-# Create console handler
-console_handler = logging.StreamHandler()
-console_handler.setFormatter(log_formatter)
-
-# Configure root logger
-logger = logging.getLogger()
-logger.setLevel(logging.INFO)
-logger.addHandler(file_handler)
-logger.addHandler(console_handler)
+# Simple console-only logging setup
+logging.basicConfig(
+    level=logging.WARNING,  # Only show warnings and errors
+    format='%(levelname)s: %(message)s'
+)
 
 # Now import the BonsaiExperiment class
 import bonsai_experiment_launcher
@@ -57,11 +40,10 @@ def main():
     Test the BonsaiExperiment class using parameters from JSON file.
     """
     start_time = time.time()
-    logging.info("="*80)
-    logging.info("Starting Bonsai Experiment Test at {0}".format(datetime.datetime.now().isoformat()))
-    logging.info("Platform: {0}".format(platform.platform()))
-    logging.info("Python version: {0}".format(platform.python_version()))
-    logging.info("="*80)
+    print("=" * 60)
+    print("Bonsai Experiment Launcher Test")
+    print("Started at: {0}".format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    print("=" * 60)
     
     # Parse command-line arguments
     args = parse_arguments()
@@ -71,36 +53,38 @@ def main():
     
     # Check if the parameter file exists
     if not os.path.exists(param_file_path):
-        logging.error("Parameter file does not exist: {0}".format(param_file_path))
+        print("ERROR: Parameter file does not exist: {0}".format(param_file_path))
         return False
     
-    logging.info("Using parameter file: {0}".format(param_file_path))
+    print("Using parameter file: {0}".format(args.param_file))
     
     # Load the parameters from JSON file
     with open(param_file_path, 'r') as f:
         params = json.load(f)
     
-    logging.info("Loaded parameters from JSON file")
+    print("Repository: {0}".format(params.get('repository_url', 'N/A')))
+    print("Workflow: {0}".format(params.get('bonsai_path', 'N/A')))
+    print("-" * 60)
 
     # Create an instance of BonsaiExperiment and run the experiment
     try:
         experiment = BonsaiExperiment()
         success = experiment.run(param_file_path)
         
+        print("-" * 60)
         if success:
-            logging.info("Experiment completed successfully!")
+            print("EXPERIMENT COMPLETED SUCCESSFULLY!")
         else:
-            logging.error("Experiment failed!")
+            print("EXPERIMENT FAILED!")
             
     except Exception as e:
-        logging.exception("Exception running experiment: {0}".format(e))
+        print("EXCEPTION: {0}".format(e))
         return False
-    finally:
-        logging.info("Cleaning up resources...")
     
     # Calculate elapsed time
     elapsed_time = time.time() - start_time
-    logging.info("Test completed in %.2f seconds" % elapsed_time)
+    print("Total time: {0:.1f} seconds".format(elapsed_time))
+    print("=" * 60)
     return success
 
 if __name__ == "__main__":
