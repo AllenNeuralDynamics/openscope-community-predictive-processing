@@ -13,16 +13,13 @@ The JSON file should contain experiment parameters that will be passed to Bonsai
 
 import os
 import sys
-import json
 import time
 import signal
 import logging
 import datetime
 import platform
 import subprocess
-import argparse
-import yaml  # Using yaml for loading to avoid Unicode issues, like in ExperimentCode.py
-from collections import OrderedDict
+import yaml  
 import socket
 import uuid
 import cPickle as pickle
