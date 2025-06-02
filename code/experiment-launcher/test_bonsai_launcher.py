@@ -81,17 +81,7 @@ def main():
         params = json.load(f)
     
     logging.info("Loaded parameters from JSON file")
-    
-    # Override Bonsai executable path from JSON if provided
-    if 'bonsai_exe_path' in params:
-        # Don't set the global path here since we're using relative paths now
-        # Let the main launcher handle the path resolution after repository setup
-        logging.info("Bonsai executable will be resolved from relative path: {0}".format(params['bonsai_exe_path']))
-    
-    # Don't validate workflow existence here since the repository might not be cloned yet
-    # Let the main BonsaiExperiment class handle repository setup and validation
-    logging.info("Workflow will be resolved from relative path: {0}".format(params.get('bonsai_path', 'Not specified')))
-    
+
     # Create an instance of BonsaiExperiment and run the experiment
     try:
         experiment = BonsaiExperiment()
