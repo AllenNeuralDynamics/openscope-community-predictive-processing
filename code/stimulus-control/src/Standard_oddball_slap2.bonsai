@@ -107,7 +107,7 @@
         <Angle>0</Angle>
         <ColorR>0</ColorR>
         <ColorG>0</ColorG>
-        <ColorB>0</ColorB>
+        <ColorB>1</ColorB>
         <ColorA>1</ColorA>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
@@ -168,16 +168,18 @@
       <Expression xsi:type="ExternalizedMapping">
         <Property Name="PortName" />
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="harp:Device">
-          <harp:OperationMode>Active</harp:OperationMode>
-          <harp:OperationLed>On</harp:OperationLed>
-          <harp:DumpRegisters>true</harp:DumpRegisters>
-          <harp:VisualIndicators>On</harp:VisualIndicators>
-          <harp:Heartbeat>Enabled</harp:Heartbeat>
-          <harp:IgnoreErrors>false</harp:IgnoreErrors>
-          <harp:PortName>COM3</harp:PortName>
-        </Combinator>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="harp:Device">
+            <harp:OperationMode>Active</harp:OperationMode>
+            <harp:OperationLed>On</harp:OperationLed>
+            <harp:DumpRegisters>true</harp:DumpRegisters>
+            <harp:VisualIndicators>On</harp:VisualIndicators>
+            <harp:Heartbeat>Enabled</harp:Heartbeat>
+            <harp:IgnoreErrors>false</harp:IgnoreErrors>
+            <harp:PortName>COM3</harp:PortName>
+          </Combinator>
+        </Builder>
       </Expression>
       <Expression xsi:type="rx:PublishSubject">
         <Name>BehaviorEvents</Name>
@@ -1164,7 +1166,7 @@ double.Parse(it[2]) as Y)</scr:Expression>
                     <SpatialFrequency>0.04</SpatialFrequency>
                     <TemporalFrequency>2</TemporalFrequency>
                     <Phase>0</Phase>
-                    <Angle>135</Angle>
+                    <Angle>90</Angle>
                     <SquareWave>false</SquareWave>
                     <Contrast>1</Contrast>
                     <DutyCycle xsi:nil="true" />
@@ -1366,7 +1368,7 @@ double.Parse(it[2]) as Y)</scr:Expression>
         <Append>false</Append>
         <Overwrite>true</Overwrite>
         <Suffix>None</Suffix>
-        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250507T165651/orientations_logger.csv</FileName>
+        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250602T114350/orientations_logger.csv</FileName>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
         <Format>Frame</Format>
@@ -1404,16 +1406,18 @@ double.Parse(it[2]) as Y)</scr:Expression>
         <Text><![CDATA[]]></Text>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250507T165651/orientations_orientations.csv</io:FileName>
+        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250602T114350/orientations_orientations.csv</io:FileName>
         <io:Append>true</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>FileCount</io:Suffix>
         <io:IncludeHeader>false</io:IncludeHeader>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="wie:KeyDown">
-          <wie:Filter>Space</wie:Filter>
-          <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+        <Combinator xsi:type="gl:RenderFrame" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
         </Combinator>
       </Expression>
       <Expression xsi:type="rx:PublishSubject">
@@ -1432,20 +1436,26 @@ double.Parse(it[2]) as Y)</scr:Expression>
       <Expression xsi:type="rx:PublishSubject">
         <Name>StartGratings</Name>
       </Expression>
-      <Expression xsi:type="IncludeWorkflow" Path="Extensions\behavior_camera.bonsai">
-        <Format>{0}/face_video.avi</Format>
-        <Index>0</Index>
-        <EventName>FaceCamera</EventName>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="IncludeWorkflow" Path="Extensions\behavior_camera.bonsai">
+          <Format>{0}/face_video.avi</Format>
+          <Index>0</Index>
+          <EventName>FaceCamera</EventName>
+        </Builder>
       </Expression>
-      <Expression xsi:type="IncludeWorkflow" Path="Extensions\behavior_camera.bonsai">
-        <Format>{0}/body_video.avi</Format>
-        <Index>1</Index>
-        <EventName>BodyCamera</EventName>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="IncludeWorkflow" Path="Extensions\behavior_camera.bonsai">
+          <Format>{0}/body_video.avi</Format>
+          <Index>1</Index>
+          <EventName>BodyCamera</EventName>
+        </Builder>
       </Expression>
-      <Expression xsi:type="IncludeWorkflow" Path="Extensions\behavior_camera.bonsai">
-        <Format>{0}/eye_video.avi</Format>
-        <Index>2</Index>
-        <EventName>EyeCamera</EventName>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="IncludeWorkflow" Path="Extensions\behavior_camera.bonsai">
+          <Format>{0}/eye_video.avi</Format>
+          <Index>2</Index>
+          <EventName>EyeCamera</EventName>
+        </Builder>
       </Expression>
     </Nodes>
     <Edges>
@@ -1551,6 +1561,7 @@ double.Parse(it[2]) as Y)</scr:Expression>
       <Edge From="109" To="110" Label="Source1" />
       <Edge From="110" To="111" Label="Source1" />
       <Edge From="111" To="112" Label="Source1" />
+      <Edge From="112" To="113" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
