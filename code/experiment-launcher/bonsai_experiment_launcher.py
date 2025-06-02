@@ -809,8 +809,15 @@ class BonsaiExperiment(object):
                     BONSAI_EXE_PATH = bonsai_exe_path
                     logging.info("Using Bonsai executable: %s" % BONSAI_EXE_PATH)
             
-            # Step 4: Start Bonsai
-            logging.info("Step 3: Starting Bonsai experiment...")
+            # Step 4: Verify Bonsai packages match repository requirements
+            logging.info("Step 3: Verifying Bonsai package installation...")
+            if not self.verify_bonsai_packages():
+                logging.error("Bonsai package verification failed")
+                logging.error("Please run your setup.cmd script to install/update the required packages")
+                return False
+            
+            # Step 5: Start Bonsai
+            logging.info("Step 4: Starting Bonsai experiment...")
             self.start_bonsai()
             
             # Check for errors
@@ -859,12 +866,62 @@ class BonsaiExperiment(object):
     def get_current_commit_hash(self, repo_path):
         """Get the current commit hash of a Git repository"""
         try:
+            original_dir = os.getcwd()
             os.chdir(repo_path)
             commit_hash = subprocess.check_output(['git', 'rev-parse', 'HEAD'], stderr=subprocess.STDOUT).strip()
             return commit_hash
         except (subprocess.CalledProcessError, OSError) as e:
             logging.warning("Failed to get current commit hash: %s" % e)
             return None
+        finally:
+            os.chdir(original_dir)
+    
+    def get_remote_commit_hash(self, repo_path, branch='main'):
+        """Get the latest commit hash from the remote repository for a specific branch"""
+        try:
+            original_dir = os.getcwd()
+            os.chdir(repo_path)
+            
+            # Fetch latest changes from remote
+            subprocess.check_call(['git', 'fetch', 'origin'], stderr=subprocess.STDOUT)
+            
+            # Get the commit hash of the remote branch
+            remote_commit = subprocess.check_output(['git', 'rev-parse', 'origin/%s' % branch], stderr=subprocess.STDOUT).strip()
+            return remote_commit
+        except (subprocess.CalledProcessError, OSError) as e:
+            logging.warning("Failed to get remote commit hash for %s: %s" % (branch, e))
+            return None
+        finally:
+            os.chdir(original_dir)
+    
+    def is_on_latest_commit(self, repo_path, target_commit):
+        """Check if the repository is on the latest commit for the specified target"""
+        if target_commit == 'main':
+            # For main branch, check against remote origin/main
+            current_hash = self.get_current_commit_hash(repo_path)
+            remote_hash = self.get_remote_commit_hash(repo_path, 'main')
+            
+            if current_hash and remote_hash:
+                if current_hash == remote_hash:
+                    logging.info("Repository is on the latest commit of main branch")
+                    return True
+                else:
+                    logging.info("Repository is not on the latest commit")
+                    logging.info("Current: %s, Latest remote: %s" % (current_hash[:8], remote_hash[:8]))
+                    return False
+            else:
+                logging.warning("Could not compare commit hashes")
+                return False
+        else:
+            # For specific commit hash, check if current commit matches
+            current_hash = self.get_current_commit_hash(repo_path)
+            if current_hash and current_hash.startswith(target_commit):
+                logging.info("Repository is at the specified commit: %s" % target_commit)
+                return True
+            else:
+                logging.info("Repository is not at the specified commit")
+                logging.info("Current: %s, Required: %s" % (current_hash[:8] if current_hash else "unknown", target_commit))
+                return False
     
     def clone_repository(self, repo_url, local_path):
         """Clone a Git repository to the specified local path"""
@@ -939,15 +996,12 @@ class BonsaiExperiment(object):
             if os.path.exists(os.path.join(repo_full_path, '.git')):
                 logging.info("Repository already exists, checking commit hash")
                 
-                # Get current commit hash
-                current_hash = self.get_current_commit_hash(repo_full_path)
-                
-                if current_hash and (current_hash.startswith(commit_hash) or commit_hash == 'main'):
+                # Use the new commit checking logic
+                if self.is_on_latest_commit(repo_full_path, commit_hash):
                     logging.info("Repository is already at the correct commit")
                     return True
                 else:
-                    logging.info("Repository exists but commit hash doesn't match")
-                    logging.info("Current: %s, Required: %s" % (current_hash, commit_hash))
+                    logging.info("Repository needs to be updated")
                     
                     # Use Git operations to update instead of deleting
                     if self.update_repository(repo_full_path, commit_hash):
@@ -1157,21 +1211,268 @@ class BonsaiExperiment(object):
             return None
         return os.path.join(repo_path, relative_path)
 
-def main():
-    """Main entry point"""
-    # Use the same argument parsing approach as ExperimentCode.py
-    parser = argparse.ArgumentParser("bonsai_experiment_launcher")
-    # Use nargs="?" to make the argument optional, just like in ExperimentCode.py
-    parser.add_argument("json_path", nargs="?", type=str, default="")
-    # Parse only known args to ignore other arguments that might be needed by camstim
-    args, _ = parser.parse_known_args()
+    def parse_bonsai_config(self, config_path):
+        """Parse a Bonsai.config XML file to extract package requirements"""
+        import xml.etree.ElementTree as ET
+        
+        try:
+            tree = ET.parse(config_path)
+            root = tree.getroot()
+            
+            required_packages = {}
+            packages_element = root.find('Packages')
+            
+            if packages_element is not None:
+                for package in packages_element.findall('Package'):
+                    package_id = package.get('id')
+                    package_version = package.get('version')
+                    if package_id and package_version:
+                        required_packages[package_id] = package_version
+            
+            logging.info("Found %d required packages in Bonsai.config" % len(required_packages))
+            return required_packages
+            
+        except Exception as e:
+            logging.error("Failed to parse Bonsai.config file %s: %s" % (config_path, e))
+            return {}
     
-    experiment = BonsaiExperiment()
-    # Pass the json_path to run, which might be an empty string if not provided
-    success = experiment.run(args.json_path)
+    def get_installed_bonsai_packages(self, bonsai_install_path):
+        """Get list of currently installed Bonsai packages and their versions"""
+        packages_dir = os.path.join(bonsai_install_path, "Packages")
+        installed_packages = {}
+        
+        if not os.path.exists(packages_dir):
+            logging.warning("Bonsai packages directory not found: %s" % packages_dir)
+            return installed_packages
+        
+        try:
+            # Look for package directories in the format: PackageName.Version
+            for item in os.listdir(packages_dir):
+                package_path = os.path.join(packages_dir, item)
+                if os.path.isdir(package_path):
+                    # Parse package name and version from directory name
+                    # Format is typically: PackageName.Version
+                    parts = item.split('.')
+                    if len(parts) >= 2:
+                        # Find where version starts (first part that looks like a version)
+                        version_start_idx = -1
+                        for i, part in enumerate(parts):
+                            if part.isdigit() or (len(part) > 0 and part[0].isdigit()):
+                                version_start_idx = i
+                                break
+                        
+                        if version_start_idx > 0:
+                            package_name = '.'.join(parts[:version_start_idx])
+                            package_version = '.'.join(parts[version_start_idx:])
+                            installed_packages[package_name] = package_version
+                            
+            logging.info("Found %d installed Bonsai packages" % len(installed_packages))
+            return installed_packages
+            
+        except Exception as e:
+            logging.error("Failed to scan installed Bonsai packages: %s" % e)
+            return {}
     
-    if not success:
-        sys.exit(1)
-
-if __name__ == "__main__":
-    main()
+    def normalize_version(self, version):
+        """Normalize version strings for comparison (e.g., '2.0.7.0' -> '2.0.7')"""
+        if not version:
+            return version
+        
+        # Split version into parts
+        parts = version.split('.')
+        
+        # Remove trailing zeros
+        while len(parts) > 1 and parts[-1] == '0':
+            parts.pop()
+        
+        return '.'.join(parts)
+    
+    def versions_match(self, required_version, installed_version):
+        """Check if two version strings are compatible"""
+        if not required_version or not installed_version:
+            return False
+        
+        # Normalize both versions (remove trailing .0)
+        norm_required = self.normalize_version(required_version)
+        norm_installed = self.normalize_version(installed_version)
+        
+        return norm_required == norm_installed
+    
+    def verify_bonsai_packages(self, auto_reinstall=True):
+        """Verify that installed Bonsai packages match the requirements in the repository"""
+        # Get the Bonsai config file from the repository
+        bonsai_config_path = self.get_absolute_path_from_repo("code/stimulus-control/bonsai/Bonsai.config")
+        if not bonsai_config_path or not os.path.exists(bonsai_config_path):
+            logging.warning("Bonsai.config file not found in repository, skipping package verification")
+            return True
+        
+        # Parse required packages from config
+        required_packages = self.parse_bonsai_config(bonsai_config_path)
+        if not required_packages:
+            logging.warning("No required packages found in Bonsai.config, skipping verification")
+            return True
+        
+        # Get Bonsai installation path
+        bonsai_exe_path = self.get_absolute_path_from_repo(self.params.get('bonsai_exe_path', ''))
+        if not bonsai_exe_path:
+            logging.error("Cannot determine Bonsai installation path")
+            return False
+        
+        bonsai_install_dir = os.path.dirname(bonsai_exe_path)
+        
+        # Get currently installed packages
+        installed_packages = self.get_installed_bonsai_packages(bonsai_install_dir)
+        
+        # Compare required vs installed packages
+        missing_packages = []
+        version_mismatches = []
+        
+        for package_name, required_version in required_packages.items():
+            if package_name not in installed_packages:
+                missing_packages.append((package_name, required_version))
+            elif not self.versions_match(required_version, installed_packages[package_name]):
+                version_mismatches.append((
+                    package_name, 
+                    required_version, 
+                    installed_packages[package_name]
+                ))
+        
+        # Report results
+        if not missing_packages and not version_mismatches:
+            logging.info("All Bonsai packages are correctly installed and up to date")
+            return True
+        else:
+            logging.warning("Bonsai package verification failed:")
+            
+            if missing_packages:
+                logging.warning("Missing packages (%d):" % len(missing_packages))
+                for package_name, required_version in missing_packages[:10]:  # Show first 10
+                    logging.warning("  - %s (version %s)" % (package_name, required_version))
+                if len(missing_packages) > 10:
+                    logging.warning("  ... and %d more" % (len(missing_packages) - 10))
+            
+            if version_mismatches:
+                logging.warning("Version mismatches (%d):" % len(version_mismatches))
+                for package_name, required, installed in version_mismatches[:10]:  # Show first 10
+                    logging.warning("  - %s: required %s, installed %s" % (package_name, required, installed))
+                if len(version_mismatches) > 10:
+                    logging.warning("  ... and %d more" % (len(version_mismatches) - 10))
+            
+            # Auto-reinstall if enabled
+            if auto_reinstall:
+                logging.info("Auto-reinstall enabled, attempting to fix package mismatches...")
+                if self.reinstall_bonsai_packages():
+                    logging.info("Bonsai packages reinstalled successfully, re-verifying...")
+                    return self.verify_bonsai_packages(auto_reinstall=False)  # Prevent infinite loop
+                else:
+                    logging.error("Failed to reinstall Bonsai packages")
+                    return False
+            else:
+                logging.warning("Run your setup.cmd script to install/update the required packages")
+                return False
+    
+    def reinstall_bonsai_packages(self):
+        """Reinstall Bonsai packages using the setup.cmd script from the repository"""
+        try:
+            # Find the setup script in the repository
+            setup_script_relative_path = self.params.get('bonsai_setup_script')
+            if not setup_script_relative_path:
+                # Try common setup script names if not specified
+                possible_scripts = [
+                    'code/stimulus-control/bonsai/setup.cmd',
+                    'code/stimulus-control/setup.cmd',
+                    'setup.cmd'
+                ]
+                
+                for script_path in possible_scripts:
+                    full_path = self.get_absolute_path_from_repo(script_path)
+                    if full_path and os.path.exists(full_path):
+                        setup_script_relative_path = script_path
+                        logging.info("Found setup script at: %s" % script_path)
+                        break
+                
+                if not setup_script_relative_path:
+                    logging.error("No setup script found. Please specify 'bonsai_setup_script' in parameters or ensure setup.cmd exists in the repository")
+                    return False
+            
+            # Convert relative path to absolute path
+            setup_script_path = self.get_absolute_path_from_repo(setup_script_relative_path)
+            if not setup_script_path or not os.path.exists(setup_script_path):
+                logging.error("Setup script not found at: %s" % setup_script_path)
+                return False
+            
+            logging.info("Reinstalling Bonsai packages using setup script: %s" % setup_script_path)
+            
+            # Get Bonsai installation path for cleanup
+            bonsai_exe_path = self.get_absolute_path_from_repo(self.params.get('bonsai_exe_path', ''))
+            if bonsai_exe_path:
+                bonsai_install_dir = os.path.dirname(bonsai_exe_path)
+                packages_dir = os.path.join(bonsai_install_dir, "Packages")
+                
+                # Clean up existing packages directory to force fresh install
+                if os.path.exists(packages_dir):
+                    logging.info("Removing existing packages directory for fresh install: %s" % packages_dir)
+                    try:
+                        self.force_remove_directory(packages_dir)
+                        logging.info("Successfully removed existing packages directory")
+                    except Exception as e:
+                        logging.warning("Could not remove packages directory: %s. Setup script will attempt to update." % e)
+            
+            # Change to the directory containing the setup script
+            script_dir = os.path.dirname(setup_script_path)
+            original_dir = os.getcwd()
+            os.chdir(script_dir)
+            
+            try:
+                # Execute the setup script
+                logging.info("Running setup script to reinstall packages...")
+                
+                # Use shell=True on Windows for .cmd files
+                process = subprocess.Popen(
+                    [setup_script_path],
+                    stdout=subprocess.PIPE,
+                    stderr=subprocess.PIPE,
+                    universal_newlines=True,
+                    shell=True
+                )
+                
+                # Monitor the installation process
+                stdout_lines = []
+                stderr_lines = []
+                
+                # Read output in real-time
+                while True:
+                    output = process.stdout.readline()
+                    if output == '' and process.poll() is not None:
+                        break
+                    if output:
+                        line = output.strip()
+                        stdout_lines.append(line)
+                        logging.info("Setup: %s" % line)
+                
+                # Get any remaining stderr
+                stderr_output = process.stderr.read()
+                if stderr_output:
+                    stderr_lines.extend(stderr_output.strip().split('\n'))
+                    for line in stderr_lines:
+                        if line.strip():
+                            logging.warning("Setup stderr: %s" % line.strip())
+            
+                # Wait for process to complete
+                return_code = process.wait()
+                
+                if return_code == 0:
+                    logging.info("Setup script completed successfully")
+                    return True
+                else:
+                    logging.error("Setup script failed with return code: %s" % return_code)
+                    if stderr_lines:
+                        logging.error("Setup script errors: %s" % '\n'.join(stderr_lines))
+                    return False
+                    
+            finally:
+                os.chdir(original_dir)
+                
+        except Exception as e:
+            logging.error("Failed to run setup script: %s" % e)
+            return False
