@@ -1,0 +1,10 @@
+{
+    "repository_url": "https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing.git",
+    "repository_commit_hash": "main",
+    "local_repository_path": "C:/BonsaiDataPredictiveProcessingTest",
+    "bonsai_path": "code/stimulus-control/src/Standard_oddball_slap2.bonsai",
+    "bonsai_exe_path": "code/stimulus-control/bonsai/Bonsai.exe",
+    "bonsai_setup_script": "code/stimulus-control/bonsai/setup.cmd",
+    "mouse_id": "test_mouse",
+    "user_id": "test_user"
+}
