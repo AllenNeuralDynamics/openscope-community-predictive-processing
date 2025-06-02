@@ -156,7 +156,7 @@ python test_bonsai_launcher.py --param-file my_params.json
 
 ### Integration with Camstim Agent
 
-The launcher is designed to be executed by the **camstim agent** - Allen Institute's internal experiment management system. The integration works as follows:
+The launcher is designed to be executed by the **camstim agent** - one of the Allen Institute's internal session management system. The integration works as follows:
 
 #### Agent-Based Execution
 - **Agent receives**: A script path and YAML parameter file from the experiment scheduling system
