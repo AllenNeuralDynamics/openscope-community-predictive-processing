@@ -16,63 +16,61 @@ The launcher provides a unified interface for running Bonsai experiments with th
 
 ### Core Components
 
-1. **BonsaiExperiment Class** (`bonsai_experiment_launcher.py`)
-   - Main orchestrator for experiment execution
-   - Handles all phases of experiment lifecycle
-   - Provides error handling and recovery mechanisms
+**BonsaiExperiment Class** (`bonsai_experiment_launcher.py`)
 
-2. **Parameter Management**
-   - JSON-based configuration system
-   - Environment-specific settings (camstim config integration)
-   - Session metadata and UUID generation
+- Main orchestrator for experiment execution
+- Handles all phases of experiment lifecycle
+- Provides error handling and recovery mechanisms
 
-3. **Process Management**
-   - Windows job object integration for proper cleanup
-   - Process monitoring and timeout handling
-   - Signal handling for graceful shutdown
+**Parameter Management**
+
+- JSON-based configuration system
+- Environment-specific settings (camstim config integration)
+- Session metadata and UUID generation
+
+**Process Management**
+
+- Windows job object integration for proper cleanup
+- Process monitoring and timeout handling
+- Signal handling for graceful shutdown
 
 ## Experiment Lifecycle
 
 ### Phase 1: Repository Setup
-```
+
 1. Clone/update repository from GitHub
 2. Checkout specific commit or branch
 3. Verify repository integrity
 4. Set up local working directory
-```
 
 ### Phase 2: Bonsai Installation
-```
+
 1. Locate Bonsai executable in repository
 2. Verify Bonsai installation
 3. Run setup scripts if needed
 4. Validate Bonsai version compatibility
-```
 
 ### Phase 3: Package Verification
-```
+
 1. Parse Bonsai.config for required packages
 2. Scan installed packages directory
 3. Compare versions and dependencies
 4. Auto-reinstall if mismatches detected
-```
 
 ### Phase 4: Experiment Execution
-```
+
 1. Generate session UUID and metadata
 2. Prepare experiment parameters
 3. Launch Bonsai workflow with --start --no-editor
-4. Monitor process and handle timeouts
+4. Monitor process and capture output
 5. Capture and log experiment output
-```
 
 ### Phase 5: Cleanup & Data Management
-```
+
 1. Ensure proper process termination
 2. Save experiment data and metadata
 3. Generate session reports
 4. Clean up temporary resources
-```
 
 ## Configuration
 
