@@ -154,14 +154,48 @@ python test_bonsai_launcher.py
 python test_bonsai_launcher.py --param-file my_params.json
 ```
 
-### Integration with Camstim
+### Integration with Camstim Agent
 
-The launcher integrates with the existing camstim infrastructure:
+The launcher is designed to be executed by the **camstim agent** - Allen Institute's internal experiment management system. The integration works as follows:
 
+#### Agent-Based Execution
+- **Agent receives**: A script path and YAML parameter file from the experiment scheduling system
+- **Agent calls**: The experimental launcher with the provided parameters
+- **Agent monitors**: Experiment execution and handles results
+
+#### Parameter Flow
+```
+1. Experiment scheduling system → YAML parameters → camstim agent
+2. camstim agent → experimental launcher
+3. experimental launcher → experiment execution → results back to agent
+```
+
+#### Camstim Infrastructure Integration
 - **Configuration**: Reads from `C:/ProgramData/AIBS_MPE/camstim/config/stim.cfg`
-- **Data Storage**: Saves experiment data to camstim data directory
-- **Session Management**: Uses camstim session UUID format
-- **Logging**: Compatible with camstim logging standards
+- **Data Storage**: Saves experiment data to camstim-compatible pickle files
+- **Session Management**: Uses camstim session UUID format and metadata structure
+- **Logging**: Compatible with camstim logging standards and tracking formats
+- **Process Management**: Integrates with camstim's process monitoring and cleanup
+
+#### Expected Usage Pattern
+```python
+# This is typically called by the camstim agent, not directly by users
+from bonsai_experiment_launcher import BonsaiExperiment
+
+# Agent provides the YAML file path
+experiment = BonsaiExperiment()
+success = experiment.run('agent_provided_params.json')  # Agent converts YAML→JSON
+
+# Results are automatically saved in camstim-compatible format
+# Agent handles success/failure reporting back to scheduling system
+```
+
+#### Camstim-Compatible Output Format
+The launcher generates pickle files with the same structure as standard camstim experiments:
+- Platform and session metadata
+- Experiment parameters and checksums
+- Behavioral data integration points
+- LIMS-compatible data structure
 
 ## See Also
 
