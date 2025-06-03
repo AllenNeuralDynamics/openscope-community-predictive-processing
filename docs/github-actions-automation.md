@@ -19,7 +19,7 @@ This project uses several GitHub Actions workflows to automatically maintain and
 
 - Scans all markdown files in the `docs/` directory
 - Matches pages to GitHub discussions using title patterns
-- Adds styled discussion links at the top of matching pages
+- Adds styled discussion links at the bottom of matching pages
 - Commits changes with detailed commit messages
 
 **Files modified**: All `.md` files in `docs/` that have matching discussions
