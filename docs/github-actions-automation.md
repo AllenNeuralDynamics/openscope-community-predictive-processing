@@ -9,12 +9,14 @@ This project uses several GitHub Actions workflows to automatically maintain and
 **Purpose**: Automatically adds discussion links to documentation pages
 
 **Triggers**:
+
 - When discussions are created, edited, or deleted
 - When markdown files in `docs/` are updated
 - Manual trigger from GitHub Actions interface
 - Weekly schedule (Mondays at 6 AM UTC)
 
 **What it does**:
+
 - Scans all markdown files in the `docs/` directory
 - Matches pages to GitHub discussions using title patterns
 - Adds styled discussion links at the top of matching pages
@@ -29,10 +31,12 @@ This project uses several GitHub Actions workflows to automatically maintain and
 **Purpose**: Builds and deploys the website to GitHub Pages
 
 **Triggers**:
+
 - When code is pushed to the main branch
 - After the "Sync Discussion Links" workflow completes successfully
 
 **What it does**:
+
 - Sets up Python environment
 - Installs dependencies from `requirements.txt`
 - Runs `update_mkdocs.py` to update navigation
@@ -50,6 +54,7 @@ This project uses several GitHub Actions workflows to automatically maintain and
 **Purpose**: Core script for discussion link automation
 
 **Key features**:
+
 - Uses GitHub GraphQL API for reliable data fetching
 - Extracts page identifiers from file paths
 - Matches discussions using exact title patterns
@@ -66,6 +71,7 @@ This project uses several GitHub Actions workflows to automatically maintain and
 **Purpose**: Dynamically updates the MkDocs navigation structure
 
 **What it does**:
+
 - Scans the `docs/` directory structure
 - Automatically adds new files to the navigation
 - Maintains consistent organization
