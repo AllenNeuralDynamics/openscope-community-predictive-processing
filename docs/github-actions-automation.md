@@ -99,3 +99,15 @@ Both workflows can be manually triggered:
 3. Click **"Run workflow"** button
 4. Choose the branch (usually `main`)
 5. Click **"Run workflow"** to start
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20github-actions-automation" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
