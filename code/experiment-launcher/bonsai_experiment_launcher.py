@@ -244,9 +244,25 @@ class BonsaiExperiment(object):
             # Log mouse and user ID
             logging.info("Using mouse_id: %s, user_id: %s" % (self.mouse_id, self.user_id))
             
+            # Create Bonsai arguments based on loaded parameters and config
+            bonsai_args = self.create_bonsai_arguments()
+            
             # Save the merged configuration to a file for Bonsai to access
             if param_file:
-                self.save_config_file(param_file)
+                config_data = {
+                    'session_params': self.params,
+                    'hardware_config': self.config,
+                    'session_metadata': {
+                        'generated_from': param_file,
+                        'generation_time': datetime.datetime.now().isoformat(),
+                        'session_uuid': self.session_uuid,
+                        'mouse_id': self.mouse_id,
+                        'user_id': self.user_id,
+                        'platform_info': self.platform_info
+                    },
+                    'bonsai_args': bonsai_args  # Add the Bonsai arguments here
+                }
+                self.save_config_file(param_file, config_data)
                 
         except Exception as e:
             logging.error("Failed to load parameters: %s" % e)
@@ -318,7 +334,7 @@ class BonsaiExperiment(object):
         except Exception as e:
             logging.warning("Failed to load config section %s: %s" % (section, e))
     
-    def save_config_file(self, param_file_path):
+    def save_config_file(self, param_file_path, config_data=None):
         """
         Save the configuration data to a JSON file in the same directory
         as the input parameter file, with '_config' appended to the filename.
@@ -330,6 +346,7 @@ class BonsaiExperiment(object):
         
         Args:
             param_file_path (str): Path to the original parameter file
+            config_data (dict, optional): Pre-built config data to save. If None, builds it from current state.
         """
         if not param_file_path:
             logging.warning("No parameter file path provided, cannot save config file")
@@ -345,29 +362,28 @@ class BonsaiExperiment(object):
             config_filename = param_name + "_config" + param_ext
             config_file_path = os.path.join(param_dir, config_filename)
             
-            # Prepare the data to save with clear separation:
-            # - session_params: stimulus parameters (can change between experiments)
-            # - hardware_config: hardware configurations associated with the rig (don't change)
-            # - session_metadata: session-specific parameters (change all the time)
-            config_data = {
-                'session_params': self.params,
-                'hardware_config': self.config,
-                'session_metadata': {
-                    'generated_from': param_file_path,
-                    'generation_time': datetime.datetime.now().isoformat(),
-                    'session_uuid': self.session_uuid,
-                    'mouse_id': self.mouse_id,
-                    'user_id': self.user_id,
-                    'platform_info': self.platform_info
+            # Use provided config_data or build it from current state
+            if config_data is None:
+                config_data = {
+                    'session_params': self.params,
+                    'hardware_config': self.config,
+                    'session_metadata': {
+                        'generated_from': param_file_path,
+                        'generation_time': datetime.datetime.now().isoformat(),
+                        'session_uuid': self.session_uuid,
+                        'mouse_id': self.mouse_id,
+                        'user_id': self.user_id,
+                        'platform_info': self.platform_info
+                    },
+                    'bonsai_args': self.create_bonsai_arguments()
                 }
-            }
             
             # Save to JSON file
             import json
             with open(config_file_path, 'w') as f:
                 json.dump(config_data, f, indent=2, default=str)
             
-            logging.info("Saved configuration with separate params, config, and metadata to: %s" % config_file_path)
+            logging.info("Saved configuration with Bonsai arguments to: %s" % config_file_path)
             
             # Also store the config file path in params so Bonsai can access it
             self.params['config_file_path'] = config_file_path
@@ -449,14 +465,15 @@ class BonsaiExperiment(object):
         args.append("--start")
         args.append("--no-editor")
         
-        # Pass the config file path to Bonsai if available
-        config_file_path = self.params.get('config_file_path')
-        if config_file_path and os.path.exists(config_file_path):
-            args.extend(["--property", "ConfigFilePath=%s" % config_file_path])
-            logging.info("Passing config file to Bonsai: %s" % config_file_path)
+        # Add the Bonsai arguments that were created from parameters and config
+        bonsai_property_args = self.create_bonsai_arguments()
+        args.extend(bonsai_property_args)
         
         # Log the complete command
-        logging.info("Command: %s" % " ".join(args))
+        cmd_str = " ".join(args)
+        logging.info("Command: %s" % cmd_str)
+        logging.info("Total Bonsai properties passed: %d" % (len(bonsai_property_args) // 2))
+        
         return args
         
     def start_bonsai(self):
@@ -1509,3 +1526,20 @@ class BonsaiExperiment(object):
         except Exception as e:
             logging.error("Failed to run setup script: %s" % e)
             return False
+
+    def create_bonsai_arguments(self):
+        """
+        Create command-line arguments for Bonsai based on loaded parameters and config.
+        This function extracts relevant parameters and formats them as --property arguments.
+        
+        Returns:
+            list: List of --property arguments for Bonsai
+        """
+        bonsai_args = []
+        
+        # Pass mouse ID as Subject (the test workflow input name)
+        if self.mouse_id:
+            bonsai_args.extend(["--property", "Subject=%s" % self.mouse_id])
+        
+        logging.info("Created %d Bonsai arguments" % (len(bonsai_args) // 2))
+        return bonsai_args

@@ -20,8 +20,8 @@ import argparse
 
 # Simple console-only logging setup
 logging.basicConfig(
-    level=logging.WARNING,  # Only show warnings and errors
-    format='%(levelname)s: %(message)s'
+    level=logging.INFO,  # Show info, warnings and errors
+    format='%(asctime)s - %(levelname)s: %(message)s'
 )
 
 # Now import the BonsaiExperiment class
