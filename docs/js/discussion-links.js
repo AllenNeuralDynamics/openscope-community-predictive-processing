@@ -12,10 +12,25 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Extract key identifiers from the path - this is crucial for matching discussions
   const pathParts = pagePath.split('/');
-  const pageIdentifier = pathParts[pathParts.length - 1]; // Last segment of path
+  let pageIdentifier = pathParts[pathParts.length - 1]; // Last segment of path
+  
+  // Also create alternative identifiers for better matching
+  let alternativeIdentifiers = [];
+  
+  // For experiment pages, use the full experiment identifier from the path
+  if (pagePath.includes('experiments/')) {
+    // For paths like "experiments/allen_institute/slap2/allen_institute_787727_2025-03-27"
+    // we want "allen_institute_787727_2025-03-27"
+    pageIdentifier = pathParts[pathParts.length - 1];
+  } else if (pagePath.includes('/')) {
+    // For nested pages, also try the full path as an identifier
+    alternativeIdentifiers.push(pagePath);
+  }
   
   console.log('Page path:', pagePath);
   console.log('Page identifier:', pageIdentifier);
+  console.log('Alternative identifiers:', alternativeIdentifiers);
+  console.log('Path parts:', pathParts);
   
   // Get the page title as a fallback
   const pageTitle = document.title.replace(' - OpenScope Community Predictive Processing', '').trim();
@@ -63,29 +78,7 @@ document.addEventListener('DOMContentLoaded', function() {
     content.appendChild(discussionContainer);
   }
   
-  // Known discussions mapping - Add your known discussions here to avoid API calls
-  const knownDiscussions = {
-    'allen_institute_787727_2025-03-27': 22,
-    'collaboration-policy': 21, // Adding direct mapping for collaboration policy to the forum
-    // Add more mappings as needed
-  };
-  
-  // Check if we have a known discussion for this page
-  if (knownDiscussions[pageIdentifier]) {
-    const discussionId = knownDiscussions[pageIdentifier];
-    const discussionUrl = `https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/${discussionId}`;
-    
-    // Create the link
-    discussionContainer.innerHTML = `
-      <hr>
-      <p>
-        <a href="${discussionUrl}" target="_blank">
-          💬 Join the discussion for this page on GitHub
-        </a>
-      </p>
-    `;
-    return;
-  }
+  // No hardcoded mappings - rely on API search and caching for reliability
   
   // Local storage cache keys
   const CACHE_PREFIX = 'github_discussion_';
@@ -168,16 +161,29 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   // Construct search queries to find matching discussions
+  // The actual discussion titles follow the pattern "Discussion: {page-identifier}"
   const queries = [
+    // Try exact match with "Discussion: " prefix
+    `"Discussion: ${pageIdentifier}" in:title is:discussion repo:allenneuraldynamics/openscope-community-predictive-processing`,
+    // Try with full path
+    `"Discussion: ${pagePath}" in:title is:discussion repo:allenneuraldynamics/openscope-community-predictive-processing`,
+    // Try just the identifier without "Discussion: " prefix
     `"${pageIdentifier}" in:title is:discussion repo:allenneuraldynamics/openscope-community-predictive-processing`,
-    `"${pagePath}" in:title is:discussion repo:allenneuraldynamics/openscope-community-predictive-processing`,
-    `"Discussion: ${pageTitle}" in:title is:discussion repo:allenneuraldynamics/openscope-community-predictive-processing`
+    // Try the page title
+    `"${pageTitle}" in:title is:discussion repo:allenneuraldynamics/openscope-community-predictive-processing`
   ];
+  
+  // Add alternative identifiers to the search
+  alternativeIdentifiers.forEach(altId => {
+    queries.push(`"Discussion: ${altId}" in:title is:discussion repo:allenneuraldynamics/openscope-community-predictive-processing`);
+    queries.push(`"${altId}" in:title is:discussion repo:allenneuraldynamics/openscope-community-predictive-processing`);
+  });
   
   // Try to find existing discussions through the API
   function searchWithQuery(queryIndex) {
     if (queryIndex >= queries.length) {
       // We've exhausted all queries, create a new discussion
+      console.log('All search queries exhausted. No existing discussion found. Creating new discussion link.');
       createNewDiscussionLink();
       saveToCache(null); // Cache that no discussion was found
       return;
@@ -220,9 +226,35 @@ document.addEventListener('DOMContentLoaded', function() {
           );
           
           if (discussions.length > 0) {
+            // Sort by relevance - prefer exact matches
+            const sortedDiscussions = discussions.sort((a, b) => {
+              const aTitle = a.title.toLowerCase();
+              const bTitle = b.title.toLowerCase();
+              const targetLower = pageIdentifier.toLowerCase();
+              
+              // Prefer exact matches with "Discussion: " prefix
+              const aExactMatch = aTitle === `discussion: ${targetLower}`;
+              const bExactMatch = bTitle === `discussion: ${targetLower}`;
+              
+              if (aExactMatch && !bExactMatch) return -1;
+              if (!aExactMatch && bExactMatch) return 1;
+              
+              // Then prefer matches that contain the identifier
+              const aContains = aTitle.includes(targetLower);
+              const bContains = bTitle.includes(targetLower);
+              
+              if (aContains && !bContains) return -1;
+              if (!aContains && bContains) return 1;
+              
+              // Finally, sort by creation date (newest first)
+              return new Date(b.created_at) - new Date(a.created_at);
+            });
+            
             // Found an existing discussion
-            const discussion = discussions[0];
+            const discussion = sortedDiscussions[0];
             const discussionUrl = discussion.html_url;
+            
+            console.log('Found existing discussion:', discussion.title, 'at', discussionUrl);
             
             // Cache the result
             saveToCache(discussionUrl);
@@ -237,10 +269,12 @@ document.addEventListener('DOMContentLoaded', function() {
               </p>
             `;
           } else {
+            console.log('No discussions found with query', queryIndex + 1, '- trying next query');
             // Try the next query
             searchWithQuery(queryIndex + 1);
           }
         } else {
+          console.log('No results found with query', queryIndex + 1, '- trying next query');
           // Try the next query
           searchWithQuery(queryIndex + 1);
         }
@@ -265,11 +299,12 @@ document.addEventListener('DOMContentLoaded', function() {
   }
   
   function createNewDiscussionLink() {
-    // No discussion exists - create new one
+    // No discussion exists - create new one with consistent title format
+    const discussionTitle = `Discussion: ${pageIdentifier}`;
     discussionContainer.innerHTML = `
       <hr>
       <p>
-        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion: ${encodeURIComponent(pagePath)}" target="_blank">
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=${encodeURIComponent(discussionTitle)}" target="_blank">
           💬 Start a discussion for this page on GitHub
         </a>
         <span class="login-note">(A GitHub account is required to create or participate in discussions)</span>
