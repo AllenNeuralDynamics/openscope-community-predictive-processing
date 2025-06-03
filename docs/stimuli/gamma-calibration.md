@@ -95,4 +95,16 @@ Below you can see the difference in measurement before and after applying gamma 
 ## References
 
 - This implementation is based on [BonVision's Gamma Calibration](https://bonvision.github.io/demos/demos_004_GammaCalibration/).
-Note that we modified this code as we encountered a few bugs in the original implementation. 
+Note that we modified this code as we encountered a few bugs in the original implementation.
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/gamma-calibration" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

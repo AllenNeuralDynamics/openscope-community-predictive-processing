@@ -109,3 +109,15 @@ The oddball generator uses frame permutation for randomization and implements a 
 - **[Experimental Plan](../experimental-plan.md)**: Overview of all experimental paradigms
 - **[SLAP2 Hardware](../hardware/allen_institute_slap2_hardware.md)**: Details about the SLAP2 imaging system
 - **[Standard Oddball](standard-oddball.md)**: Information about the related standard oddball paradigm
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/sensory-motor-closed-loop" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

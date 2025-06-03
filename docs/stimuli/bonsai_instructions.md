@@ -61,3 +61,15 @@ These are needed to run Bonsai workflows on the Allen Institute rigs with HARP d
 - **[Standard Oddball Stimulus](standard-oddball.md)**: Details of the standard oddball paradigm implementation
 - **[Sensory-Motor Closed-Loop](sensory-motor-closed-loop.md)**: Information about sensorimotor paradigm implementation
 - **[List of Bonsai Scripts](list_scripts.md)**: Catalog of all available stimulus scripts
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/bonsai_instructions" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

@@ -200,3 +200,15 @@ The launcher generates pickle files with the same structure as standard camstim 
 - [Bonsai Instructions](bonsai_instructions.md) - Basic Bonsai usage
 - [Bonsai for Python Programmers](bonsai_for_python_programmers.md) - Integration concepts
 - [Standard Oddball](standard-oddball.md) - Example experiment workflow
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/experimental-launcher" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

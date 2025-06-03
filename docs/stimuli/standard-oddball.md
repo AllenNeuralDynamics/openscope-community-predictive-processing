@@ -106,3 +106,14 @@ Animal running data is collected via an encoder on Port 2 of the behavior device
 - **[Experimental Plan](../experimental-plan.md)**: Overview of all experimental paradigms
 - **[SLAP2 Hardware](../hardware/allen_institute_slap2_hardware.md)**: Details about the SLAP2 imaging system used
 - **[Example Experiment](../experiments/allen_institute/slap2/allen_institute_794237_2025-04-03.md)**: Session notes from an experiment using this stimulus
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/discussions/54" target="_blank">
+            💬 Join the discussion for this page on GitHub
+        </a>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

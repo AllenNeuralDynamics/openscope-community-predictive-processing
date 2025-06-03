@@ -181,3 +181,15 @@ When contributing to the documentation, follow this workflow:
    - [ReadTheDocs Theme](https://mkdocs.readthedocs.io/) (used by this project)
    - [GitHub Actions Documentation](https://docs.github.com/en/actions)
    - [GitHub Flow](https://docs.github.com/en/get-started/quickstart/github-flow) (branching workflow)
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20how_to_serve_locally" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

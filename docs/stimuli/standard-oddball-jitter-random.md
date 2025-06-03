@@ -106,3 +106,15 @@ Animal running data is collected via an encoder on Port 2 of the behavior device
 - **[Bonsai Instructions](bonsai_instructions.md)**: Setup and deployment of Bonsai code
 - **[Experimental Plan](../experimental-plan.md)**: Overview of all experimental paradigms
 - **[SLAP2 Hardware](../hardware/allen_institute_slap2_hardware.md)**: Details about the SLAP2 imaging system used
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/standard-oddball-jitter-random" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

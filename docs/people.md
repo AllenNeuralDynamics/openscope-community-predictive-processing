@@ -87,3 +87,15 @@ This page is maintained in the GitHub repository. To add your information:
 1. Fork the repository
 2. Edit the `docs/people.md` file with your details including your GitHub handle (use the format "@username")
 3. Submit a pull request with your changes
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20people" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

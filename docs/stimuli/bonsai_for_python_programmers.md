@@ -213,3 +213,15 @@ This guide has provided the rationale for why some common concepts from procedur
 - *Combinators* that determine how sequences interact with one another
 
 The last topic will likely be covered in a future iteration of this guide, since it's central to the way that Bonsai works. For now, you can read up on Combinators in the [Bonsai documentation](https://bonsai-rx.org/docs/operators/#combining).
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/bonsai_for_python_programmers" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

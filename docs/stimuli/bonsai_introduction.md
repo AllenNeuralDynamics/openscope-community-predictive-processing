@@ -43,3 +43,15 @@ If you're coming from a Python background, make sure to check our [Bonsai for Py
 
 - [Bonsai Instructions](bonsai_instructions.md) - Setup and deployment for this project
 - [List of Scripts](list_scripts.md) - Available Bonsai scripts for our experiments
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/bonsai_introduction" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

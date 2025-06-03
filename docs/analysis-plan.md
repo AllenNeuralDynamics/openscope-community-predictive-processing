@@ -134,3 +134,15 @@ These models will provide quantitative predictions about neural activity pattern
 - **[Detailed Experimental Plan](detailed-experimental-plan.md)**: Comprehensive methodology and experimental design details
 - **[Experiment Summary](experiment-summary.md)**: Overview of all conducted and planned experiments
 - **[Project Tracking](project-tracking.md)**: Current progress and status of analysis projects
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20analysis-plan" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

@@ -41,3 +41,15 @@ This architecture allows C# applications, primarily Bonsai workflows, to access 
 
 - [Neuropixels Hardware](allen_institute_neuropixels_hardware.md)
 - [Mesoscope Hardware](allen_institute_mesoscope_hardware.md)
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20hardware/wheel_encoder_plugin" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

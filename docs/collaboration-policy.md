@@ -115,3 +115,14 @@ Disputes are resolved by a majority vote.
   - **[Project Tracking](project-tracking.md)**: Overview of ongoing projects and team members
   - **[People](people.md)**: Information about project participants and their roles
   - **[FAQ](faq.md)**: Answers to common questions about the project
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/discussions/23" target="_blank">
+            💬 Join the discussion for this page on GitHub
+        </a>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

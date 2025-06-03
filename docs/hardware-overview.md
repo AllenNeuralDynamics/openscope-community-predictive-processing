@@ -58,3 +58,15 @@ All hardware platforms are integrated with standardized stimulus delivery system
 - **[Detailed Experimental Plan](detailed-experimental-plan.md)**: Comprehensive methodology including hardware-specific protocols
 - **[Experiment Summary](experiment-summary.md)**: Overview of experiments conducted with each hardware platform
 - **[Stimulus Documentation](stimuli/bonsai_instructions.md)**: Details about stimulus delivery systems integrated with the hardware
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20hardware-overview" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

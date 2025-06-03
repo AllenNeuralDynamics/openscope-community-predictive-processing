@@ -59,3 +59,15 @@ If you've created a new script that should be added to this documentation, follo
 - **[Standard Oddball](standard-oddball.md)**: Details about the standard oddball paradigm 
 - **[Sensory-Motor Closed Loop](sensory-motor-closed-loop.md)**: Information about the sensory-motor paradigm
 - **[Experimental Plan](../experimental-plan.md)**: Overview of all experimental paradigms
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/list_scripts" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
