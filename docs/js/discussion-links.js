@@ -23,8 +23,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // we want "allen_institute_787727_2025-03-27"
     pageIdentifier = pathParts[pathParts.length - 1];
   } else if (pagePath.includes('/')) {
-    // For nested pages, also try the full path as an identifier
-    alternativeIdentifiers.push(pagePath);
+    // For nested pages (meetings, hardware, etc.), use the full path as primary identifier
+    // This handles cases like "meetings/2025-05-13" -> "meetings/2025-05-13" 
+    pageIdentifier = pagePath;
+    // Also add the last segment as an alternative
+    alternativeIdentifiers.push(pathParts[pathParts.length - 1]);
   }
   
   console.log('Page path:', pagePath);
