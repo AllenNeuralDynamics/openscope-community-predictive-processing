@@ -48,6 +48,7 @@ nav:
   - Project Tracking: project-tracking.md
   - Website Development:
     - Serving Locally: how_to_serve_locally.md
+    - GitHub Actions Automation: github-actions-automation.md
   - Meetings:
     - '2025-04-21': meetings/2025-04-21.md
     - '2025-05-06': meetings/2025-05-06.md
