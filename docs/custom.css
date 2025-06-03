@@ -164,3 +164,59 @@ ol li ul li {
 .grid-item a {
     font-weight: 500;
 }
+
+/* Discussion link styling for hardcoded markdown links */
+.discussion-link {
+    margin-top: 2rem;
+    padding: 1rem 0;
+}
+
+.discussion-link a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #0366d6;
+    transition: background-color 0.2s;
+}
+
+.discussion-link a:hover {
+    background-color: #f5f5f5;
+    text-decoration: none;
+}
+
+.discussion-link .note {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.5rem;
+    display: block;
+}
+
+/* Discussion link styling for hardcoded markdown links */
+.discussion-link {
+    margin-top: 2rem;
+    padding: 1rem 0;
+}
+
+.discussion-link a {
+    display: inline-block;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    text-decoration: none;
+    color: #0366d6;
+    transition: background-color 0.2s;
+}
+
+.discussion-link a:hover {
+    background-color: #f5f5f5;
+    text-decoration: none;
+}
+
+.discussion-link .note {
+    font-size: 0.8rem;
+    color: #666;
+    margin-top: 0.5rem;
+    display: block;
+}

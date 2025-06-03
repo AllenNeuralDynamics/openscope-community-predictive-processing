@@ -63,7 +63,6 @@ edit_uri: https://github.com/allenneuraldynamics/openscope-community-predictive-
 extra_css:
 - custom.css
 extra_javascript:
-- js/discussion-links.js
 - js/github-profiles.js
 - js/analytics.js
 - https://www.googletagmanager.com/gtag/js?id=G-DT93KEXV5Q
