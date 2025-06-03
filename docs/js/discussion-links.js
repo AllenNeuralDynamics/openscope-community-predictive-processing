@@ -44,6 +44,14 @@ document.addEventListener('DOMContentLoaded', function() {
   discussionContainer.className = 'github-discussion-link';
   discussionContainer.innerHTML = '<hr><p>Loading discussion link...</p>';
   
+  // Add debugging function (console only)
+  function addDebugInfo(message) {
+    console.log('DEBUG:', message);
+  }
+  
+  addDebugInfo(`Page identifier: "${pageIdentifier}"`);
+  addDebugInfo(`Alternative identifiers: [${alternativeIdentifiers.join(', ')}]`);
+  
   // Add styling
   const style = document.createElement('style');
   style.textContent = `
@@ -182,111 +190,213 @@ document.addEventListener('DOMContentLoaded', function() {
     queries.push(`"${altId}" in:title is:discussion repo:allenneuraldynamics/openscope-community-predictive-processing`);
   });
   
-  // Try to find existing discussions through the API
-  function searchWithQuery(queryIndex) {
-    if (queryIndex >= queries.length) {
-      // We've exhausted all queries, create a new discussion
-      console.log('All search queries exhausted. No existing discussion found. Creating new discussion link.');
-      createNewDiscussionLink();
-      saveToCache(null); // Cache that no discussion was found
-      return;
-    }
+  // Try to find existing discussions using GraphQL API (more reliable than search)
+  function findDiscussionByTitle() {
+    addDebugInfo('Trying GraphQL API to find discussions...');
     
-    const searchQuery = encodeURIComponent(queries[queryIndex]);
-    console.log('Searching with query:', queries[queryIndex]);
-    
-    // Prepare request options
-    const requestOptions = {
-      method: 'GET',
-      headers: {
-        'Accept': 'application/vnd.github.v3+json'
-        // If you want to use token-based auth, uncomment and add your token:
-        // 'Authorization': 'token YOUR_GITHUB_TOKEN'
+    // Use GitHub GraphQL API to list recent discussions
+    const graphqlQuery = {
+      query: `
+        query($owner: String!, $repo: String!) {
+          repository(owner: $owner, name: $repo) {
+            discussions(first: 100, orderBy: {field: UPDATED_AT, direction: DESC}) {
+              nodes {
+                title
+                number
+                url
+                updatedAt
+                category {
+                  name
+                }
+              }
+            }
+          }
+        }
+      `,
+      variables: {
+        owner: "allenneuraldynamics",
+        repo: "openscope-community-predictive-processing"
       }
     };
     
-    fetch(`https://api.github.com/search/issues?q=${searchQuery}`, requestOptions)
-      .then(response => {
-        // Check for rate limit errors
-        if (response.status === 403) {
-          // Handle rate limit exceeded
-          console.warn('GitHub API rate limit exceeded');
-          showRateLimitMessage();
-          return null;
-        }
-        return response.json();
-      })
-      .then(data => {
-        if (!data) return; // Handled by the rate limit code above
-        
-        console.log('GitHub API Response for query', queryIndex + 1, ':', data);
-        
-        if (data.items && data.items.length > 0) {
-          // Filter to only include actual discussions (not issues)
-          const discussions = data.items.filter(item => 
-            item.html_url.includes('/discussions/') && 
-            !item.html_url.includes('/issues/')
+    fetch('https://api.github.com/graphql', {
+      method: 'POST',
+      headers: {
+        'Accept': 'application/vnd.github.v3+json',
+        'Content-Type': 'application/json'
+        // Note: GraphQL API requires authentication for better rate limits
+        // For public repos, we can still access some data without auth
+      },
+      body: JSON.stringify(graphqlQuery)
+    })
+    .then(response => {
+      addDebugInfo(`GraphQL response status: ${response.status}`);
+      if (response.status === 403) {
+        addDebugInfo('GraphQL API rate limit or auth required, falling back to REST API');
+        fallbackToRestAPI();
+        return null;
+      }
+      if (!response.ok) {
+        addDebugInfo(`GraphQL API failed with status ${response.status}, falling back to REST API`);
+        fallbackToRestAPI();
+        return null;
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (!data || data.errors) {
+        addDebugInfo(`GraphQL errors or no data: ${JSON.stringify(data?.errors)}`);
+        fallbackToRestAPI();
+        return;
+      }
+      
+      const discussions = data.data?.repository?.discussions?.nodes || [];
+      addDebugInfo(`Found ${discussions.length} discussions via GraphQL`);
+      
+      // Log the first few discussion titles for debugging
+      discussions.slice(0, 5).forEach((d, i) => {
+        addDebugInfo(`Discussion ${i+1}: "${d.title}"`);
+      });
+      
+      // Look for exact matches first
+      const targetTitle = `Discussion: ${pageIdentifier}`;
+      addDebugInfo(`Looking for exact match: "${targetTitle}"`);
+      let matchedDiscussion = discussions.find(d => 
+        d.title.toLowerCase() === targetTitle.toLowerCase()
+      );
+      
+      // Try alternative identifiers if no exact match
+      if (!matchedDiscussion) {
+        for (const altId of alternativeIdentifiers) {
+          const altTitle = `Discussion: ${altId}`;
+          matchedDiscussion = discussions.find(d => 
+            d.title.toLowerCase() === altTitle.toLowerCase()
           );
+          if (matchedDiscussion) break;
+        }
+      }
+      
+      if (matchedDiscussion) {
+        addDebugInfo(`✅ FOUND DISCUSSION VIA GRAPHQL: "${matchedDiscussion.title}"`);
+        
+        // Cache and display the found discussion
+        saveToCache(matchedDiscussion.url);
+        discussionContainer.innerHTML = `
+          <hr>
+          <p>
+            <a href="${matchedDiscussion.url}" target="_blank">
+              💬 Join the discussion for this page on GitHub
+            </a>
+          </p>
+        `;
+      } else {
+        addDebugInfo('No matching discussion found via GraphQL, trying REST API fallback...');
+        fallbackToRestAPI();
+      }
+    })
+    .catch(error => {
+      console.error('GraphQL API error, falling back to REST API:', error);
+      fallbackToRestAPI();
+    });
+  }
+  
+  // Fallback to REST API approach when GraphQL fails
+  function fallbackToRestAPI() {
+    addDebugInfo('Fallback: Using REST API to check individual discussions...');
+    
+    // Try to fetch recent discussions using REST API
+    // Check recent discussion numbers to find matches (including known discussion #87)
+    const recentNumbers = [87, 88, 89, 86, 85, 84, 83, 82, 81, 80, 79, 78, 77, 76, 75];
+    checkDiscussionNumbers(recentNumbers, 0);
+  }
+  
+  function checkDiscussionNumbers(numbers, index) {
+    if (index >= numbers.length) {
+      addDebugInfo('❌ No matching discussion found, creating new discussion link');
+      createNewDiscussionLink();
+      saveToCache(null);
+      return;
+    }
+    
+    const discussionNumber = numbers[index];
+    addDebugInfo(`Checking discussion #${discussionNumber}...`);
+    const url = `https://api.github.com/repos/allenneuraldynamics/openscope-community-predictive-processing/issues/${discussionNumber}`;
+    
+    fetch(url, {
+      headers: {
+        'Accept': 'application/vnd.github.v3+json'
+      }
+    })
+    .then(response => {
+      if (response.status === 404) {
+        addDebugInfo(`Discussion #${discussionNumber} doesn't exist, trying next...`);
+        checkDiscussionNumbers(numbers, index + 1);
+        return null;
+      }
+      if (response.status === 403) {
+        addDebugInfo('⚠️ REST API rate limit exceeded');
+        showRateLimitMessage();
+        return null;
+      }
+      return response.json();
+    })
+    .then(data => {
+      if (!data) return;
+      
+      addDebugInfo(`Discussion #${discussionNumber} title: "${data.title}"`);
+      
+      // Check if this is a discussion (not an issue) and matches our page
+      if (data.html_url && data.html_url.includes('/discussions/')) {
+        const title = data.title.toLowerCase();
+        const targetLower = pageIdentifier.toLowerCase();
+        
+        // Check for exact match
+        if (title === `discussion: ${targetLower}`) {
+          addDebugInfo(`✅ FOUND DISCUSSION VIA REST API: "${data.title}"`);
           
-          if (discussions.length > 0) {
-            // Sort by relevance - prefer exact matches
-            const sortedDiscussions = discussions.sort((a, b) => {
-              const aTitle = a.title.toLowerCase();
-              const bTitle = b.title.toLowerCase();
-              const targetLower = pageIdentifier.toLowerCase();
-              
-              // Prefer exact matches with "Discussion: " prefix
-              const aExactMatch = aTitle === `discussion: ${targetLower}`;
-              const bExactMatch = bTitle === `discussion: ${targetLower}`;
-              
-              if (aExactMatch && !bExactMatch) return -1;
-              if (!aExactMatch && bExactMatch) return 1;
-              
-              // Then prefer matches that contain the identifier
-              const aContains = aTitle.includes(targetLower);
-              const bContains = bTitle.includes(targetLower);
-              
-              if (aContains && !bContains) return -1;
-              if (!aContains && bContains) return 1;
-              
-              // Finally, sort by creation date (newest first)
-              return new Date(b.created_at) - new Date(a.created_at);
-            });
+          saveToCache(data.html_url);
+          discussionContainer.innerHTML = `
+            <hr>
+            <p>
+              <a href="${data.html_url}" target="_blank">
+                💬 Join the discussion for this page on GitHub
+              </a>
+            </p>
+          `;
+          return;
+        }
+        
+        // Check alternative identifiers
+        for (const altId of alternativeIdentifiers) {
+          if (title === `discussion: ${altId.toLowerCase()}`) {
+            addDebugInfo(`✅ FOUND DISCUSSION VIA REST API (ALTERNATIVE): "${data.title}"`);
             
-            // Found an existing discussion
-            const discussion = sortedDiscussions[0];
-            const discussionUrl = discussion.html_url;
-            
-            console.log('Found existing discussion:', discussion.title, 'at', discussionUrl);
-            
-            // Cache the result
-            saveToCache(discussionUrl);
-            
-            // Create the link
+            saveToCache(data.html_url);
             discussionContainer.innerHTML = `
               <hr>
               <p>
-                <a href="${discussionUrl}" target="_blank">
+                <a href="${data.html_url}" target="_blank">
                   💬 Join the discussion for this page on GitHub
                 </a>
               </p>
             `;
-          } else {
-            console.log('No discussions found with query', queryIndex + 1, '- trying next query');
-            // Try the next query
-            searchWithQuery(queryIndex + 1);
+            return;
           }
-        } else {
-          console.log('No results found with query', queryIndex + 1, '- trying next query');
-          // Try the next query
-          searchWithQuery(queryIndex + 1);
         }
-      })
-      .catch(error => {
-        console.error('Error fetching discussions:', error);
-        // Show fallback for errors
-        createNewDiscussionLink();
-      });
+        
+        addDebugInfo(`No match for discussion #${discussionNumber}`);
+      } else {
+        addDebugInfo(`#${discussionNumber} is not a discussion or doesn't have discussion URL`);
+      }
+      
+      // No match, try next number
+      checkDiscussionNumbers(numbers, index + 1);
+    })
+    .catch(error => {
+      addDebugInfo(`Error checking discussion #${discussionNumber}: ${error.message}`);
+      // Try next number
+      checkDiscussionNumbers(numbers, index + 1);
+    });
   }
   
   function showRateLimitMessage() {
@@ -315,6 +425,6 @@ document.addEventListener('DOMContentLoaded', function() {
     `;
   }
   
-  // Start the search process
-  searchWithQuery(0);
+  // Start the search process using GraphQL API
+  findDiscussionByTitle();
 });
