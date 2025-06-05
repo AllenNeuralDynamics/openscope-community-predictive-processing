@@ -1457,6 +1457,34 @@ double.Parse(it[2]) as Y)</scr:Expression>
           <EventName>EyeCamera</EventName>
         </Builder>
       </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>BehaviorEvents</Name>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Interval" DisplayName="SLAP2_Trial_Length" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:GateInterval">
+          <rx:Interval>PT20S</rx:Interval>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="Extensions\SLAP-Stop.bonsai" />
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+        <Format>STOPSLAP</Format>
+        <Selector xsi:nil="true" />
+        <Name>Allen.Log</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:Delay">
+          <gl:DueTime>PT0.6S</gl:DueTime>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="Extensions\SLAP-Start.bonsai" />
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+        <Format>STARTSLAP</Format>
+        <Selector xsi:nil="true" />
+        <Name>Allen.Log</Name>
+      </Expression>
     </Nodes>
     <Edges>
       <Edge From="0" To="1" Label="Source1" />
@@ -1562,6 +1590,13 @@ double.Parse(it[2]) as Y)</scr:Expression>
       <Edge From="110" To="111" Label="Source1" />
       <Edge From="111" To="112" Label="Source1" />
       <Edge From="112" To="113" Label="Source1" />
+      <Edge From="117" To="119" Label="Source1" />
+      <Edge From="118" To="119" Label="Source2" />
+      <Edge From="119" To="120" Label="Source1" />
+      <Edge From="120" To="121" Label="Source1" />
+      <Edge From="121" To="122" Label="Source1" />
+      <Edge From="122" To="123" Label="Source1" />
+      <Edge From="123" To="124" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
