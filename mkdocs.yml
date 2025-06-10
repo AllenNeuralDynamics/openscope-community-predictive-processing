@@ -33,6 +33,7 @@ nav:
   - Analysis:
     - SLAP2 pilot data analysis: pilotanalysis.md
     - SLAP2 pilot notebook: notebooks/pilot_analysis_rfs.ipynb
+    - DFF calculation notebook: notebooks/dff_calculation.ipynb
   - Experiments:
     - allen_institute:
       - slap2:
