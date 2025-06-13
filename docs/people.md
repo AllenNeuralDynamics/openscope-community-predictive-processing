@@ -45,7 +45,7 @@ Full team information including GitHub handles:
 | Mihai A. Petrovici | mihai.petrovici@unibe.ch | @petrovici |
 | Viola Priesemann | viola.priesemann@ds.mpg.de | |
 | Nicholas Adam Rodriguez | statius9@ufl.edu | @Dedalus9 |
-| Lucas Rudelt | lucas.rudelt@ds.mpg.de | |
+| Lucas Rudelt | lucas.rudelt@ds.mpg.de | @lrudelt |
 | Sarah Ruediger | s.ruediger@ucl.ac.uk | @Sarruedi |
 | Simone Russo | srusso30@gatech.edu | |
 | Alessandro Salatiello | salatiello.alessandro@gmail.com | |
