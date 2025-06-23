@@ -1,9 +1,7 @@
 <div style="display: flex; align-items: center; margin-bottom: 20px;">
     <img src="img/openscope_logo.png" alt="OpenScope Logo" style="width: 200px; margin-right: 20px;">
-    <h1>OpenScope Community Predictive Processing</h1>
+    <h1>OpenScope Community-Driven Project on Predictive Processing</h1>
 </div>
-
-Welcome to the **OpenScope Community Predictive Processing** repository! This website serves as a hub for community-driven contributions, documentation, and project tracking for our collaborative neuroscience research initiative.
 
 ---
 
