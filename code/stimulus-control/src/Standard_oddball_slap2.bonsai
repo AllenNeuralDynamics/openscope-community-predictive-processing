@@ -107,7 +107,7 @@
         <Angle>0</Angle>
         <ColorR>0</ColorR>
         <ColorG>0</ColorG>
-        <ColorB>1</ColorB>
+        <ColorB>0</ColorB>
         <ColorA>1</ColorA>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
@@ -1190,7 +1190,7 @@ double.Parse(it[2]) as Y)</scr:Expression>
                     <SpatialFrequency>0.04</SpatialFrequency>
                     <TemporalFrequency>2</TemporalFrequency>
                     <Phase>0</Phase>
-                    <Angle>0</Angle>
+                    <Angle>337.5</Angle>
                     <SquareWave>false</SquareWave>
                     <Contrast>1</Contrast>
                     <DutyCycle xsi:nil="true" />
