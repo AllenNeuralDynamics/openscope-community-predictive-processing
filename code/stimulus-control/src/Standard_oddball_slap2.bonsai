@@ -107,7 +107,7 @@
         <Angle>0</Angle>
         <ColorR>0</ColorR>
         <ColorG>0</ColorG>
-        <ColorB>0</ColorB>
+        <ColorB>1</ColorB>
         <ColorA>1</ColorA>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
@@ -775,7 +775,7 @@ groupMasks:
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value />
+          <Value>C:\BonsaiDataPredictiveProcessing\test_mouse_2025-06-28_17-39-29</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
@@ -787,6 +787,11 @@ groupMasks:
       <Expression xsi:type="scr:ExpressionTransform">
         <scr:Description />
         <scr:Expression>it.Item1 == "" ? it.Item2 : it.Item1</scr:Expression>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
       </Expression>
       <Expression xsi:type="rx:AsyncSubject">
         <Name>LoggingRootPath</Name>
@@ -1185,7 +1190,7 @@ double.Parse(it[2]) as Y)</scr:Expression>
                     <SpatialFrequency>0.04</SpatialFrequency>
                     <TemporalFrequency>2</TemporalFrequency>
                     <Phase>0</Phase>
-                    <Angle>292.5</Angle>
+                    <Angle>0</Angle>
                     <SquareWave>false</SquareWave>
                     <Contrast>1</Contrast>
                     <DutyCycle xsi:nil="true" />
@@ -1379,7 +1384,7 @@ double.Parse(it[2]) as Y)</scr:Expression>
       </Expression>
       <Expression xsi:type="PropertyMapping">
         <PropertyMappings>
-          <Property Name="FileName" />
+          <Property Name="FileName" Selector="it" />
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.FrameEventLogger.bonsai">
@@ -1387,7 +1392,7 @@ double.Parse(it[2]) as Y)</scr:Expression>
         <Append>false</Append>
         <Overwrite>true</Overwrite>
         <Suffix>None</Suffix>
-        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250602T114350/orientations_logger.csv</FileName>
+        <FileName>C:\BonsaiDataPredictiveProcessing\test_mouse_2025-06-28_17-39-29/orientations_logger.csv</FileName>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
         <Format>Frame</Format>
@@ -1404,9 +1409,6 @@ double.Parse(it[2]) as Y)</scr:Expression>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:TakeUntil" />
-      </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>LoggingRootPath</Name>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
         <Name>Orientation</Name>
@@ -1428,7 +1430,7 @@ double.Parse(it[2]) as Y)</scr:Expression>
         <Text><![CDATA[]]></Text>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250602T114350/orientations_orientations.csv</io:FileName>
+        <io:FileName>C:\BonsaiDataPredictiveProcessing\test_mouse_2025-06-28_17-39-29/orientations_orientations.csv</io:FileName>
         <io:Append>true</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>FileCount</io:Suffix>
@@ -1553,59 +1555,60 @@ double.Parse(it[2]) as Y)</scr:Expression>
       <Edge From="50" To="51" Label="Source2" />
       <Edge From="51" To="52" Label="Source1" />
       <Edge From="52" To="53" Label="Source1" />
-      <Edge From="54" To="55" Label="Source1" />
+      <Edge From="53" To="54" Label="Source1" />
       <Edge From="55" To="56" Label="Source1" />
       <Edge From="56" To="57" Label="Source1" />
       <Edge From="57" To="58" Label="Source1" />
       <Edge From="58" To="59" Label="Source1" />
-      <Edge From="60" To="61" Label="Source1" />
+      <Edge From="59" To="60" Label="Source1" />
       <Edge From="61" To="62" Label="Source1" />
-      <Edge From="62" To="64" Label="Source1" />
-      <Edge From="63" To="64" Label="Source2" />
-      <Edge From="63" To="70" Label="Source2" />
-      <Edge From="63" To="78" Label="Source2" />
-      <Edge From="64" To="65" Label="Source1" />
-      <Edge From="65" To="87" Label="Source1" />
-      <Edge From="66" To="68" Label="Source1" />
-      <Edge From="67" To="68" Label="Source2" />
-      <Edge From="68" To="71" Label="Source1" />
-      <Edge From="69" To="70" Label="Source1" />
-      <Edge From="70" To="71" Label="Source2" />
-      <Edge From="71" To="72" Label="Source1" />
+      <Edge From="62" To="63" Label="Source1" />
+      <Edge From="63" To="65" Label="Source1" />
+      <Edge From="64" To="65" Label="Source2" />
+      <Edge From="64" To="71" Label="Source2" />
+      <Edge From="64" To="79" Label="Source2" />
+      <Edge From="65" To="66" Label="Source1" />
+      <Edge From="66" To="88" Label="Source1" />
+      <Edge From="67" To="69" Label="Source1" />
+      <Edge From="68" To="69" Label="Source2" />
+      <Edge From="69" To="72" Label="Source1" />
+      <Edge From="70" To="71" Label="Source1" />
+      <Edge From="71" To="72" Label="Source2" />
       <Edge From="72" To="73" Label="Source1" />
       <Edge From="73" To="74" Label="Source1" />
-      <Edge From="74" To="87" Label="Source2" />
-      <Edge From="75" To="76" Label="Source1" />
+      <Edge From="74" To="75" Label="Source1" />
+      <Edge From="75" To="88" Label="Source2" />
       <Edge From="76" To="77" Label="Source1" />
       <Edge From="77" To="78" Label="Source1" />
       <Edge From="78" To="79" Label="Source1" />
-      <Edge From="79" To="87" Label="Source3" />
-      <Edge From="80" To="81" Label="Source1" />
+      <Edge From="79" To="80" Label="Source1" />
+      <Edge From="80" To="88" Label="Source3" />
       <Edge From="81" To="82" Label="Source1" />
       <Edge From="82" To="83" Label="Source1" />
-      <Edge From="83" To="85" Label="Source1" />
-      <Edge From="84" To="85" Label="Source2" />
-      <Edge From="85" To="86" Label="Source1" />
-      <Edge From="86" To="87" Label="Source4" />
-      <Edge From="87" To="88" Label="Source1" />
-      <Edge From="87" To="90" Label="Source1" />
+      <Edge From="83" To="84" Label="Source1" />
+      <Edge From="84" To="86" Label="Source1" />
+      <Edge From="85" To="86" Label="Source2" />
+      <Edge From="86" To="87" Label="Source1" />
+      <Edge From="87" To="88" Label="Source4" />
       <Edge From="88" To="89" Label="Source1" />
-      <Edge From="89" To="92" Label="Source1" />
-      <Edge From="90" To="91" Label="Source1" />
-      <Edge From="91" To="92" Label="Source2" />
-      <Edge From="92" To="93" Label="Source1" />
-      <Edge From="93" To="95" Label="Source1" />
-      <Edge From="94" To="95" Label="Source2" />
-      <Edge From="95" To="96" Label="Source1" />
+      <Edge From="88" To="91" Label="Source1" />
+      <Edge From="89" To="90" Label="Source1" />
+      <Edge From="90" To="93" Label="Source1" />
+      <Edge From="91" To="92" Label="Source1" />
+      <Edge From="92" To="93" Label="Source2" />
+      <Edge From="93" To="94" Label="Source1" />
+      <Edge From="94" To="96" Label="Source1" />
+      <Edge From="95" To="96" Label="Source2" />
       <Edge From="96" To="97" Label="Source1" />
-      <Edge From="98" To="102" Label="Source1" />
-      <Edge From="99" To="100" Label="Source1" />
+      <Edge From="97" To="98" Label="Source1" />
+      <Edge From="99" To="103" Label="Source1" />
       <Edge From="100" To="101" Label="Source1" />
-      <Edge From="101" To="102" Label="Source2" />
-      <Edge From="102" To="103" Label="Source1" />
-      <Edge From="103" To="106" Label="Source1" />
-      <Edge From="104" To="105" Label="Source1" />
-      <Edge From="105" To="106" Label="Source2" />
+      <Edge From="101" To="102" Label="Source1" />
+      <Edge From="102" To="103" Label="Source2" />
+      <Edge From="103" To="104" Label="Source1" />
+      <Edge From="104" To="107" Label="Source1" />
+      <Edge From="105" To="106" Label="Source1" />
+      <Edge From="106" To="107" Label="Source2" />
       <Edge From="108" To="113" Label="Source1" />
       <Edge From="109" To="110" Label="Source1" />
       <Edge From="110" To="111" Label="Source1" />
