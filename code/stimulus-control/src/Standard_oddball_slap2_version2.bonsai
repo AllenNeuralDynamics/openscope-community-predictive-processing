@@ -1,0 +1,1856 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.8.5"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
+                 xmlns:res="clr-namespace:Bonsai.Resources;assembly=Bonsai.System"
+                 xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
+                 xmlns:beh="clr-namespace:Harp.Behavior;assembly=Harp.Behavior"
+                 xmlns:harp="clr-namespace:Bonsai.Harp;assembly=Bonsai.Harp"
+                 xmlns:p1="clr-namespace:AllenNeuralDynamics.AindBehaviorServices.DataTypes;assembly=AllenNeuralDynamics.AindBehaviorServices"
+                 xmlns:wie="clr-namespace:Bonsai.Windows.Input;assembly=Bonsai.Windows.Input"
+                 xmlns:scr="clr-namespace:Bonsai.Scripting.Expressions;assembly=Bonsai.Scripting.Expressions"
+                 xmlns:p2="clr-namespace:BonVision.Collections;assembly=BonVision"
+                 xmlns:num="clr-namespace:Bonsai.Numerics;assembly=Bonsai.Numerics"
+                 xmlns:io="clr-namespace:Bonsai.IO;assembly=Bonsai.System"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:CreateWindow">
+          <gl:Width>560</gl:Width>
+          <gl:Height>480</gl:Height>
+          <gl:VSync>On</gl:VSync>
+          <gl:SwapSync>false</gl:SwapSync>
+          <gl:ClearColor>Navy</gl:ClearColor>
+          <gl:ClearMask>DepthBufferBit ColorBufferBit</gl:ClearMask>
+          <gl:CursorVisible>true</gl:CursorVisible>
+          <gl:Location xsi:nil="true" />
+          <gl:WindowBorder>Fixed</gl:WindowBorder>
+          <gl:WindowState>Normal</gl:WindowState>
+          <gl:DisplayDevice>First</gl:DisplayDevice>
+          <gl:TargetRenderFrequency>60</gl:TargetRenderFrequency>
+          <gl:TargetUpdateFrequency xsi:nil="true" />
+          <gl:RenderState />
+          <gl:GraphicsMode>
+            <gl:ColorFormat>
+              <gl:Red>8</gl:Red>
+              <gl:Green>8</gl:Green>
+              <gl:Blue>8</gl:Blue>
+              <gl:Alpha>8</gl:Alpha>
+            </gl:ColorFormat>
+            <gl:Depth>16</gl:Depth>
+            <gl:Stencil>0</gl:Stencil>
+            <gl:Samples>0</gl:Samples>
+            <gl:AccumulatorFormat>
+              <gl:Red>0</gl:Red>
+              <gl:Green>0</gl:Green>
+              <gl:Blue>0</gl:Blue>
+              <gl:Alpha>0</gl:Alpha>
+            </gl:AccumulatorFormat>
+            <gl:Buffers>2</gl:Buffers>
+            <gl:Stereo>false</gl:Stereo>
+          </gl:GraphicsMode>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.BonVisionResources.bonsai" />
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:ShaderResources">
+          <gl:Shaders>
+            <gl:ShaderConfiguration xsi:type="gl:Material">
+              <gl:Name>ColoredGratings</gl:Name>
+              <gl:RenderState />
+              <gl:ShaderUniforms />
+              <gl:BufferBindings />
+              <gl:FramebufferAttachments />
+              <gl:VertexShader>BonVision:Shaders.Gratings.vert</gl:VertexShader>
+              <gl:FragmentShader>..\bonsai\Shaders\ColoredGratings.frag</gl:FragmentShader>
+            </gl:ShaderConfiguration>
+          </gl:Shaders>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="res:LoadResources" />
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>Draw</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:RenderFrame" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:ElementIndex" />
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Index</Selector>
+      </Expression>
+      <Expression xsi:type="Mod">
+        <Operand xsi:type="IntProperty">
+          <Value>60</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="Divide">
+        <Operand xsi:type="IntProperty">
+          <Value>30</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="ColorB" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawQuad.bonsai">
+        <ExtentX>6</ExtentX>
+        <ExtentY>7.5</ExtentY>
+        <LocationX>32</LocationX>
+        <LocationY>-20</LocationY>
+        <Layer>2</Layer>
+        <Angle>0</Angle>
+        <ColorR>0</ColorR>
+        <ColorG>0</ColorG>
+        <ColorB>0</ColorB>
+        <ColorA>1</ColorA>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>BehaviorEvents</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="Extensions\SLAP-Start.bonsai" />
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+        <Format>STARTSLAP</Format>
+        <Selector xsi:nil="true" />
+        <Name>Allen.Log</Name>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>BehaviorEvents</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="beh:CreateMessage">
+        <harp:MessageType>Write</harp:MessageType>
+        <harp:Payload xsi:type="beh:CreateEnableEncodersPayload">
+          <beh:EnableEncoders>EncoderPort2</beh:EnableEncoders>
+        </harp:Payload>
+      </Expression>
+      <Expression xsi:type="MulticastSubject">
+        <Name>BehaviorCommands</Name>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>BehaviorEvents</Name>
+      </Expression>
+      <Expression xsi:type="beh:Parse">
+        <harp:Register xsi:type="beh:TimestampedAnalogData" />
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Value.Encoder</Selector>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Seconds</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="harp:CreateTimestamped" />
+      </Expression>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>Encoder</Name>
+      </Expression>
+      <Expression xsi:type="rx:BehaviorSubject" TypeArguments="harp:HarpMessage">
+        <rx:Name>BehaviorCommands</rx:Name>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="PortName" />
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="harp:Device">
+            <harp:OperationMode>Active</harp:OperationMode>
+            <harp:OperationLed>On</harp:OperationLed>
+            <harp:DumpRegisters>true</harp:DumpRegisters>
+            <harp:VisualIndicators>On</harp:VisualIndicators>
+            <harp:Heartbeat>Enabled</harp:Heartbeat>
+            <harp:IgnoreErrors>false</harp:IgnoreErrors>
+            <harp:PortName>COM3</harp:PortName>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>BehaviorEvents</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:SoftwareEvent" />
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>EndExpt</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>END</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="wie:KeyDown">
+          <wie:Filter>End</wie:Filter>
+          <wie:SuppressRepetitions>false</wie:SuppressRepetitions>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>END</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Merge" />
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="Extensions\SLAP-Stop.bonsai" />
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+        <Format>STOPSLAP</Format>
+        <Selector xsi:nil="true" />
+        <Name>Allen.Log</Name>
+      </Expression>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>EndSession</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:Delay">
+          <gl:DueTime>PT1S</gl:DueTime>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="WorkflowOutput" />
+      <Expression xsi:type="SubscribeSubject">
+        <Name>BehaviorEvents</Name>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="AllenNeuralDynamics.HarpUtils:LogHarpDeviceWithMetadata.bonsai">
+        <DeviceMetadata>%YAML 1.1
+---
+# yaml-language-server: $schema=https://harp-tech.org/draft-02/schema/device.json
+device: Behavior
+whoAmI: 1216
+firmwareVersion: "3.2"
+hardwareTargets: "1.1"
+registers:
+  DigitalInputState:
+    address: 32
+    access: Event
+    type: U8
+    maskType: DigitalInputs
+    description: Reflects the state of DI digital lines of each Port
+  Reserved0: &amp;reserved
+    address: 33
+    type: U8
+    access: Read
+    description: Reserved for future use
+    visibility: private
+  OutputSet: &amp;output
+    address: 34
+    type: U16
+    access: Write
+    maskType: DigitalOutputs
+    description: Set the specified digital output lines.
+  OutputClear:
+    &lt;&lt;: *output
+    address: 35
+    description: Clear the specified digital output lines
+  OutputToggle:
+    &lt;&lt;: *output
+    address: 36
+    description: Toggle the specified digital output lines
+  OutputState:
+    &lt;&lt;: *output
+    address: 37
+    description: Write the state of all digital output lines
+  PortDIOSet: &amp;portDIO
+    address: 38
+    type: U8
+    access: Write
+    maskType: PortDigitalIOS
+    description: Set the specified port DIO lines
+  PortDIOClear:
+    &lt;&lt;: *portDIO
+    address: 39
+    description: Clear the specified port DIO lines
+  PortDIOToggle:
+    &lt;&lt;: *portDIO
+    address: 40
+    description: Toggle the specified port DIO lines
+  PortDIOState:
+    &lt;&lt;: *portDIO
+    address: 41
+    description: Write the state of all port DIO lines
+  PortDIODirection:
+    &lt;&lt;: *portDIO
+    address: 42
+    description: Specifies which of the port DIO lines are outputs
+  PortDIOStateEvent:
+    &lt;&lt;: *portDIO
+    address: 43
+    access: Event
+    description: Specifies the state of the port DIO lines on a line change
+  AnalogData:
+    address: 44
+    type: S16
+    length: 3
+    access: Event
+    description: Voltage at the ADC input and encoder value on Port 2
+    payloadSpec:
+      AnalogInput0:
+        offset: 0
+        description: The voltage at the output of the ADC channel 0.
+      Encoder:
+        offset: 1
+        description: The quadrature counter value on Port 2
+      AnalogInput1:
+        offset: 2
+        description: The voltage at the output of the ADC channel 1.
+  OutputPulseEnable:
+    &lt;&lt;: *output
+    address: 45
+    description: Enables the pulse function for the specified output lines
+  PulseDOPort0: &amp;pulseDO
+    address: 46
+    type: U16
+    access: Write
+    minValue: 1
+    description: Specifies the duration of the output pulse in milliseconds.
+  PulseDOPort1:
+    &lt;&lt;: *pulseDO
+    address: 47
+  PulseDOPort2:
+    &lt;&lt;: *pulseDO
+    address: 48
+  PulseSupplyPort0:
+    &lt;&lt;: *pulseDO
+    address: 49
+  PulseSupplyPort1:
+    &lt;&lt;: *pulseDO
+    address: 50
+  PulseSupplyPort2:
+    &lt;&lt;: *pulseDO
+    address: 51
+  PulseLed0:
+    &lt;&lt;: *pulseDO
+    address: 52
+  PulseLed1:
+    &lt;&lt;: *pulseDO
+    address: 53
+  PulseRgb0:
+    &lt;&lt;: *pulseDO
+    address: 54
+  PulseRgb1:
+    &lt;&lt;: *pulseDO
+    address: 55
+  PulseDO0:
+    &lt;&lt;: *pulseDO
+    address: 56
+  PulseDO1:
+    &lt;&lt;: *pulseDO
+    address: 57
+  PulseDO2:
+    &lt;&lt;: *pulseDO
+    address: 58
+  PulseDO3:
+    &lt;&lt;: *pulseDO
+    address: 59
+  PwmFrequencyDO0: &amp;pwmFreq
+    address: 60
+    type: U16
+    access: Write
+    minValue: 1
+    description: Specifies the frequency of the PWM at DO0.
+  PwmFrequencyDO1:
+    &lt;&lt;: *pwmFreq
+    address: 61
+    description: Specifies the frequency of the PWM at DO1.
+  PwmFrequencyDO2:
+    &lt;&lt;: *pwmFreq
+    address: 62
+    description: Specifies the frequency of the PWM at DO2.
+  PwmFrequencyDO3:
+    &lt;&lt;: *pwmFreq
+    address: 63
+    description: Specifies the frequency of the PWM at DO3.
+  PwmDutyCycleDO0: &amp;pwmDutyCycle
+    address: 64
+    type: U8
+    access: Write
+    minValue: 1
+    maxValue: 99
+    description: Specifies the duty cycle of the PWM at DO0.
+  PwmDutyCycleDO1:
+    &lt;&lt;: *pwmDutyCycle
+    address: 65
+    description: Specifies the duty cycle of the PWM at DO1.
+  PwmDutyCycleDO2:
+    &lt;&lt;: *pwmDutyCycle
+    address: 66
+    description: Specifies the duty cycle of the PWM at DO2.
+  PwmDutyCycleDO3:
+    &lt;&lt;: *pwmDutyCycle
+    address: 67
+    description: Specifies the duty cycle of the PWM at DO3.
+  PwmStart: &amp;pwmStartStop
+    address: 68
+    type: U8
+    access: Write
+    maskType: PwmOutputs
+    description: Starts the PWM on the selected output lines.
+  PwmStop:
+    &lt;&lt;: *pwmStartStop
+    address: 69
+    description: Stops the PWM on the selected output lines.
+  RgbAll:
+    address: 70
+    type: &amp;rgbType U8
+    length: 6
+    access: &amp;rgbAccess Write
+    description: Specifies the state of all RGB LED channels.
+    payloadSpec:
+      Green0:
+        offset: 0
+        description: The intensity of the green channel in the RGB0 LED.
+      Red0:
+        offset: 1
+        description: The intensity of the red channel in the RGB0 LED.
+      Blue0:
+        offset: 2
+        description: The intensity of the blue channel in the RGB0 LED.
+      Green1:
+        offset: 3
+        description: The intensity of the green channel in the RGB1 LED.
+      Red1:
+        offset: 4
+        description: The intensity of the red channel in the RGB1 LED.
+      Blue1:
+        offset: 5
+        description: The intensity of the blue channel in the RGB1 LED.
+  Rgb0: &amp;rgbRegister
+    address: 71
+    type: *rgbType
+    length: 3
+    access: *rgbAccess
+    description: Specifies the state of the RGB0 LED channels.
+    interfaceType: RgbPayload
+    payloadSpec:
+      Green:
+        offset: 0
+        description: The intensity of the green channel in the RGB LED.
+      Red:
+        offset: 1
+        description: The intensity of the red channel in the RGB LED.
+      Blue:
+        offset: 2
+        description: The intensity of the blue channel in the RGB LED.
+  Rgb1:
+    &lt;&lt;: *rgbRegister
+    address: 72
+    description: Specifies the state of the RGB1 LED channels.
+  Led0Current: &amp;ledCurrent
+    address: 73
+    type: U8
+    access: Write
+    minValue: 2
+    maxValue: 100
+    description: Specifies the configuration of current to drive LED 0.
+  Led1Current:
+    &lt;&lt;: *ledCurrent
+    address: 74
+    description: Specifies the configuration of current to drive LED 1.
+  Led0MaxCurrent: &amp;ledMaxCurrent
+    address: 75
+    type: U8
+    access: Write
+    minValue: 5
+    maxValue: 100
+    description: Specifies the configuration of current to drive LED 0.
+  Led1MaxCurrent:
+    &lt;&lt;: *ledMaxCurrent
+    address: 76
+    description: Specifies the configuration of current to drive LED 1.
+  EventEnable:
+    address: 77
+    type: U8
+    access: Write
+    maskType: Events
+    description: Specifies the active events in the device.
+  StartCameras: &amp;cameraControl
+    address: 78
+    type: U8
+    access: Write
+    maskType: CameraOutputs
+    description: Specifies the camera outputs to enable in the device.
+  StopCameras:
+    &lt;&lt;: *cameraControl
+    access: [Write, Event]
+    address: 79
+    description: Specifies the camera outputs to disable in the device. An event will be issued when the trigger signal is actually stopped being generated.
+  EnableServos: &amp;servoControl
+    address: 80
+    type: U8
+    access: Write
+    maskType: ServoOutputs
+    description: Specifies the servo outputs to enable in the device.
+  DisableServos:
+    &lt;&lt;: *servoControl
+    address: 81
+    description: Specifies the servo outputs to disable in the device.
+  EnableEncoders:
+    address: 82
+    type: U8
+    access: Write
+    maskType: EncoderInputs
+    description: Specifies the port quadrature counters to enable in the device.
+  EncoderMode:
+    address: 83
+    type: U8
+    access: Write
+    maskType: EncoderModeConfig
+    description: Configures the operation mode of the quadrature encoders.
+  Reserved2:
+    &lt;&lt;: *reserved
+    address: 84
+  Reserved3:
+    &lt;&lt;: *reserved
+    address: 85
+  Reserved4:
+    &lt;&lt;: *reserved
+    address: 86
+  Reserved5:
+    &lt;&lt;: *reserved
+    address: 87
+  Reserved6:
+    &lt;&lt;: *reserved
+    address: 88
+  Reserved7:
+    &lt;&lt;: *reserved
+    address: 89
+  Reserved8:
+    &lt;&lt;: *reserved
+    address: 90
+  Reserved9:
+    &lt;&lt;: *reserved
+    address: 91
+  Camera0Frame: &amp;frameAcquired
+    address: 92
+    type: U8
+    access: Event
+    maskType: FrameAcquired
+    description: Specifies that a frame was acquired on camera 0.
+  Camera0Frequency: &amp;cameraFreq
+    address: 93
+    type: U16
+    access: Write
+    minValue: 1
+    maxValue: 600
+    description: Specifies the trigger frequency for camera 0.
+  Camera1Frame:
+    &lt;&lt;: *frameAcquired
+    address: 94
+    description: Specifies that a frame was acquired on camera 1.
+  Camera1Frequency:
+    &lt;&lt;: *cameraFreq
+    address: 95
+    description: Specifies the trigger frequency for camera 1.
+  Reserved10:
+    &lt;&lt;: *reserved
+    address: 96
+  Reserved11:
+    &lt;&lt;: *reserved
+    address: 97
+  Reserved12:
+    &lt;&lt;: *reserved
+    address: 98
+  Reserved13:
+    &lt;&lt;: *reserved
+    address: 99
+  ServoMotor2Period: &amp;servoPeriod
+    address: 100
+    type: U16
+    access: Write
+    minValue: 2
+    maxValue: 65534
+    description: Specifies the period of the servo motor in DO2, in microseconds.
+  ServoMotor2Pulse: &amp;servoPulse
+    address: 101
+    type: U16
+    access: Write
+    minValue: 6
+    maxValue: 65530
+    description: Specifies the pulse of the servo motor in DO2, in microseconds.
+  ServoMotor3Period:
+    &lt;&lt;: *servoPeriod
+    address: 102
+    description: Specifies the period of the servo motor in DO3, in microseconds.
+  ServoMotor3Pulse:
+    &lt;&lt;: *servoPulse
+    address: 103
+    description: Specifies the pulse of the servo motor in DO3, in microseconds.
+  Reserved14:
+    &lt;&lt;: *reserved
+    address: 104
+  Reserved15:
+    &lt;&lt;: *reserved
+    address: 105
+  Reserved16:
+    &lt;&lt;: *reserved
+    address: 106
+  Reserved17:
+    &lt;&lt;: *reserved
+    address: 107
+  EncoderReset:
+    address: 108
+    type: U8
+    access: Write
+    maskType: EncoderInputs
+    description: Reset the counter of the specified encoders to zero.
+  Reserved18:
+    &lt;&lt;: *reserved
+    address: 109
+  EnableSerialTimestamp:
+    address: 110
+    type: U8
+    access: Write
+    description: Enables the timestamp for serial TX.
+  MimicPort0IR: &amp;mimic
+    address: 111
+    type: U8
+    access: Write
+    maskType: MimicOutput
+    description: Specifies the digital output to mimic the Port 0 IR state.
+  MimicPort1IR:
+    &lt;&lt;: *mimic
+    address: 112
+    description: Specifies the digital output to mimic the Port 1 IR state.
+  MimicPort2IR:
+    &lt;&lt;: *mimic
+    address: 113
+    description: Specifies the digital output to mimic the Port 2 IR state.
+  Reserved20:
+    &lt;&lt;: *reserved
+    address: 114
+  Reserved21:
+    &lt;&lt;: *reserved
+    address: 115
+  Reserved22:
+    &lt;&lt;: *reserved
+    address: 116
+  MimicPort0Valve:
+    &lt;&lt;: *mimic
+    address: 117
+    description: Specifies the digital output to mimic the Port 0 valve state.
+  MimicPort1Valve:
+    &lt;&lt;: *mimic
+    address: 118
+    description: Specifies the digital output to mimic the Port 1 valve state.
+  MimicPort2Valve:
+    &lt;&lt;: *mimic
+    address: 119
+    description: Specifies the digital output to mimic the Port 2 valve state.
+  Reserved23:
+    &lt;&lt;: *reserved
+    address: 120
+  Reserved24:
+    &lt;&lt;: *reserved
+    address: 121
+  PokeInputFilter:
+    address: 122
+    type: U8
+    access: Write
+    description: Specifies the low pass filter time value for poke inputs, in ms.
+bitMasks:
+  DigitalInputs:
+    description: Specifies the state of port digital input lines.
+    bits:
+      DIPort0: 0x1
+      DIPort1: 0x2
+      DIPort2: 0x4
+      DI3: 0x8
+  DigitalOutputs:
+    description: Specifies the state of port digital output lines.
+    bits:
+      DOPort0: 0x1
+      DOPort1: 0x2
+      DOPort2: 0x4
+      SupplyPort0: 0x8
+      SupplyPort1: 0x10
+      SupplyPort2: 0x20
+      Led0: 0x40
+      Led1: 0x80
+      Rgb0: 0x100
+      Rgb1: 0x200
+      DO0: 0x400
+      DO1: 0x800
+      DO2: 0x1000
+      DO3: 0x2000
+  PortDigitalIOS:
+    description: Specifies the state of the port DIO lines.
+    bits:
+      DIO0: 0x1
+      DIO1: 0x2
+      DIO2: 0x4
+  PwmOutputs:
+    description: Specifies the state of PWM output lines.
+    bits:
+      PwmDO0: 0x1
+      PwmDO1: 0x2
+      PwmDO2: 0x4
+      PwmDO3: 0x8
+  Events:
+    description: Specifies the active events in the device.
+    bits:
+      PortDI: 0x1
+      PortDIO: 0x2
+      AnalogData: 0x4
+      Camera0: 0x8
+      Camera1: 0x10
+  CameraOutputs:
+    description: Specifies camera output enable bits.
+    bits:
+      CameraOutput0: 0x1
+      CameraOutput1: 0x2
+  ServoOutputs:
+    description: Specifies servo output enable bits.
+    bits:
+      ServoOutput2: 0x4
+      ServoOutput3: 0x8
+  EncoderInputs:
+    description: Specifies quadrature counter enable bits.
+    bits:
+      EncoderPort2: 0x4
+  FrameAcquired:
+    description: Specifies that camera frame was acquired.
+    bits:
+      FrameAcquired: 0x1
+groupMasks:
+  MimicOutput:
+    description: Specifies the target IO on which to mimic the specified register.
+    values:
+      None: 0
+      DIO0: 1
+      DIO1: 2
+      DIO2: 3
+      DO0: 4
+      DO1: 5
+      DO2: 6
+      DO3: 7
+  EncoderModeConfig:
+    description: Specifies the type of reading made from the quadrature encoder.
+    values:
+      Position: 0
+      Displacement: 1</DeviceMetadata>
+        <Modality>Behavior</Modality>
+        <DeviceName xsi:nil="true" />
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="AllenNeuralDynamics.Core:GenerateRootLoggingPath.bonsai">
+        <RootFolder>C:/BonsaiDataPredictiveProcessing</RootFolder>
+        <Subject>default_subject</Subject>
+        <DateTimeOffset>0001-01-01T00:00:00.0000000+00:00</DateTimeOffset>
+        <SubjectName>DefaultLoggingRootPath</SubjectName>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Value" DisplayName="OutputFolder" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value />
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>DefaultLoggingRootPath</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Description />
+        <scr:Expression>it.Item1 == "" ? it.Item2 : it.Item1</scr:Expression>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:AsyncSubject">
+        <Name>LoggingRootPath</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:RenderFrame" />
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.OrthographicView.bonsai">
+        <Left>-90</Left>
+        <Right>90</Right>
+        <Bottom>-45</Bottom>
+        <Top>45</Top>
+      </Expression>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>Draw</Name>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.SphereMapping.bonsai">
+        <ClearColor>Navy</ClearColor>
+        <Width xsi:nil="true" />
+        <Height xsi:nil="true" />
+        <RotationZ>0</RotationZ>
+        <RotationY>0</RotationY>
+        <RotationX>0</RotationX>
+        <FaceSize xsi:nil="true" />
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.ViewWindow.bonsai">
+        <Width>20.4</Width>
+        <Height>15.4</Height>
+        <Rotation>
+          <X>0</X>
+          <Y>0</Y>
+          <Z>0</Z>
+        </Rotation>
+        <Translation>
+          <X>0</X>
+          <Y>0</Y>
+          <Z>-15.1</Z>
+        </Translation>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.GammaCorrection.bonsai">
+        <ClearColor>Gray</ClearColor>
+        <GammaLut>..\..\Gamma\Rigs\2025-05-22-SLAP2-gammalut.bmp</GammaLut>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:GratingsSpecification">
+          <p2:Trials>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>0</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>22.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>45</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>67.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>90</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>112.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>135</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>157.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>180</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>202.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>225</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>257.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>270</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>292.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>315</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>0</p2:Contrast>
+              <p2:Orientation>0</p2:Orientation>
+            </p2:GratingParameters>
+          </p2:Trials>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="InputMapping">
+        <PropertyMappings>
+          <Property Name="Orientation" Selector="Orientation" />
+          <Property Name="Contrast" Selector="Contrast" />
+        </PropertyMappings>
+        <Selector />
+        <TypeMapping xsi:type="TypeMapping" TypeArguments="p2:GratingParameters" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:CreateGratingTrial">
+          <p2:Delay>0.343</p2:Delay>
+          <p2:Duration>0.343</p2:Duration>
+          <p2:Diameter>360</p2:Diameter>
+          <p2:X>0</p2:X>
+          <p2:Y>0</p2:Y>
+          <p2:Contrast>0</p2:Contrast>
+          <p2:SpatialFrequency>0.04</p2:SpatialFrequency>
+          <p2:TemporalFrequency>2</p2:TemporalFrequency>
+          <p2:Orientation>0</p2:Orientation>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Count" DisplayName="Orientationblock1Repeats" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:RepeatCount">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:GratingsSpecification">
+          <p2:Trials>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>0</p2:Orientation>
+            </p2:GratingParameters>
+          </p2:Trials>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Count" DisplayName="OddballBlock1-NbStandard" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:RepeatCount">
+          <rx:Count>20</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:GratingsSpecification">
+          <p2:Trials>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>45</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>90</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>0</p2:Contrast>
+              <p2:Orientation>0</p2:Orientation>
+            </p2:GratingParameters>
+          </p2:Trials>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Count" DisplayName="OddballBlock1-NbMismach" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:RepeatCount">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Merge" />
+      </Expression>
+      <Expression xsi:type="InputMapping">
+        <PropertyMappings>
+          <Property Name="Orientation" Selector="Orientation" />
+          <Property Name="Contrast" Selector="Contrast" />
+        </PropertyMappings>
+        <Selector />
+        <TypeMapping xsi:type="TypeMapping" TypeArguments="p2:GratingParameters" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:CreateGratingTrial">
+          <p2:Delay>0.343</p2:Delay>
+          <p2:Duration>0.343</p2:Duration>
+          <p2:Diameter>360</p2:Diameter>
+          <p2:X>0</p2:X>
+          <p2:Y>0</p2:Y>
+          <p2:Contrast>1</p2:Contrast>
+          <p2:SpatialFrequency>0.04</p2:SpatialFrequency>
+          <p2:TemporalFrequency>2</p2:TemporalFrequency>
+          <p2:Orientation>0</p2:Orientation>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:GratingsSpecification">
+          <p2:Trials>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>0</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>22.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>45</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>67.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>90</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>112.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>135</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>157.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>180</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>202.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>225</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>257.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>270</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>292.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>315</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>0</p2:Contrast>
+              <p2:Orientation>0</p2:Orientation>
+            </p2:GratingParameters>
+          </p2:Trials>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="InputMapping">
+        <PropertyMappings>
+          <Property Name="Orientation" Selector="Orientation" />
+          <Property Name="Contrast" Selector="Contrast" />
+        </PropertyMappings>
+        <Selector />
+        <TypeMapping xsi:type="TypeMapping" TypeArguments="p2:GratingParameters" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:CreateGratingTrial">
+          <p2:Delay>0.343</p2:Delay>
+          <p2:Duration>0.343</p2:Duration>
+          <p2:Diameter>360</p2:Diameter>
+          <p2:X>0</p2:X>
+          <p2:Y>0</p2:Y>
+          <p2:Contrast>0</p2:Contrast>
+          <p2:SpatialFrequency>0.04</p2:SpatialFrequency>
+          <p2:TemporalFrequency>2</p2:TemporalFrequency>
+          <p2:Orientation>0</p2:Orientation>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Count" DisplayName="Orientationblock2Repeats" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:RepeatCount">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:GratingsSpecification">
+          <p2:Trials>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>0</p2:Orientation>
+            </p2:GratingParameters>
+          </p2:Trials>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Count" DisplayName="OddballBlock2-NbStandard" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:RepeatCount">
+          <rx:Count>20</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:GratingsSpecification">
+          <p2:Trials>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>45</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>90</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>0</p2:Contrast>
+              <p2:Orientation>0</p2:Orientation>
+            </p2:GratingParameters>
+          </p2:Trials>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Count" DisplayName="OddballBlock2-NbMismach" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:RepeatCount">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Merge" />
+      </Expression>
+      <Expression xsi:type="InputMapping">
+        <PropertyMappings>
+          <Property Name="Orientation" Selector="Orientation" />
+          <Property Name="Contrast" Selector="Contrast" />
+        </PropertyMappings>
+        <Selector />
+        <TypeMapping xsi:type="TypeMapping" TypeArguments="p2:GratingParameters" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:CreateGratingTrial">
+          <p2:Delay>0.343</p2:Delay>
+          <p2:Duration>0.343</p2:Duration>
+          <p2:Diameter>360</p2:Diameter>
+          <p2:X>0</p2:X>
+          <p2:Y>0</p2:Y>
+          <p2:Contrast>1</p2:Contrast>
+          <p2:SpatialFrequency>0.04</p2:SpatialFrequency>
+          <p2:TemporalFrequency>2</p2:TemporalFrequency>
+          <p2:Orientation>0</p2:Orientation>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:GratingsSpecification">
+          <p2:Trials>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>0</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>22.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>45</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>67.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>90</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>112.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>135</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>157.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>180</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>202.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>225</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>257.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>270</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>292.5</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>1</p2:Contrast>
+              <p2:Orientation>315</p2:Orientation>
+            </p2:GratingParameters>
+            <p2:GratingParameters>
+              <p2:Contrast>0</p2:Contrast>
+              <p2:Orientation>0</p2:Orientation>
+            </p2:GratingParameters>
+          </p2:Trials>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="InputMapping">
+        <PropertyMappings>
+          <Property Name="Orientation" Selector="Orientation" />
+          <Property Name="Contrast" Selector="Contrast" />
+        </PropertyMappings>
+        <Selector />
+        <TypeMapping xsi:type="TypeMapping" TypeArguments="p2:GratingParameters" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:CreateGratingTrial">
+          <p2:Delay>0.343</p2:Delay>
+          <p2:Duration>0.343</p2:Duration>
+          <p2:Diameter>360</p2:Diameter>
+          <p2:X>0</p2:X>
+          <p2:Y>0</p2:Y>
+          <p2:Contrast>0</p2:Contrast>
+          <p2:SpatialFrequency>0.04</p2:SpatialFrequency>
+          <p2:TemporalFrequency>2</p2:TemporalFrequency>
+          <p2:Orientation>0</p2:Orientation>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Count" DisplayName="Orientationblock3Repeats" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:RepeatCount">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="io:CsvReader">
+        <io:FileName>receptive_field.csv</io:FileName>
+        <io:ListSeparator>,</io:ListSeparator>
+        <io:SkipRows>1</io:SkipRows>
+      </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>new(
+double.Parse(it[0]) * Math.Pi / 180 as Orientation,
+double.Parse(it[1]) as X,
+double.Parse(it[2]) as Y)</scr:Expression>
+      </Expression>
+      <Expression xsi:type="InputMapping">
+        <PropertyMappings>
+          <Property Name="Orientation" Selector="Orientation" />
+          <Property Name="X" Selector="X" />
+          <Property Name="Y" Selector="Y" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:CreateGratingTrial">
+          <p2:Delay>0</p2:Delay>
+          <p2:Duration>0.25</p2:Duration>
+          <p2:Diameter>20</p2:Diameter>
+          <p2:X>30</p2:X>
+          <p2:Y>30</p2:Y>
+          <p2:Contrast>0.8</p2:Contrast>
+          <p2:SpatialFrequency>0.08</p2:SpatialFrequency>
+          <p2:TemporalFrequency>4</p2:TemporalFrequency>
+          <p2:Orientation>90</p2:Orientation>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Count" DisplayName="NbReceptiveFieldRepeats" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:RepeatCount">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Concat" />
+      </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>ColoredGratingSequence</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="Phase" />
+              <Property Name="SquareWave" />
+              <Property Name="Radius" />
+              <Property Name="Aperture" />
+              <Property Name="Opacity" />
+              <Property Name="ColorR" />
+              <Property Name="ColorG" />
+              <Property Name="ColorB" />
+              <Property Name="ColorA" />
+            </Expression>
+            <Expression xsi:type="rx:CreateObservable">
+              <Workflow>
+                <Nodes>
+                  <Expression xsi:type="WorkflowInput">
+                    <Name>Source1</Name>
+                  </Expression>
+                  <Expression xsi:type="rx:AsyncSubject">
+                    <Name>Parameters</Name>
+                  </Expression>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>Draw</Name>
+                  </Expression>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>Parameters</Name>
+                  </Expression>
+                  <Expression xsi:type="PropertyMapping">
+                    <PropertyMappings>
+                      <Property Name="LocationX" Selector="X" />
+                      <Property Name="LocationY" Selector="Y" />
+                      <Property Name="Angle" Selector="Orientation" />
+                      <Property Name="SpatialFrequency" Selector="SpatialFrequency" />
+                      <Property Name="TemporalFrequency" Selector="TemporalFrequency" />
+                      <Property Name="Contrast" Selector="Contrast" />
+                      <Property Name="ExtentX" Selector="Diameter" />
+                      <Property Name="ExtentY" Selector="Diameter" />
+                    </PropertyMappings>
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="Phase" />
+                    <Property Name="SquareWave" />
+                    <Property Name="Radius" />
+                    <Property Name="Aperture" />
+                    <Property Name="Opacity" />
+                    <Property Name="ColorR" />
+                    <Property Name="ColorG" />
+                    <Property Name="ColorB" />
+                    <Property Name="ColorA" />
+                  </Expression>
+                  <Expression xsi:type="IncludeWorkflow" Path="DrawColoredGratings.bonsai">
+                    <LocationX>0</LocationX>
+                    <LocationY>0</LocationY>
+                    <Layer>0</Layer>
+                    <ExtentX>360</ExtentX>
+                    <ExtentY>360</ExtentY>
+                    <SpatialFrequency>0.04</SpatialFrequency>
+                    <TemporalFrequency>2</TemporalFrequency>
+                    <Phase>0</Phase>
+                    <Angle>0</Angle>
+                    <SquareWave>false</SquareWave>
+                    <Contrast>0</Contrast>
+                    <DutyCycle xsi:nil="true" />
+                    <Radius>1</Radius>
+                    <Aperture>0</Aperture>
+                    <Opacity>1</Opacity>
+                    <ColorR>0</ColorR>
+                    <ColorG>0</ColorG>
+                    <ColorB>1</ColorB>
+                    <ColorA>1</ColorA>
+                  </Expression>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>Parameters</Name>
+                  </Expression>
+                  <Expression xsi:type="scr:ExpressionTransform">
+                    <scr:Expression>TimeSpan.FromSeconds(Duration)</scr:Expression>
+                  </Expression>
+                  <Expression xsi:type="PropertyMapping">
+                    <PropertyMappings>
+                      <Property Name="DueTime" />
+                    </PropertyMappings>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="gl:Timer">
+                      <gl:DueTime>PT0.343S</gl:DueTime>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="gl:SampleOnRenderFrame" />
+                  </Expression>
+                  <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+                    <Format>EndGrating</Format>
+                    <Selector xsi:nil="true" />
+                    <Name>Allen.Log</Name>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:TakeUntil" />
+                  </Expression>
+                  <Expression xsi:type="SubscribeSubject">
+                    <Name>Parameters</Name>
+                  </Expression>
+                  <Expression xsi:type="scr:ExpressionTransform">
+                    <scr:Expression>TimeSpan.FromSeconds(Delay)</scr:Expression>
+                  </Expression>
+                  <Expression xsi:type="PropertyMapping">
+                    <PropertyMappings>
+                      <Property Name="DueTime" />
+                    </PropertyMappings>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="gl:Timer">
+                      <gl:DueTime>PT0.343S</gl:DueTime>
+                    </Combinator>
+                  </Expression>
+                  <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+                    <Format>StartGrating</Format>
+                    <Selector xsi:nil="true" />
+                    <Name>Allen.Log</Name>
+                  </Expression>
+                  <Expression xsi:type="GroupWorkflow">
+                    <Name>HARPDO2PULSE</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="beh:CreateMessage">
+                          <harp:MessageType>Write</harp:MessageType>
+                          <harp:Payload xsi:type="beh:CreateOutputPulseEnablePayload">
+                            <beh:OutputPulseEnable>DO2</beh:OutputPulseEnable>
+                          </harp:Payload>
+                        </Expression>
+                        <Expression xsi:type="MulticastSubject">
+                          <Name>BehaviorCommands</Name>
+                        </Expression>
+                        <Expression xsi:type="beh:CreateMessage">
+                          <harp:MessageType>Write</harp:MessageType>
+                          <harp:Payload xsi:type="beh:CreatePulseDO2Payload">
+                            <beh:PulseDO2>100</beh:PulseDO2>
+                          </harp:Payload>
+                        </Expression>
+                        <Expression xsi:type="MulticastSubject">
+                          <Name>BehaviorCommands</Name>
+                        </Expression>
+                        <Expression xsi:type="beh:CreateMessage">
+                          <harp:MessageType>Write</harp:MessageType>
+                          <harp:Payload xsi:type="beh:CreateOutputSetPayload">
+                            <beh:OutputSet>DO2</beh:OutputSet>
+                          </harp:Payload>
+                        </Expression>
+                        <Expression xsi:type="MulticastSubject">
+                          <Name>BehaviorCommands</Name>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="1" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source1" />
+                        <Edge From="2" To="3" Label="Source1" />
+                        <Edge From="3" To="4" Label="Source1" />
+                        <Edge From="4" To="5" Label="Source1" />
+                        <Edge From="5" To="6" Label="Source1" />
+                        <Edge From="6" To="7" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:SubscribeWhen" />
+                  </Expression>
+                  <Expression xsi:type="WorkflowOutput" />
+                </Nodes>
+                <Edges>
+                  <Edge From="0" To="1" Label="Source1" />
+                  <Edge From="2" To="6" Label="Source1" />
+                  <Edge From="3" To="4" Label="Source1" />
+                  <Edge From="4" To="6" Label="Source2" />
+                  <Edge From="5" To="6" Label="Source3" />
+                  <Edge From="6" To="13" Label="Source1" />
+                  <Edge From="7" To="8" Label="Source1" />
+                  <Edge From="8" To="9" Label="Source1" />
+                  <Edge From="9" To="10" Label="Source1" />
+                  <Edge From="10" To="11" Label="Source1" />
+                  <Edge From="11" To="12" Label="Source1" />
+                  <Edge From="12" To="13" Label="Source2" />
+                  <Edge From="13" To="20" Label="Source1" />
+                  <Edge From="14" To="15" Label="Source1" />
+                  <Edge From="15" To="16" Label="Source1" />
+                  <Edge From="16" To="17" Label="Source1" />
+                  <Edge From="17" To="18" Label="Source1" />
+                  <Edge From="18" To="19" Label="Source1" />
+                  <Edge From="19" To="20" Label="Source2" />
+                  <Edge From="20" To="21" Label="Source1" />
+                </Edges>
+              </Workflow>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Concat" />
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="2" Label="Source1" />
+            <Edge From="1" To="2" Label="Source2" />
+            <Edge From="2" To="3" Label="Source1" />
+            <Edge From="3" To="4" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:TakeLast">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Id,Delay,Duration,Diameter,X,Y,Contrast,SpatialFrequency,TemporalFrequency,Orientation</Selector>
+      </Expression>
+      <Expression xsi:type="rx:BehaviorSubject">
+        <Name>Orientation</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Zip" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:RepeatCount">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>StartGratings</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:SubscribeWhen" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:TakeLast">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>EndExpt</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:RenderFrame" />
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>LoggingRootPath</Name>
+      </Expression>
+      <Expression xsi:type="Format">
+        <Format>{0}/orientations_logger.csv</Format>
+        <Selector>it</Selector>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" Selector="it" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.FrameEventLogger.bonsai">
+        <Name>Allen.Log</Name>
+        <Append>false</Append>
+        <Overwrite>true</Overwrite>
+        <Suffix>None</Suffix>
+        <FileName>C:/BonsaiDataPredictiveProcessing/default_subject/default_subject_20250630T110353/orientations_logger.csv</FileName>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+        <Format>Frame</Format>
+        <Selector xsi:nil="true" />
+        <Name>Allen.Log</Name>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>EndSession</Name>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+        <Format>EndFrame</Format>
+        <Selector xsi:nil="true" />
+        <Name>Allen.Log</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:TakeUntil" />
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>Orientation</Name>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>LoggingRootPath</Name>
+      </Expression>
+      <Expression xsi:type="Format">
+        <Format>{0}/orientations_orientations.csv</Format>
+        <Selector>it</Selector>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="Annotation">
+        <Name>Save Orientation Ordering</Name>
+        <Text><![CDATA[]]></Text>
+      </Expression>
+      <Expression xsi:type="io:CsvWriter">
+        <io:FileName>C:/BonsaiDataPredictiveProcessing/default_subject/default_subject_20250630T110353/orientations_orientations.csv</io:FileName>
+        <io:Append>true</io:Append>
+        <io:Overwrite>false</io:Overwrite>
+        <io:Suffix>FileCount</io:Suffix>
+        <io:IncludeHeader>false</io:IncludeHeader>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:RenderFrame" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>StartExpt</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:Delay">
+          <gl:DueTime>PT1S</gl:DueTime>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+        <Format>SPACEBAR</Format>
+        <Selector xsi:nil="true" />
+        <Name>Allen.Log</Name>
+      </Expression>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>StartGratings</Name>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="IncludeWorkflow" Path="Extensions\behavior_camera.bonsai">
+          <Format>{0}/face_video.avi</Format>
+          <Index>0</Index>
+          <EventName>FaceCamera</EventName>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="IncludeWorkflow" Path="Extensions\behavior_camera.bonsai">
+          <Format>{0}/body_video.avi</Format>
+          <Index>1</Index>
+          <EventName>BodyCamera</EventName>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="IncludeWorkflow" Path="Extensions\behavior_camera.bonsai">
+          <Format>{0}/eye_video.avi</Format>
+          <Index>2</Index>
+          <EventName>EyeCamera</EventName>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>BehaviorEvents</Name>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Interval" DisplayName="SLAP2_Trial_Length" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:GateInterval">
+          <rx:Interval>PT20S</rx:Interval>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="Extensions\SLAP-Stop.bonsai" />
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+        <Format>STOPSLAP</Format>
+        <Selector xsi:nil="true" />
+        <Name>Allen.Log</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:Delay">
+          <gl:DueTime>PT0.6S</gl:DueTime>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="Extensions\SLAP-Start.bonsai" />
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+        <Format>STARTSLAP</Format>
+        <Selector xsi:nil="true" />
+        <Name>Allen.Log</Name>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="2" To="3" Label="Source1" />
+      <Edge From="4" To="11" Label="Source1" />
+      <Edge From="5" To="6" Label="Source1" />
+      <Edge From="6" To="7" Label="Source1" />
+      <Edge From="7" To="8" Label="Source1" />
+      <Edge From="8" To="9" Label="Source1" />
+      <Edge From="9" To="10" Label="Source1" />
+      <Edge From="10" To="11" Label="Source2" />
+      <Edge From="12" To="13" Label="Source1" />
+      <Edge From="13" To="14" Label="Source1" />
+      <Edge From="14" To="15" Label="Source1" />
+      <Edge From="16" To="17" Label="Source1" />
+      <Edge From="17" To="18" Label="Source1" />
+      <Edge From="18" To="19" Label="Source1" />
+      <Edge From="20" To="21" Label="Source1" />
+      <Edge From="21" To="22" Label="Source1" />
+      <Edge From="21" To="23" Label="Source1" />
+      <Edge From="22" To="24" Label="Source1" />
+      <Edge From="23" To="24" Label="Source2" />
+      <Edge From="24" To="25" Label="Source1" />
+      <Edge From="25" To="26" Label="Source1" />
+      <Edge From="27" To="29" Label="Source1" />
+      <Edge From="28" To="29" Label="Source2" />
+      <Edge From="29" To="30" Label="Source1" />
+      <Edge From="32" To="33" Label="Source1" />
+      <Edge From="33" To="34" Label="Source1" />
+      <Edge From="34" To="38" Label="Source1" />
+      <Edge From="35" To="36" Label="Source1" />
+      <Edge From="36" To="37" Label="Source1" />
+      <Edge From="37" To="38" Label="Source2" />
+      <Edge From="38" To="39" Label="Source1" />
+      <Edge From="39" To="40" Label="Source1" />
+      <Edge From="40" To="41" Label="Source1" />
+      <Edge From="41" To="42" Label="Source1" />
+      <Edge From="42" To="43" Label="Source1" />
+      <Edge From="43" To="44" Label="Source1" />
+      <Edge From="45" To="46" Label="Source1" />
+      <Edge From="48" To="49" Label="Source1" />
+      <Edge From="49" To="51" Label="Source1" />
+      <Edge From="50" To="51" Label="Source2" />
+      <Edge From="51" To="52" Label="Source1" />
+      <Edge From="52" To="53" Label="Source1" />
+      <Edge From="53" To="54" Label="Source1" />
+      <Edge From="55" To="56" Label="Source1" />
+      <Edge From="56" To="57" Label="Source1" />
+      <Edge From="57" To="58" Label="Source1" />
+      <Edge From="58" To="59" Label="Source1" />
+      <Edge From="59" To="60" Label="Source1" />
+      <Edge From="61" To="62" Label="Source1" />
+      <Edge From="62" To="63" Label="Source1" />
+      <Edge From="63" To="65" Label="Source1" />
+      <Edge From="64" To="65" Label="Source2" />
+      <Edge From="65" To="66" Label="Source1" />
+      <Edge From="66" To="108" Label="Source1" />
+      <Edge From="67" To="69" Label="Source1" />
+      <Edge From="68" To="69" Label="Source2" />
+      <Edge From="69" To="73" Label="Source1" />
+      <Edge From="70" To="72" Label="Source1" />
+      <Edge From="71" To="72" Label="Source2" />
+      <Edge From="72" To="73" Label="Source2" />
+      <Edge From="73" To="74" Label="Source1" />
+      <Edge From="74" To="75" Label="Source1" />
+      <Edge From="75" To="76" Label="Source1" />
+      <Edge From="76" To="108" Label="Source2" />
+      <Edge From="77" To="78" Label="Source1" />
+      <Edge From="78" To="79" Label="Source1" />
+      <Edge From="79" To="81" Label="Source1" />
+      <Edge From="80" To="81" Label="Source2" />
+      <Edge From="81" To="82" Label="Source1" />
+      <Edge From="82" To="83" Label="Source1" />
+      <Edge From="83" To="108" Label="Source3" />
+      <Edge From="84" To="86" Label="Source1" />
+      <Edge From="85" To="86" Label="Source2" />
+      <Edge From="86" To="90" Label="Source1" />
+      <Edge From="87" To="89" Label="Source1" />
+      <Edge From="88" To="89" Label="Source2" />
+      <Edge From="89" To="90" Label="Source2" />
+      <Edge From="90" To="91" Label="Source1" />
+      <Edge From="91" To="92" Label="Source1" />
+      <Edge From="92" To="93" Label="Source1" />
+      <Edge From="93" To="108" Label="Source4" />
+      <Edge From="94" To="95" Label="Source1" />
+      <Edge From="95" To="96" Label="Source1" />
+      <Edge From="96" To="98" Label="Source1" />
+      <Edge From="97" To="98" Label="Source2" />
+      <Edge From="98" To="99" Label="Source1" />
+      <Edge From="99" To="100" Label="Source1" />
+      <Edge From="100" To="108" Label="Source5" />
+      <Edge From="101" To="102" Label="Source1" />
+      <Edge From="102" To="103" Label="Source1" />
+      <Edge From="103" To="104" Label="Source1" />
+      <Edge From="104" To="106" Label="Source1" />
+      <Edge From="105" To="106" Label="Source2" />
+      <Edge From="106" To="107" Label="Source1" />
+      <Edge From="107" To="108" Label="Source6" />
+      <Edge From="108" To="109" Label="Source1" />
+      <Edge From="108" To="111" Label="Source1" />
+      <Edge From="109" To="110" Label="Source1" />
+      <Edge From="110" To="113" Label="Source1" />
+      <Edge From="111" To="112" Label="Source1" />
+      <Edge From="112" To="113" Label="Source2" />
+      <Edge From="113" To="114" Label="Source1" />
+      <Edge From="114" To="116" Label="Source1" />
+      <Edge From="115" To="116" Label="Source2" />
+      <Edge From="116" To="117" Label="Source1" />
+      <Edge From="117" To="118" Label="Source1" />
+      <Edge From="119" To="123" Label="Source1" />
+      <Edge From="120" To="121" Label="Source1" />
+      <Edge From="121" To="122" Label="Source1" />
+      <Edge From="122" To="123" Label="Source2" />
+      <Edge From="123" To="124" Label="Source1" />
+      <Edge From="124" To="127" Label="Source1" />
+      <Edge From="125" To="126" Label="Source1" />
+      <Edge From="126" To="127" Label="Source2" />
+      <Edge From="128" To="133" Label="Source1" />
+      <Edge From="129" To="130" Label="Source1" />
+      <Edge From="130" To="131" Label="Source1" />
+      <Edge From="131" To="133" Label="Source2" />
+      <Edge From="132" To="133" Label="Source3" />
+      <Edge From="134" To="135" Label="Source1" />
+      <Edge From="135" To="136" Label="Source1" />
+      <Edge From="136" To="137" Label="Source1" />
+      <Edge From="137" To="138" Label="Source1" />
+      <Edge From="138" To="139" Label="Source1" />
+      <Edge From="143" To="145" Label="Source1" />
+      <Edge From="144" To="145" Label="Source2" />
+      <Edge From="145" To="146" Label="Source1" />
+      <Edge From="146" To="147" Label="Source1" />
+      <Edge From="147" To="148" Label="Source1" />
+      <Edge From="148" To="149" Label="Source1" />
+      <Edge From="149" To="150" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>
