@@ -918,7 +918,7 @@ groupMasks:
           <p2:Diameter>360</p2:Diameter>
           <p2:X>0</p2:X>
           <p2:Y>0</p2:Y>
-          <p2:Contrast>0</p2:Contrast>
+          <p2:Contrast>1</p2:Contrast>
           <p2:SpatialFrequency>0.04</p2:SpatialFrequency>
           <p2:TemporalFrequency>2</p2:TemporalFrequency>
           <p2:Orientation>0</p2:Orientation>
@@ -994,7 +994,7 @@ groupMasks:
         <Combinator xsi:type="p2:CreateGratingTrial">
           <p2:Delay>0.343</p2:Delay>
           <p2:Duration>0.343</p2:Duration>
-          <p2:Diameter>360</p2:Diameter>
+          <p2:Diameter>359</p2:Diameter>
           <p2:X>0</p2:X>
           <p2:Y>0</p2:Y>
           <p2:Contrast>1</p2:Contrast>
@@ -1091,7 +1091,7 @@ groupMasks:
           <p2:Diameter>360</p2:Diameter>
           <p2:X>0</p2:X>
           <p2:Y>0</p2:Y>
-          <p2:Contrast>0</p2:Contrast>
+          <p2:Contrast>1</p2:Contrast>
           <p2:SpatialFrequency>0.04</p2:SpatialFrequency>
           <p2:TemporalFrequency>2</p2:TemporalFrequency>
           <p2:Orientation>0</p2:Orientation>
@@ -1170,7 +1170,7 @@ groupMasks:
         <Combinator xsi:type="p2:CreateGratingTrial">
           <p2:Delay>0.343</p2:Delay>
           <p2:Duration>0.343</p2:Duration>
-          <p2:Diameter>360</p2:Diameter>
+          <p2:Diameter>359</p2:Diameter>
           <p2:X>0</p2:X>
           <p2:Y>0</p2:Y>
           <p2:Contrast>1</p2:Contrast>
@@ -1267,7 +1267,7 @@ groupMasks:
           <p2:Diameter>360</p2:Diameter>
           <p2:X>0</p2:X>
           <p2:Y>0</p2:Y>
-          <p2:Contrast>0</p2:Contrast>
+          <p2:Contrast>1</p2:Contrast>
           <p2:SpatialFrequency>0.04</p2:SpatialFrequency>
           <p2:TemporalFrequency>2</p2:TemporalFrequency>
           <p2:Orientation>0</p2:Orientation>
