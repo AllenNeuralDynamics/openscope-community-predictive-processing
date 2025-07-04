@@ -1,0 +1,219 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.8.5"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
+                 xmlns:bv="clr-namespace:BonVision;assembly=BonVision"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="WorkflowInput">
+        <Name>Source1</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:RenderTexture">
+          <gl:RenderState />
+          <gl:ClearColor>Black</gl:ClearColor>
+          <gl:ClearMask>DepthBufferBit ColorBufferBit</gl:ClearMask>
+          <gl:Width xsi:nil="true" />
+          <gl:Height xsi:nil="true" />
+          <gl:InternalFormat>Rgba</gl:InternalFormat>
+          <gl:WrapS>Repeat</gl:WrapS>
+          <gl:WrapT>Repeat</gl:WrapT>
+          <gl:MinFilter>Linear</gl:MinFilter>
+          <gl:MagFilter>Linear</gl:MagFilter>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:BindTexture">
+          <gl:TextureSlot>Texture0</gl:TextureSlot>
+          <gl:ShaderName>ColorBalance</gl:ShaderName>
+          <gl:TextureName />
+          <gl:TextureTarget>Texture2D</gl:TextureTarget>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:CreateOrthographic">
+          <gl:Width>1</gl:Width>
+          <gl:Height>1</gl:Height>
+          <gl:NearClip>-500</gl:NearClip>
+          <gl:FarClip>500</gl:FarClip>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="ExtentX" />
+        <Property Name="ExtentY" />
+        <Property Name="LocationX" />
+        <Property Name="LocationY" />
+        <Property Name="Layer" />
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Value" DisplayName="Angle" Description="The angle of the image." />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="bv:AngleProperty">
+          <bv:Value>0</bv:Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="Angle" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>Transform</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="X" DisplayName="LocationX" />
+              <Property Name="Y" DisplayName="LocationY" />
+              <Property Name="Z" DisplayName="Layer" Description="The optional drawing overlay priority. Lower numbers appear below higher numbers." />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:Translate">
+                <gl:Order>Prepend</gl:Order>
+                <gl:X>0</gl:X>
+                <gl:Y>0</gl:Y>
+                <gl:Z>1</gl:Z>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="Angle" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:RotateZ">
+                <gl:Order>Prepend</gl:Order>
+                <gl:Angle>0</gl:Angle>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="X" DisplayName="ExtentX" Description="The size of the image along the x-axis." />
+              <Property Name="Y" DisplayName="ExtentY" Description="The size of the image along the x-axis." />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:Scale">
+                <gl:Order>Prepend</gl:Order>
+                <gl:X>1</gl:X>
+                <gl:Y>1</gl:Y>
+                <gl:Z>1</gl:Z>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:UpdateUniform">
+                <gl:UniformName>transform</gl:UniformName>
+                <gl:ShaderName>ColorBalance</gl:ShaderName>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="2" Label="Source1" />
+            <Edge From="1" To="2" Label="Source2" />
+            <Edge From="2" To="4" Label="Source1" />
+            <Edge From="3" To="4" Label="Source2" />
+            <Edge From="4" To="6" Label="Source1" />
+            <Edge From="5" To="6" Label="Source2" />
+            <Edge From="6" To="7" Label="Source1" />
+            <Edge From="7" To="8" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>ScaleShift</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="X" DisplayName="ScaleX" Category="Texture Mapping" />
+              <Property Name="Y" DisplayName="ScaleY" Category="Texture Mapping" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="bv:CreateTextureScale">
+                <bv:X>1</bv:X>
+                <bv:Y>1</bv:Y>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:UpdateUniform">
+                <gl:UniformName>scale</gl:UniformName>
+                <gl:ShaderName>ColorBalance</gl:ShaderName>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="X" DisplayName="ShiftX" Category="Texture Mapping" />
+              <Property Name="Y" DisplayName="ShiftY" Category="Texture Mapping" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="bv:CreateTextureShift">
+                <bv:X>0</bv:X>
+                <bv:Y>0</bv:Y>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:UpdateUniform">
+                <gl:UniformName>shift</gl:UniformName>
+                <gl:ShaderName>ColorBalance</gl:ShaderName>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="2" Label="Source1" />
+            <Edge From="1" To="2" Label="Source2" />
+            <Edge From="2" To="3" Label="Source1" />
+            <Edge From="3" To="5" Label="Source1" />
+            <Edge From="4" To="5" Label="Source2" />
+            <Edge From="5" To="6" Label="Source1" />
+            <Edge From="6" To="7" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="X" DisplayName="R" />
+        <Property Name="Y" DisplayName="G" />
+        <Property Name="Z" DisplayName="B" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:CreateVector4">
+          <gl:X>0</gl:X>
+          <gl:Y>0</gl:Y>
+          <gl:Z>1</gl:Z>
+          <gl:W>1</gl:W>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:UpdateUniform">
+          <gl:UniformName>colorGain</gl:UniformName>
+          <gl:ShaderName>ColorBalance</gl:ShaderName>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:DrawMesh">
+          <gl:ShaderName>ColorBalance</gl:ShaderName>
+          <gl:MeshName>Quad</gl:MeshName>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="WorkflowOutput" />
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="2" To="3" Label="Source1" />
+      <Edge From="3" To="8" Label="Source1" />
+      <Edge From="4" To="8" Label="Source2" />
+      <Edge From="5" To="6" Label="Source1" />
+      <Edge From="6" To="7" Label="Source1" />
+      <Edge From="7" To="8" Label="Source3" />
+      <Edge From="8" To="9" Label="Source1" />
+      <Edge From="9" To="11" Label="Source1" />
+      <Edge From="10" To="11" Label="Source2" />
+      <Edge From="11" To="12" Label="Source1" />
+      <Edge From="12" To="13" Label="Source1" />
+      <Edge From="13" To="14" Label="Source1" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>
