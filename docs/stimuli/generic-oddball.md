@@ -123,17 +123,20 @@ The system can load any previously generated CSV files, enabling exact replicati
 ### Step 2: Configure Bonsai Workflow
 
 1. Open `generic_oddball.bonsai` in Bonsai
-2. Locate the CSV file path in the workflow (there are multiple CSV readers for different sensory contexts)
-3. Update the file path to point to your desired experimental variant or custom CSV file:
-   ```
-   blocks\standard\standard_oddball_variant_01.csv
-   ```
+2. **Configure CSV file sources**: Locate the "Enumerate Files" nodes in the workflow - these determine which experimental blocks will be loaded:
+   - Each "Enumerate Files" node points to a specific folder (e.g., `blocks\standard\`, `blocks\jitter\`, etc.)
+   - Update the folder paths to point to your desired experimental sensory contexts
+   - You can enable/disable different sensory contexts by including/excluding their corresponding "Enumerate Files" nodes
+3. **Set block execution order**: The "Concat" main loop determines the sequence in which different experimental blocks are presented:
+   - The order of inputs to the Concat node controls the presentation sequence
+   - Modify this order to change how sensory contexts are sequenced during the experiment
 4. Configure any hardware-specific settings (encoder ports, digital outputs, etc.)
 
 ### Step 3: Run Experiment
 
 1. Start the Bonsai workflow
 2. The workflow will automatically:
+
    - Read stimulus parameters from the CSV file
    - Present stimuli according to the specified timing
    - Log experimental data and timestamps
@@ -168,26 +171,6 @@ Short 1-minute test versions are automatically generated for rapid validation:
 - Same structure as full experiments but with reduced trial counts
 - Ideal for system testing and workflow validation
 
-## Advanced Features
-
-### CSV File Flexibility
-
-The CSV-based approach provides extensive flexibility for experimental design:
-
-- **Custom sensory contexts**: Create novel experimental designs by modifying CSV files directly
-- **Parameter sweeps**: Systematically vary stimulus properties across trials
-- **Complex sequences**: Design intricate stimulus patterns and timing relationships  
-- **Session replication**: Use identical CSV files to replicate experiments exactly across subjects
-- **Cross-laboratory standardization**: Share CSV files to ensure consistent protocols between research groups
-- **Data provenance**: CSV files serve as complete records of experimental parameters for reproducibility
-
-### Synchronization
-
-The system supports multiple synchronization methods:
-
-- Digital output pulses for recording system triggers
-- Frame-accurate timing for precise stimulus control
-- Behavioral input integration for closed-loop sensory contexts
 
 ## Related Documents
 
@@ -196,15 +179,3 @@ The system supports multiple synchronization methods:
 - **[Sequence Mismatch](sequence-mismatch.md)**: Sequence learning paradigm
 - **[Experimental Plan](../experimental-plan.md)**: Overview of all experimental sensory contexts
 - **[Bonsai Instructions](bonsai_instructions.md)**: General Bonsai setup and usage
-
-<!-- DISCUSSION_LINK_START -->
-<div class="discussion-link">
-    <hr>
-    <p>
-        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/generic-oddball" target="_blank">
-            💬 Start a discussion for this page on GitHub
-        </a>
-        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
-    </p>
-</div>
-<!-- DISCUSSION_LINK_END -->
