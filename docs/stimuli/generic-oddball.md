@@ -184,6 +184,7 @@ The CSV-based approach provides extensive flexibility for experimental design:
 ### Synchronization
 
 The system supports multiple synchronization methods:
+
 - Digital output pulses for recording system triggers
 - Frame-accurate timing for precise stimulus control
 - Behavioral input integration for closed-loop sensory contexts
