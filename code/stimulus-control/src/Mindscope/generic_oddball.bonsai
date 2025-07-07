@@ -8,15 +8,12 @@
                  xmlns:io="clr-namespace:Bonsai.IO;assembly=Bonsai.System"
                  xmlns:num="clr-namespace:Bonsai.Numerics;assembly=Bonsai.Numerics"
                  xmlns:scr="clr-namespace:Bonsai.Scripting.Expressions;assembly=Bonsai.Scripting.Expressions"
-                 xmlns:p1="clr-namespace:BonVision.Collections;assembly=BonVision"
+                 xmlns:p1="clr-namespace:Aind.Behavior.Amt10Encoder;assembly=Aind.Behavior.Amt10Encoder"
+                 xmlns:sys="clr-namespace:System;assembly=mscorlib"
                  xmlns:p2="clr-namespace:Aind.Ni.DigitalOutput.Configuration;assembly=Aind.Ni.DigitalOutput.Configuration"
-                 xmlns:p3="clr-namespace:Aind.Behavior.Amt10Encoder;assembly=Aind.Behavior.Amt10Encoder"
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
     <Nodes>
-      <Expression xsi:type="ExternalizedMapping">
-        <Property Name="DisplayDevice" />
-      </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="gl:CreateWindow">
           <gl:Width>560</gl:Width>
@@ -29,7 +26,7 @@
           <gl:Location xsi:nil="true" />
           <gl:WindowBorder>Fixed</gl:WindowBorder>
           <gl:WindowState>Normal</gl:WindowState>
-          <gl:DisplayDevice>First</gl:DisplayDevice>
+          <gl:DisplayDevice>Primary</gl:DisplayDevice>
           <gl:TargetRenderFrequency>60</gl:TargetRenderFrequency>
           <gl:TargetUpdateFrequency xsi:nil="true" />
           <gl:RenderState />
@@ -130,9 +127,9 @@
         <LocationY>-20</LocationY>
         <Layer>2</Layer>
         <Angle>0</Angle>
-        <ColorR>1</ColorR>
-        <ColorG>1</ColorG>
-        <ColorB>1</ColorB>
+        <ColorR>0</ColorR>
+        <ColorG>0</ColorG>
+        <ColorB>0</ColorB>
         <ColorA>1</ColorA>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
@@ -256,12 +253,12 @@
         <B>1</B>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
-        <Property Name="Path" />
+        <Property Name="Path" DisplayName="oddball_block_path" />
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="io:EnumerateFiles">
-          <io:Path>blocks\standard</io:Path>
-          <io:SearchPattern>*variant*</io:SearchPattern>
+          <io:Path>blocks\test\motor</io:Path>
+          <io:SearchPattern>*oddball_variant*</io:SearchPattern>
           <io:SearchOption>TopDirectoryOnly</io:SearchOption>
         </Combinator>
       </Expression>
@@ -279,7 +276,7 @@
         </PropertyMappings>
       </Expression>
       <Expression xsi:type="io:CsvReader">
-        <io:FileName>blocks\standard\standard_oddball_variant_07.csv</io:FileName>
+        <io:FileName>blocks\test\motor\motor_oddball_variant_01.csv</io:FileName>
         <io:ListSeparator>,</io:ListSeparator>
         <io:SkipRows>1</io:SkipRows>
       </Expression>
@@ -289,189 +286,257 @@ double.Parse(it[0]) as Contrast,
 double.Parse(it[1]) as Delay,
 double.Parse(it[2]) as Diameter,
 double.Parse(it[3]) as Duration,
-double.Parse(it[4]) * Math.Pi / 180 as Orientation,
+double.Parse(it[4]) * Math.PI / 180 as Orientation,
 double.Parse(it[5]) as SpatialFrequency,
 double.Parse(it[6]) as TemporalFrequency,
 double.Parse(it[7]) as X,
-double.Parse(it[8]) as Y)</scr:Expression>
+double.Parse(it[8]) as Y,
+it[9] as Phase,                    
+it[10] as TrialType,           
+it[11] as BlockType,
+Guid.NewGuid() as Id) </scr:Expression>
       </Expression>
-      <Expression xsi:type="InputMapping">
+      <Expression xsi:type="SubscribeSubject">
+        <Name>TemporalPhase</Name>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
         <PropertyMappings>
-          <Property Name="Orientation" Selector="Orientation" />
-          <Property Name="X" Selector="X" />
-          <Property Name="Y" Selector="Y" />
-          <Property Name="Delay" Selector="Delay" />
-          <Property Name="Duration" Selector="Duration" />
-          <Property Name="Diameter" Selector="Diameter" />
-          <Property Name="Contrast" Selector="Contrast" />
-          <Property Name="SpatialFrequency" Selector="SpatialFrequency" />
-          <Property Name="TemporalFrequency" Selector="TemporalFrequency" />
+          <Property Name="Phase" />
         </PropertyMappings>
       </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="Extensions\FixedPhaseGratingSequence.bonsai">
+        <Phase>74</Phase>
+        <SquareWave>false</SquareWave>
+        <Radius>1</Radius>
+        <Aperture>0</Aperture>
+        <Opacity>1</Opacity>
+      </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:CreateGratingTrial">
-          <p1:Delay>0.343</p1:Delay>
-          <p1:Duration>0.343</p1:Duration>
-          <p1:Diameter>360</p1:Diameter>
-          <p1:X>0</p1:X>
-          <p1:Y>0</p1:Y>
-          <p1:Contrast>1</p1:Contrast>
-          <p1:SpatialFrequency>0.04</p1:SpatialFrequency>
-          <p1:TemporalFrequency>2</p1:TemporalFrequency>
-          <p1:Orientation>0</p1:Orientation>
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
         </Combinator>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
-        <Property Name="FileName" DisplayName="control1" />
-      </Expression>
-      <Expression xsi:type="io:CsvReader">
-        <io:FileName>blocks\standard\standard_control.csv</io:FileName>
-        <io:ListSeparator>,</io:ListSeparator>
-        <io:SkipRows>1</io:SkipRows>
-      </Expression>
-      <Expression xsi:type="scr:ExpressionTransform">
-        <scr:Expression>new(
-double.Parse(it[0]) as Contrast,
-double.Parse(it[1]) as Delay,
-double.Parse(it[2]) as Diameter,
-double.Parse(it[3]) as Duration,
-double.Parse(it[4]) * Math.Pi / 180 as Orientation,
-double.Parse(it[5]) as SpatialFrequency,
-double.Parse(it[6]) as TemporalFrequency,
-double.Parse(it[7]) as X,
-double.Parse(it[8]) as Y)</scr:Expression>
-      </Expression>
-      <Expression xsi:type="InputMapping">
-        <PropertyMappings>
-          <Property Name="Orientation" Selector="Orientation" />
-          <Property Name="X" Selector="X" />
-          <Property Name="Y" Selector="Y" />
-          <Property Name="Delay" Selector="Delay" />
-          <Property Name="Duration" Selector="Duration" />
-          <Property Name="Diameter" Selector="Diameter" />
-          <Property Name="Contrast" Selector="Contrast" />
-          <Property Name="SpatialFrequency" Selector="SpatialFrequency" />
-          <Property Name="TemporalFrequency" Selector="TemporalFrequency" />
-        </PropertyMappings>
+        <Property Name="DueTime" DisplayName="oddball_block_duration" />
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:CreateGratingTrial">
-          <p1:Delay>0.343</p1:Delay>
-          <p1:Duration>0.343</p1:Duration>
-          <p1:Diameter>370</p1:Diameter>
-          <p1:X>0</p1:X>
-          <p1:Y>0</p1:Y>
-          <p1:Contrast>1</p1:Contrast>
-          <p1:SpatialFrequency>0.04</p1:SpatialFrequency>
-          <p1:TemporalFrequency>2</p1:TemporalFrequency>
-          <p1:Orientation>345</p1:Orientation>
+        <Combinator xsi:type="rx:Delay">
+          <rx:DueTime>PT15S</rx:DueTime>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="num:Permutation" />
+        <Combinator xsi:type="rx:TakeUntil" />
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
-        <Property Name="FileName" DisplayName="control2" />
-      </Expression>
-      <Expression xsi:type="io:CsvReader">
-        <io:FileName>blocks\jitter\jitter_control.csv</io:FileName>
-        <io:ListSeparator>,</io:ListSeparator>
-        <io:SkipRows>1</io:SkipRows>
-      </Expression>
-      <Expression xsi:type="scr:ExpressionTransform">
-        <scr:Expression>new(
-double.Parse(it[0]) as Contrast,
-double.Parse(it[1]) as Delay,
-double.Parse(it[2]) as Diameter,
-double.Parse(it[3]) as Duration,
-double.Parse(it[4]) * Math.Pi / 180 as Orientation,
-double.Parse(it[5]) as SpatialFrequency,
-double.Parse(it[6]) as TemporalFrequency,
-double.Parse(it[7]) as X,
-double.Parse(it[8]) as Y)</scr:Expression>
-      </Expression>
-      <Expression xsi:type="InputMapping">
-        <PropertyMappings>
-          <Property Name="Orientation" Selector="Orientation" />
-          <Property Name="X" Selector="X" />
-          <Property Name="Y" Selector="Y" />
-          <Property Name="Delay" Selector="Delay" />
-          <Property Name="Duration" Selector="Duration" />
-          <Property Name="Diameter" Selector="Diameter" />
-          <Property Name="Contrast" Selector="Contrast" />
-          <Property Name="SpatialFrequency" Selector="SpatialFrequency" />
-          <Property Name="TemporalFrequency" Selector="TemporalFrequency" />
-        </PropertyMappings>
+        <Property Name="Path" DisplayName="control1_block_path" />
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:CreateGratingTrial">
-          <p1:Delay>0.343</p1:Delay>
-          <p1:Duration>0.343</p1:Duration>
-          <p1:Diameter>380</p1:Diameter>
-          <p1:X>0</p1:X>
-          <p1:Y>0</p1:Y>
-          <p1:Contrast>1</p1:Contrast>
-          <p1:SpatialFrequency>0.04</p1:SpatialFrequency>
-          <p1:TemporalFrequency>2</p1:TemporalFrequency>
-          <p1:Orientation>0</p1:Orientation>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="num:Permutation" />
-      </Expression>
-      <Expression xsi:type="ExternalizedMapping">
-        <Property Name="FileName" DisplayName="control3" />
-      </Expression>
-      <Expression xsi:type="io:CsvReader">
-        <io:FileName>blocks\sequentials\sequential_control.csv</io:FileName>
-        <io:ListSeparator>,</io:ListSeparator>
-        <io:SkipRows>1</io:SkipRows>
-      </Expression>
-      <Expression xsi:type="scr:ExpressionTransform">
-        <scr:Expression>new(
-double.Parse(it[0]) as Contrast,
-double.Parse(it[1]) as Delay,
-double.Parse(it[2]) as Diameter,
-double.Parse(it[3]) as Duration,
-double.Parse(it[4]) * Math.Pi / 180 as Orientation,
-double.Parse(it[5]) as SpatialFrequency,
-double.Parse(it[6]) as TemporalFrequency,
-double.Parse(it[7]) as X,
-double.Parse(it[8]) as Y)</scr:Expression>
-      </Expression>
-      <Expression xsi:type="InputMapping">
-        <PropertyMappings>
-          <Property Name="Orientation" Selector="Orientation" />
-          <Property Name="X" Selector="X" />
-          <Property Name="Y" Selector="Y" />
-          <Property Name="Delay" Selector="Delay" />
-          <Property Name="Duration" Selector="Duration" />
-          <Property Name="Diameter" Selector="Diameter" />
-          <Property Name="Contrast" Selector="Contrast" />
-          <Property Name="SpatialFrequency" Selector="SpatialFrequency" />
-          <Property Name="TemporalFrequency" Selector="TemporalFrequency" />
-        </PropertyMappings>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p1:CreateGratingTrial">
-          <p1:Delay>0</p1:Delay>
-          <p1:Duration>0.25</p1:Duration>
-          <p1:Diameter>390</p1:Diameter>
-          <p1:X>0</p1:X>
-          <p1:Y>0</p1:Y>
-          <p1:Contrast>0</p1:Contrast>
-          <p1:SpatialFrequency>0.04</p1:SpatialFrequency>
-          <p1:TemporalFrequency>2</p1:TemporalFrequency>
-          <p1:Orientation>0</p1:Orientation>
+        <Combinator xsi:type="io:EnumerateFiles">
+          <io:Path>blocks\test\jitter</io:Path>
+          <io:SearchPattern>*control_variant*</io:SearchPattern>
+          <io:SearchOption>TopDirectoryOnly</io:SearchOption>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="num:Permutation" />
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Concat" />
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
       </Expression>
-      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Collections.GratingSequence.bonsai">
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="io:CsvReader">
+        <io:FileName>blocks\test\jitter\jitter_control_variant_01.csv</io:FileName>
+        <io:ListSeparator>,</io:ListSeparator>
+        <io:SkipRows>1</io:SkipRows>
+      </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>new(
+double.Parse(it[0]) as Contrast,
+double.Parse(it[1]) as Delay,
+double.Parse(it[2]) as Diameter,
+double.Parse(it[3]) as Duration,
+double.Parse(it[4]) * Math.PI / 180 as Orientation,
+double.Parse(it[5]) as SpatialFrequency,
+double.Parse(it[6]) as TemporalFrequency,
+double.Parse(it[7]) as X,
+double.Parse(it[8]) as Y,
+it[9] as Phase,                    
+it[10] as TrialType,           
+it[11] as BlockType,
+Guid.NewGuid() as Id) </scr:Expression>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="Extensions\FixedPhaseGratingSequence.bonsai">
+        <Phase>0</Phase>
+        <SquareWave>false</SquareWave>
+        <Radius>1</Radius>
+        <Aperture>0</Aperture>
+        <Opacity>1</Opacity>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Path" DisplayName="control2_block_path" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="io:EnumerateFiles">
+          <io:Path>blocks\test\sequentials</io:Path>
+          <io:SearchPattern>*control_variant*</io:SearchPattern>
+          <io:SearchOption>TopDirectoryOnly</io:SearchOption>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="io:CsvReader">
+        <io:FileName>blocks\test\sequentials\sequential_control_variant_01.csv</io:FileName>
+        <io:ListSeparator>,</io:ListSeparator>
+        <io:SkipRows>1</io:SkipRows>
+      </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>new(
+double.Parse(it[0]) as Contrast,
+double.Parse(it[1]) as Delay,
+double.Parse(it[2]) as Diameter,
+double.Parse(it[3]) as Duration,
+double.Parse(it[4]) * Math.PI / 180 as Orientation,
+double.Parse(it[5]) as SpatialFrequency,
+double.Parse(it[6]) as TemporalFrequency,
+double.Parse(it[7]) as X,
+double.Parse(it[8]) as Y,
+it[9] as Phase,                    
+it[10] as TrialType,           
+it[11] as BlockType,
+Guid.NewGuid() as Id) </scr:Expression>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="Extensions\FixedPhaseGratingSequence.bonsai">
+        <Phase>0</Phase>
+        <SquareWave>false</SquareWave>
+        <Radius>1</Radius>
+        <Aperture>0</Aperture>
+        <Opacity>1</Opacity>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Path" DisplayName="control3_block_path" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="io:EnumerateFiles">
+          <io:Path>blocks\test\standard</io:Path>
+          <io:SearchPattern>*control_variant*</io:SearchPattern>
+          <io:SearchOption>TopDirectoryOnly</io:SearchOption>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="io:CsvReader">
+        <io:FileName>blocks\test\standard\standard_control_variant_01.csv</io:FileName>
+        <io:ListSeparator>,</io:ListSeparator>
+        <io:SkipRows>1</io:SkipRows>
+      </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>new(
+double.Parse(it[0]) as Contrast,
+double.Parse(it[1]) as Delay,
+double.Parse(it[2]) as Diameter,
+double.Parse(it[3]) as Duration,
+double.Parse(it[4]) * Math.PI / 180 as Orientation,
+double.Parse(it[5]) as SpatialFrequency,
+double.Parse(it[6]) as TemporalFrequency,
+double.Parse(it[7]) as X,
+double.Parse(it[8]) as Y,
+it[9] as Phase,                    
+it[10] as TrialType,           
+it[11] as BlockType,
+Guid.NewGuid() as Id) </scr:Expression>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="Extensions\FixedPhaseGratingSequence.bonsai">
+        <Phase>0</Phase>
+        <SquareWave>false</SquareWave>
+        <Radius>1</Radius>
+        <Aperture>0</Aperture>
+        <Opacity>1</Opacity>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Path" DisplayName="control4_block_path" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="io:EnumerateFiles">
+          <io:Path>blocks\test\motor</io:Path>
+          <io:SearchPattern>*control_variant*</io:SearchPattern>
+          <io:SearchOption>TopDirectoryOnly</io:SearchOption>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="FileName" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="io:CsvReader">
+        <io:FileName>blocks\test\motor\motor_control_variant_01.csv</io:FileName>
+        <io:ListSeparator>,</io:ListSeparator>
+        <io:SkipRows>1</io:SkipRows>
+      </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>new(
+double.Parse(it[0]) as Contrast,
+double.Parse(it[1]) as Delay,
+double.Parse(it[2]) as Diameter,
+double.Parse(it[3]) as Duration,
+double.Parse(it[4]) * Math.PI / 180 as Orientation,
+double.Parse(it[5]) as SpatialFrequency,
+double.Parse(it[6]) as TemporalFrequency,
+double.Parse(it[7]) as X,
+double.Parse(it[8]) as Y,
+it[9] as Phase,                    
+it[10] as TrialType,           
+it[11] as BlockType,
+Guid.NewGuid() as Id) </scr:Expression>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="num:Permutation" />
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="Extensions\FixedPhaseGratingSequence.bonsai">
         <Phase>0</Phase>
         <SquareWave>false</SquareWave>
         <Radius>1</Radius>
@@ -479,23 +544,13 @@ double.Parse(it[8]) as Y)</scr:Expression>
         <Opacity>1</Opacity>
       </Expression>
       <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:TakeLast">
-          <rx:Count>1</rx:Count>
-        </Combinator>
+        <Combinator xsi:type="rx:Concat" />
       </Expression>
       <Expression xsi:type="MemberSelector">
-        <Selector>Id,Delay,Duration,Diameter,X,Y,Contrast,SpatialFrequency,TemporalFrequency,Orientation</Selector>
+        <Selector>Delay,Contrast,Duration,Diameter,X,Y,SpatialFrequency,TemporalFrequency,Orientation,Phase,TrialType,BlockType,Id</Selector>
       </Expression>
       <Expression xsi:type="rx:BehaviorSubject">
         <Name>Orientation</Name>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Zip" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:RepeatCount">
-          <rx:Count>1</rx:Count>
-        </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:TakeLast">
@@ -504,6 +559,64 @@ double.Parse(it[8]) as Y)</scr:Expression>
       </Expression>
       <Expression xsi:type="rx:PublishSubject">
         <Name>EndExpt</Name>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="PortName" DisplayName="WheelPort" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:AMT10EncoderSource">
+          <p1:BaudRate>9600</p1:BaudRate>
+          <p1:Timeout>500</p1:Timeout>
+          <p1:CountsPerRevolution>8192</p1:CountsPerRevolution>
+          <p1:Debug>false</p1:Debug>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:RenderFrame" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Sample" />
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+        <Format>Wheel-Index-{0}-Count-{1}-Deg-{2}</Format>
+        <Selector>Index,Count,Degrees</Selector>
+        <Name>Allen.Log</Name>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Degrees</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:RenderFrame" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:ElementIndex" />
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Index</Selector>
+      </Expression>
+      <Expression xsi:type="Multiply">
+        <Operand xsi:type="IntProperty">
+          <Value>100</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:OnErrorResumeNext" />
+      </Expression>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>WheelDegrees</Name>
+      </Expression>
+      <Expression xsi:type="Divide">
+        <Operand xsi:type="WorkflowProperty" TypeArguments="sys:Int16">
+          <Value>360</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="Mod">
+        <Operand xsi:type="WorkflowProperty" TypeArguments="sys:Int16">
+          <Value>360</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>TemporalPhase</Name>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="gl:RenderFrame" />
@@ -525,7 +638,7 @@ double.Parse(it[8]) as Y)</scr:Expression>
         <Append>false</Append>
         <Overwrite>true</Overwrite>
         <Suffix>None</Suffix>
-        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250703T180707/orientations_logger.csv</FileName>
+        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250706T192559/orientations_logger.csv</FileName>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
         <Format>Frame</Format>
@@ -563,128 +676,36 @@ double.Parse(it[8]) as Y)</scr:Expression>
         <Text><![CDATA[]]></Text>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250703T180707/orientations_orientations.csv</io:FileName>
+        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250706T192559/orientations_orientations.csv</io:FileName>
         <io:Append>true</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>FileCount</io:Suffix>
         <io:IncludeHeader>false</io:IncludeHeader>
       </Expression>
-      <Expression xsi:type="ExternalizedMapping">
-        <Property Name="ChannelName" DisplayName="acq_frame_line" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:DigitalOutputConfigurationSource">
-          <p2:ChannelName />
-          <p2:Lines>Dev1/port0</p2:Lines>
-          <p2:Grouping>OneChannelForEachLine</p2:Grouping>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:ToDigitalOutputConfigCollection" />
-      </Expression>
-      <Expression xsi:type="PropertyMapping">
-        <PropertyMappings>
-          <Property Name="Channels" />
-        </PropertyMappings>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="gl:RenderFrame" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="BooleanProperty">
-          <Value>true</Value>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Delay">
-          <rx:DueTime>PT0.01S</rx:DueTime>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="BooleanProperty">
-          <Value>false</Value>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Merge" />
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="ExternalizedMapping">
+          <Property Name="ChannelName" DisplayName="acq_frame_line" />
+        </Builder>
       </Expression>
       <Expression xsi:type="Disable">
         <Builder xsi:type="Combinator">
-          <Combinator xsi:type="p2:DigitalOutputWriter">
-            <p2:Channels />
-            <p2:SignalSource />
-            <p2:SampleRate>1000</p2:SampleRate>
-            <p2:ActiveEdge>Rising</p2:ActiveEdge>
-            <p2:SampleMode>ContinuousSamples</p2:SampleMode>
-            <p2:BufferSize>1000</p2:BufferSize>
+          <Combinator xsi:type="p2:DigitalOutputConfigurationSource">
+            <p2:ChannelName />
+            <p2:Lines>Dev1/port0</p2:Lines>
+            <p2:Grouping>OneChannelForEachLine</p2:Grouping>
           </Combinator>
         </Builder>
       </Expression>
-      <Expression xsi:type="ExternalizedMapping">
-        <Property Name="ChannelName" DisplayName="acq_session_line" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:DigitalOutputConfigurationSource">
-          <p2:ChannelName />
-          <p2:Lines>Dev1/port0</p2:Lines>
-          <p2:Grouping>OneChannelForEachLine</p2:Grouping>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:ToDigitalOutputConfigCollection" />
-      </Expression>
-      <Expression xsi:type="PropertyMapping">
-        <PropertyMappings>
-          <Property Name="Channels" />
-        </PropertyMappings>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="gl:RenderFrame" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Take">
-          <rx:Count>1</rx:Count>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="BooleanProperty">
-          <Value>true</Value>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>EndSession</Name>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="BooleanProperty">
-          <Value>false</Value>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Merge" />
-      </Expression>
       <Expression xsi:type="Disable">
         <Builder xsi:type="Combinator">
-          <Combinator xsi:type="p2:DigitalOutputWriter">
-            <p2:Channels />
-            <p2:SignalSource />
-            <p2:SampleRate>1000</p2:SampleRate>
-            <p2:ActiveEdge>Rising</p2:ActiveEdge>
-            <p2:SampleMode>ContinuousSamples</p2:SampleMode>
-            <p2:BufferSize>1000</p2:BufferSize>
-          </Combinator>
+          <Combinator xsi:type="p2:ToDigitalOutputConfigCollection" />
         </Builder>
       </Expression>
-      <Expression xsi:type="ExternalizedMapping">
-        <Property Name="PortName" DisplayName="WheelPort" />
-      </Expression>
       <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="p3:AMT10EncoderSource">
-            <p3:BaudRate>9600</p3:BaudRate>
-            <p3:Timeout>500</p3:Timeout>
-            <p3:CountsPerRevolution>8192</p3:CountsPerRevolution>
-            <p3:Debug>false</p3:Debug>
-          </Combinator>
+        <Builder xsi:type="PropertyMapping">
+          <PropertyMappings>
+            <Property Name="Channels" />
+          </PropertyMappings>
         </Builder>
       </Expression>
       <Expression xsi:type="Disable">
@@ -694,29 +715,114 @@ double.Parse(it[8]) as Y)</scr:Expression>
       </Expression>
       <Expression xsi:type="Disable">
         <Builder xsi:type="Combinator">
-          <Combinator xsi:type="rx:Zip" />
+          <Combinator xsi:type="BooleanProperty">
+            <Value>true</Value>
+          </Combinator>
         </Builder>
       </Expression>
       <Expression xsi:type="Disable">
-        <Builder xsi:type="MemberSelector">
-          <Selector>Item1</Selector>
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="rx:Delay">
+            <rx:DueTime>PT0.01S</rx:DueTime>
+          </Combinator>
         </Builder>
       </Expression>
       <Expression xsi:type="Disable">
-        <Builder xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
-          <Format>Wheel-Index-{0}-Count-{1}-Deg-{2}</Format>
-          <Selector>Index,Count,Degrees</Selector>
-          <Name>Allen.Log</Name>
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="BooleanProperty">
+            <Value>false</Value>
+          </Combinator>
         </Builder>
       </Expression>
       <Expression xsi:type="Disable">
-        <Builder xsi:type="MemberSelector">
-          <Selector>Degrees</Selector>
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="rx:Merge" />
         </Builder>
       </Expression>
       <Expression xsi:type="Disable">
-        <Builder xsi:type="rx:PublishSubject">
-          <Name>WheelDegrees</Name>
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:DigitalOutputWriter">
+            <p2:Channels />
+            <p2:SignalSource />
+            <p2:SampleRate>1000</p2:SampleRate>
+            <p2:ActiveEdge>Rising</p2:ActiveEdge>
+            <p2:SampleMode>ContinuousSamples</p2:SampleMode>
+            <p2:BufferSize>1000</p2:BufferSize>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="ExternalizedMapping">
+          <Property Name="ChannelName" DisplayName="acq_session_line" />
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:DigitalOutputConfigurationSource">
+            <p2:ChannelName />
+            <p2:Lines>Dev1/port0</p2:Lines>
+            <p2:Grouping>OneChannelForEachLine</p2:Grouping>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:ToDigitalOutputConfigCollection" />
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="PropertyMapping">
+          <PropertyMappings>
+            <Property Name="Channels" />
+          </PropertyMappings>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="gl:RenderFrame" />
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="rx:Take">
+            <rx:Count>1</rx:Count>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="BooleanProperty">
+            <Value>true</Value>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="SubscribeSubject">
+          <Name>EndSession</Name>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="BooleanProperty">
+            <Value>false</Value>
+          </Combinator>
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="rx:Merge" />
+        </Builder>
+      </Expression>
+      <Expression xsi:type="Disable">
+        <Builder xsi:type="Combinator">
+          <Combinator xsi:type="p2:DigitalOutputWriter">
+            <p2:Channels />
+            <p2:SignalSource />
+            <p2:SampleRate>1000</p2:SampleRate>
+            <p2:ActiveEdge>Rising</p2:ActiveEdge>
+            <p2:SampleMode>ContinuousSamples</p2:SampleMode>
+            <p2:BufferSize>1000</p2:BufferSize>
+          </Combinator>
         </Builder>
       </Expression>
     </Nodes>
@@ -724,110 +830,135 @@ double.Parse(it[8]) as Y)</scr:Expression>
       <Edge From="0" To="1" Label="Source1" />
       <Edge From="1" To="2" Label="Source1" />
       <Edge From="2" To="3" Label="Source1" />
-      <Edge From="3" To="4" Label="Source1" />
-      <Edge From="5" To="13" Label="Source1" />
+      <Edge From="4" To="12" Label="Source1" />
+      <Edge From="5" To="6" Label="Source1" />
       <Edge From="6" To="7" Label="Source1" />
       <Edge From="7" To="8" Label="Source1" />
       <Edge From="8" To="9" Label="Source1" />
       <Edge From="9" To="10" Label="Source1" />
-      <Edge From="10" To="11" Label="Source1" />
-      <Edge From="11" To="13" Label="Source2" />
-      <Edge From="12" To="13" Label="Source3" />
+      <Edge From="10" To="12" Label="Source2" />
+      <Edge From="11" To="12" Label="Source3" />
+      <Edge From="13" To="14" Label="Source1" />
       <Edge From="14" To="15" Label="Source1" />
-      <Edge From="15" To="16" Label="Source1" />
-      <Edge From="16" To="20" Label="Source1" />
+      <Edge From="15" To="19" Label="Source1" />
+      <Edge From="16" To="17" Label="Source1" />
       <Edge From="17" To="18" Label="Source1" />
-      <Edge From="18" To="19" Label="Source1" />
-      <Edge From="19" To="20" Label="Source2" />
+      <Edge From="18" To="19" Label="Source2" />
+      <Edge From="19" To="20" Label="Source1" />
       <Edge From="20" To="21" Label="Source1" />
       <Edge From="21" To="22" Label="Source1" />
       <Edge From="22" To="23" Label="Source1" />
       <Edge From="23" To="24" Label="Source1" />
-      <Edge From="24" To="25" Label="Source1" />
-      <Edge From="26" To="27" Label="Source1" />
+      <Edge From="25" To="26" Label="Source1" />
+      <Edge From="27" To="28" Label="Source1" />
       <Edge From="28" To="29" Label="Source1" />
       <Edge From="29" To="30" Label="Source1" />
       <Edge From="30" To="31" Label="Source1" />
       <Edge From="31" To="32" Label="Source1" />
-      <Edge From="32" To="33" Label="Source1" />
-      <Edge From="33" To="35" Label="Source1" />
-      <Edge From="34" To="35" Label="Source2" />
+      <Edge From="32" To="34" Label="Source1" />
+      <Edge From="33" To="34" Label="Source2" />
+      <Edge From="35" To="36" Label="Source1" />
       <Edge From="36" To="37" Label="Source1" />
       <Edge From="37" To="38" Label="Source1" />
       <Edge From="38" To="39" Label="Source1" />
       <Edge From="39" To="40" Label="Source1" />
       <Edge From="40" To="41" Label="Source1" />
-      <Edge From="41" To="42" Label="Source1" />
+      <Edge From="41" To="44" Label="Source1" />
       <Edge From="42" To="43" Label="Source1" />
-      <Edge From="43" To="44" Label="Source1" />
-      <Edge From="44" To="63" Label="Source1" />
-      <Edge From="45" To="46" Label="Source1" />
-      <Edge From="46" To="47" Label="Source1" />
-      <Edge From="47" To="48" Label="Source1" />
-      <Edge From="48" To="49" Label="Source1" />
+      <Edge From="43" To="44" Label="Source3" />
+      <Edge From="44" To="45" Label="Source1" />
+      <Edge From="44" To="48" Label="Source1" />
+      <Edge From="45" To="47" Label="Source1" />
+      <Edge From="46" To="47" Label="Source2" />
+      <Edge From="47" To="48" Label="Source2" />
+      <Edge From="48" To="85" Label="Source1" />
       <Edge From="49" To="50" Label="Source1" />
-      <Edge From="50" To="63" Label="Source2" />
+      <Edge From="50" To="51" Label="Source1" />
       <Edge From="51" To="52" Label="Source1" />
       <Edge From="52" To="53" Label="Source1" />
       <Edge From="53" To="54" Label="Source1" />
       <Edge From="54" To="55" Label="Source1" />
       <Edge From="55" To="56" Label="Source1" />
-      <Edge From="56" To="63" Label="Source3" />
-      <Edge From="57" To="58" Label="Source1" />
+      <Edge From="56" To="57" Label="Source1" />
+      <Edge From="57" To="85" Label="Source2" />
       <Edge From="58" To="59" Label="Source1" />
       <Edge From="59" To="60" Label="Source1" />
       <Edge From="60" To="61" Label="Source1" />
       <Edge From="61" To="62" Label="Source1" />
-      <Edge From="62" To="63" Label="Source4" />
+      <Edge From="62" To="63" Label="Source1" />
       <Edge From="63" To="64" Label="Source1" />
-      <Edge From="63" To="66" Label="Source1" />
       <Edge From="64" To="65" Label="Source1" />
-      <Edge From="65" To="68" Label="Source1" />
-      <Edge From="66" To="67" Label="Source1" />
-      <Edge From="67" To="68" Label="Source2" />
+      <Edge From="65" To="66" Label="Source1" />
+      <Edge From="66" To="85" Label="Source3" />
+      <Edge From="67" To="68" Label="Source1" />
       <Edge From="68" To="69" Label="Source1" />
       <Edge From="69" To="70" Label="Source1" />
       <Edge From="70" To="71" Label="Source1" />
-      <Edge From="72" To="76" Label="Source1" />
+      <Edge From="71" To="72" Label="Source1" />
+      <Edge From="72" To="73" Label="Source1" />
       <Edge From="73" To="74" Label="Source1" />
       <Edge From="74" To="75" Label="Source1" />
-      <Edge From="75" To="76" Label="Source2" />
+      <Edge From="75" To="85" Label="Source4" />
       <Edge From="76" To="77" Label="Source1" />
-      <Edge From="77" To="80" Label="Source1" />
+      <Edge From="77" To="78" Label="Source1" />
       <Edge From="78" To="79" Label="Source1" />
-      <Edge From="79" To="80" Label="Source2" />
-      <Edge From="81" To="86" Label="Source1" />
+      <Edge From="79" To="80" Label="Source1" />
+      <Edge From="80" To="81" Label="Source1" />
+      <Edge From="81" To="82" Label="Source1" />
       <Edge From="82" To="83" Label="Source1" />
       <Edge From="83" To="84" Label="Source1" />
-      <Edge From="84" To="86" Label="Source2" />
-      <Edge From="85" To="86" Label="Source3" />
+      <Edge From="84" To="85" Label="Source5" />
+      <Edge From="85" To="86" Label="Source1" />
+      <Edge From="86" To="87" Label="Source1" />
       <Edge From="87" To="88" Label="Source1" />
       <Edge From="88" To="89" Label="Source1" />
-      <Edge From="89" To="90" Label="Source1" />
-      <Edge From="90" To="96" Label="Source1" />
-      <Edge From="91" To="92" Label="Source1" />
-      <Edge From="91" To="94" Label="Source1" />
-      <Edge From="92" To="93" Label="Source1" />
-      <Edge From="93" To="95" Label="Source1" />
-      <Edge From="94" To="95" Label="Source2" />
-      <Edge From="95" To="96" Label="Source2" />
+      <Edge From="90" To="91" Label="Source1" />
+      <Edge From="91" To="93" Label="Source1" />
+      <Edge From="92" To="93" Label="Source2" />
+      <Edge From="93" To="94" Label="Source1" />
+      <Edge From="94" To="95" Label="Source1" />
+      <Edge From="95" To="100" Label="Source1" />
+      <Edge From="96" To="97" Label="Source1" />
       <Edge From="97" To="98" Label="Source1" />
       <Edge From="98" To="99" Label="Source1" />
-      <Edge From="99" To="100" Label="Source1" />
-      <Edge From="100" To="107" Label="Source1" />
+      <Edge From="99" To="100" Label="Source2" />
+      <Edge From="100" To="101" Label="Source1" />
       <Edge From="101" To="102" Label="Source1" />
       <Edge From="102" To="103" Label="Source1" />
-      <Edge From="103" To="106" Label="Source1" />
-      <Edge From="104" To="105" Label="Source1" />
-      <Edge From="105" To="106" Label="Source2" />
-      <Edge From="106" To="107" Label="Source2" />
-      <Edge From="108" To="109" Label="Source1" />
-      <Edge From="109" To="111" Label="Source1" />
-      <Edge From="110" To="111" Label="Source2" />
+      <Edge From="103" To="104" Label="Source1" />
+      <Edge From="105" To="109" Label="Source1" />
+      <Edge From="106" To="107" Label="Source1" />
+      <Edge From="107" To="108" Label="Source1" />
+      <Edge From="108" To="109" Label="Source2" />
+      <Edge From="109" To="110" Label="Source1" />
+      <Edge From="110" To="113" Label="Source1" />
       <Edge From="111" To="112" Label="Source1" />
-      <Edge From="112" To="113" Label="Source1" />
-      <Edge From="113" To="114" Label="Source1" />
-      <Edge From="114" To="115" Label="Source1" />
+      <Edge From="112" To="113" Label="Source2" />
+      <Edge From="114" To="119" Label="Source1" />
+      <Edge From="115" To="116" Label="Source1" />
+      <Edge From="116" To="117" Label="Source1" />
+      <Edge From="117" To="119" Label="Source2" />
+      <Edge From="118" To="119" Label="Source3" />
+      <Edge From="120" To="121" Label="Source1" />
+      <Edge From="121" To="122" Label="Source1" />
+      <Edge From="122" To="123" Label="Source1" />
+      <Edge From="123" To="129" Label="Source1" />
+      <Edge From="124" To="125" Label="Source1" />
+      <Edge From="124" To="127" Label="Source1" />
+      <Edge From="125" To="126" Label="Source1" />
+      <Edge From="126" To="128" Label="Source1" />
+      <Edge From="127" To="128" Label="Source2" />
+      <Edge From="128" To="129" Label="Source2" />
+      <Edge From="130" To="131" Label="Source1" />
+      <Edge From="131" To="132" Label="Source1" />
+      <Edge From="132" To="133" Label="Source1" />
+      <Edge From="133" To="140" Label="Source1" />
+      <Edge From="134" To="135" Label="Source1" />
+      <Edge From="135" To="136" Label="Source1" />
+      <Edge From="136" To="139" Label="Source1" />
+      <Edge From="137" To="138" Label="Source1" />
+      <Edge From="138" To="139" Label="Source2" />
+      <Edge From="139" To="140" Label="Source2" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>

@@ -1,0 +1,166 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<WorkflowBuilder Version="2.8.5"
+                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+                 xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
+                 xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
+                 xmlns:res="clr-namespace:Bonsai.Resources;assembly=Bonsai.System"
+                 xmlns:p1="clr-namespace:BonVision.Collections;assembly=BonVision"
+                 xmlns="https://bonsai-rx.org/2018/workflow">
+  <Workflow>
+    <Nodes>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:CreateWindow">
+          <gl:Width>560</gl:Width>
+          <gl:Height>480</gl:Height>
+          <gl:VSync>On</gl:VSync>
+          <gl:SwapSync>false</gl:SwapSync>
+          <gl:ClearColor>Navy</gl:ClearColor>
+          <gl:ClearMask>DepthBufferBit ColorBufferBit</gl:ClearMask>
+          <gl:CursorVisible>true</gl:CursorVisible>
+          <gl:Location xsi:nil="true" />
+          <gl:WindowBorder>Fixed</gl:WindowBorder>
+          <gl:WindowState>Normal</gl:WindowState>
+          <gl:DisplayDevice>First</gl:DisplayDevice>
+          <gl:TargetRenderFrequency>60</gl:TargetRenderFrequency>
+          <gl:TargetUpdateFrequency xsi:nil="true" />
+          <gl:RenderState />
+          <gl:GraphicsMode>
+            <gl:ColorFormat>
+              <gl:Red>8</gl:Red>
+              <gl:Green>8</gl:Green>
+              <gl:Blue>8</gl:Blue>
+              <gl:Alpha>8</gl:Alpha>
+            </gl:ColorFormat>
+            <gl:Depth>16</gl:Depth>
+            <gl:Stencil>0</gl:Stencil>
+            <gl:Samples>0</gl:Samples>
+            <gl:AccumulatorFormat>
+              <gl:Red>0</gl:Red>
+              <gl:Green>0</gl:Green>
+              <gl:Blue>0</gl:Blue>
+              <gl:Alpha>0</gl:Alpha>
+            </gl:AccumulatorFormat>
+            <gl:Buffers>2</gl:Buffers>
+            <gl:Stereo>false</gl:Stereo>
+          </gl:GraphicsMode>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>BonVisionSettings</Name>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.BonVisionResources.bonsai" />
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:ShaderResources">
+          <gl:Shaders>
+            <gl:ShaderConfiguration xsi:type="gl:Material">
+              <gl:Name>ColoredGratings</gl:Name>
+              <gl:RenderState />
+              <gl:ShaderUniforms />
+              <gl:BufferBindings />
+              <gl:FramebufferAttachments />
+              <gl:VertexShader>BonVision:Shaders.Gratings.vert</gl:VertexShader>
+              <gl:FragmentShader>..\bonsai\Shaders\ColoredGratings.frag</gl:FragmentShader>
+            </gl:ShaderConfiguration>
+          </gl:Shaders>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="res:LoadResources" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:RenderFrame" />
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.OrthographicView.bonsai">
+        <Left>-90</Left>
+        <Right>90</Right>
+        <Bottom>-45</Bottom>
+        <Top>45</Top>
+      </Expression>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>Draw</Name>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.SphereMapping.bonsai">
+        <ClearColor>Navy</ClearColor>
+        <Width xsi:nil="true" />
+        <Height xsi:nil="true" />
+        <RotationZ>0</RotationZ>
+        <RotationY>0</RotationY>
+        <RotationX>0</RotationX>
+        <FaceSize xsi:nil="true" />
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.ViewWindow.bonsai">
+        <Width>20.4</Width>
+        <Height>15.4</Height>
+        <Rotation>
+          <X>0</X>
+          <Y>0</Y>
+          <Z>0</Z>
+        </Rotation>
+        <Translation>
+          <X>0</X>
+          <Y>0</Y>
+          <Z>-15.1</Z>
+        </Translation>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>Draw</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p1:CreateGratingTrial">
+          <p1:Delay>0</p1:Delay>
+          <p1:Duration>0.008</p1:Duration>
+          <p1:Diameter>361</p1:Diameter>
+          <p1:X>0</p1:X>
+          <p1:Y>0</p1:Y>
+          <p1:Contrast>1</p1:Contrast>
+          <p1:SpatialFrequency>0.04</p1:SpatialFrequency>
+          <p1:TemporalFrequency>0</p1:TemporalFrequency>
+          <p1:Orientation>0</p1:Orientation>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>Draw</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:ElementIndex" />
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Index</Selector>
+      </Expression>
+      <Expression xsi:type="Divide">
+        <Operand xsi:type="IntProperty">
+          <Value>5</Value>
+        </Operand>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="Phase" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="BonVision:Collections.GratingSequence.bonsai">
+        <Phase>2578.31</Phase>
+        <SquareWave>false</SquareWave>
+        <Radius>1</Radius>
+        <Aperture>0</Aperture>
+        <Opacity>1</Opacity>
+      </Expression>
+    </Nodes>
+    <Edges>
+      <Edge From="0" To="1" Label="Source1" />
+      <Edge From="1" To="2" Label="Source1" />
+      <Edge From="2" To="3" Label="Source1" />
+      <Edge From="3" To="4" Label="Source1" />
+      <Edge From="5" To="6" Label="Source1" />
+      <Edge From="6" To="7" Label="Source1" />
+      <Edge From="7" To="8" Label="Source1" />
+      <Edge From="8" To="9" Label="Source1" />
+      <Edge From="10" To="11" Label="Source1" />
+      <Edge From="11" To="17" Label="Source1" />
+      <Edge From="12" To="13" Label="Source1" />
+      <Edge From="13" To="14" Label="Source1" />
+      <Edge From="14" To="15" Label="Source1" />
+      <Edge From="15" To="16" Label="Source1" />
+      <Edge From="16" To="17" Label="Source2" />
+    </Edges>
+  </Workflow>
+</WorkflowBuilder>

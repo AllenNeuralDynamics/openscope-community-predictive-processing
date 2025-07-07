@@ -53,7 +53,7 @@
               <Angle>0</Angle>
               <ColorR>0</ColorR>
               <ColorG>0</ColorG>
-              <ColorB>0</ColorB>
+              <ColorB>1</ColorB>
               <ColorA>1</ColorA>
             </Expression>
             <Expression xsi:type="WorkflowOutput" />
@@ -941,7 +941,7 @@ groupMasks:
         <Append>false</Append>
         <Overwrite>true</Overwrite>
         <Suffix>None</Suffix>
-        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250423T221446/orientations_logger.csv</FileName>
+        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250703T213940/orientations_logger.csv</FileName>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
         <Format>Frame</Format>
@@ -1081,7 +1081,7 @@ groupMasks:
             </Expression>
             <Expression xsi:type="Combinator">
               <Combinator xsi:type="rx:Delay">
-                <rx:DueTime>PT30S</rx:DueTime>
+                <rx:DueTime>PT0S</rx:DueTime>
               </Combinator>
             </Expression>
             <Expression xsi:type="Combinator">

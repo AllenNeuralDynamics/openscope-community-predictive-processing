@@ -1,0 +1,17 @@
+Contrast,Delay,Diameter,Duration,Orientation,Spatial_Frequency,Temporal_Frequency,X,Y,Phase,Trial_Type,Block_Type
+1,0.343,320,0.7,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.4,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.7,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.5,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.8,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.1,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.1,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.2,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.4,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.3,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.2,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.6,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.8,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.5,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.6,0,0.04,2,0,0,0,standard,jitter_control
+1,0.343,320,0.3,0,0.04,2,0,0,0,standard,jitter_control
