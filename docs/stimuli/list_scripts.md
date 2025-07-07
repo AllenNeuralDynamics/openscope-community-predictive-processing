@@ -29,6 +29,14 @@ This document provides an overview of the scripts specifically used for oddball 
 - **Sequence Mismatch Protocol** - Implements the sequence mismatch paradigm with learned sequences
     - For detailed information, see [Sequence Mismatch Protocol](sequence-mismatch.md)
 
+## Generic Oddball Protocol
+
+- **generic_oddball.bonsai** - Unified framework for running multiple experimental paradigms using CSV-defined stimulus parameters
+    - Located in `code/stimulus-control/src/Mindscope/`
+    - Works with `generate_experiment_csv.py` to create flexible, reproducible experiments
+    - Supports standard oddball, jitter, sequential, and motor paradigms
+    - For detailed information, see [Generic Oddball Protocol](generic-oddball.md)
+
 ## Bonsai Instructions
 
 For instructions on how to set up and run these Bonsai scripts, please refer to:
