@@ -30,6 +30,9 @@ import atexit
 import psutil
 import threading
 import shutil  # Added for directory operations
+import argparse
+import mpeconfig
+from mpeconfig import config_server
 
 # Import Windows-specific modules for process management
 try:
@@ -56,6 +59,11 @@ if "Windows" in platform.system():
     CAMSTIM_DIR = "C:/ProgramData/AIBS_MPE/camstim/"
 else:
     CAMSTIM_DIR = os.path.expanduser('~/.camstim/')
+
+# if mpeconfig is available, use its configuration
+if mpeconfig:
+    CAMSTIM_CONFIG = mpeconfig.source_configuration('camstim', send_start_log=False)
+    CAMSTIM_DIR = CAMSTIM_CONFIG['root_datapath']
 
 OUTPUT_DIR = os.path.join(CAMSTIM_DIR, "data")
 KILL_THRESHOLD = float(os.getenv('CAMSTIM_VMEM_THRESHOLD', 90))
@@ -206,8 +214,7 @@ class BonsaiExperiment(object):
         try:
             if param_file:
                 with open(param_file, 'r') as f:
-                    import json
-                    self.params = json.load(f)
+                    self.params = yaml.load(f)
                     logging.info("Loaded parameters from %s" % param_file)
                     
                     # Generate parameter checksum for provenance tracking, like in camstim agent
@@ -415,7 +422,7 @@ class BonsaiExperiment(object):
             # Generate output path based on datetime, mouse ID, and session UUID
             dt_str = datetime.datetime.now().strftime('%y%m%d%H%M%S')
             mouse_id = self.mouse_id if self.mouse_id else "unknown_mouse"
-            filename = "%s_%s_%s.pkl" % (dt_str, mouse_id, self.session_uuid)
+            filename = "%s.pkl" % dt_str
             
             # Create output directory if it doesn't exist
             if not os.path.isdir(OUTPUT_DIR):
@@ -1543,3 +1550,27 @@ class BonsaiExperiment(object):
         
         logging.info("Created %d Bonsai arguments" % (len(bonsai_args) // 2))
         return bonsai_args
+    
+if __name__ == "__main__":
+    
+    """Parse command-line arguments"""
+    parser = argparse.ArgumentParser(description='Test Bonsai Experiment Launcher')
+    parser.add_argument("json_path", nargs="?", type=str, default="")
+    args = parser.parse_args()
+
+    start_time = time.time()
+    print("=" * 60)
+    print("Bonsai Experiment Launcher")
+    print("Started at: {0}".format(datetime.datetime.now().strftime('%Y-%m-%d %H:%M:%S')))
+    print("=" * 60)
+
+    print("Using parameter file: {0}".format(args.json_path))
+  
+    # Create an instance of BonsaiExperiment and run the experiment
+    experiment = BonsaiExperiment()
+    experiment.run(args.json_path)
+
+    # Calculate elapsed time
+    elapsed_time = time.time() - start_time
+    print("Total time: {0:.1f} seconds".format(elapsed_time))
+    print("=" * 60)
