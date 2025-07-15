@@ -237,9 +237,9 @@
         </Combinator>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
-        <Property Name="B" DisplayName="Screen_BlueColor (0-1)" />
-        <Property Name="G" DisplayName="Screen_GreenColor (0-1)" />
-        <Property Name="R" DisplayName="Screen_RedColor (0-1)" />
+        <Property Name="B" DisplayName="norm_screen_bluecolor" />
+        <Property Name="G" DisplayName="norm_screen_greencolor" />
+        <Property Name="R" DisplayName="norm_screen_redcolor" />
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="Extensions\ColorBalance.bonsai">
         <ExtentX>1</ExtentX>
@@ -635,7 +635,7 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         <Append>false</Append>
         <Overwrite>true</Overwrite>
         <Suffix>None</Suffix>
-        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250706T200052/orientations_logger.csv</FileName>
+        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250708T094926/orientations_logger.csv</FileName>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
         <Format>Frame</Format>
@@ -673,7 +673,7 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         <Text><![CDATA[]]></Text>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250706T200052/orientations_orientations.csv</io:FileName>
+        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250708T094926/orientations_orientations.csv</io:FileName>
         <io:Append>true</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>FileCount</io:Suffix>
