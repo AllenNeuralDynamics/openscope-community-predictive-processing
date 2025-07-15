@@ -32,6 +32,8 @@ import threading
 import shutil  # Added for directory operations
 import argparse
 import mpeconfig
+import json
+import stat
 
 # Import Windows-specific modules for process management
 try:
@@ -388,7 +390,6 @@ class BonsaiExperiment(object):
                 }
             
             # Save to JSON file
-            import json
             with open(config_file_path, 'w') as f:
                 json.dump(config_data, f, indent=2, default=str)
             
@@ -800,7 +801,6 @@ class BonsaiExperiment(object):
                     logging.info("Backing up pkl file at %s" % backup_path)
                     
                     # Copy the file
-                    import shutil
                     shutil.copy2(output_path, backup_path)
                     logging.info("Backup complete!")
                 except Exception as e:
@@ -1132,7 +1132,6 @@ class BonsaiExperiment(object):
     
     def force_remove_directory(self, path):
         """Force remove a directory, handling Windows file locks"""
-        import stat
         
         def handle_remove_readonly(func, path, exc):
             """Error handler for Windows readonly files"""
