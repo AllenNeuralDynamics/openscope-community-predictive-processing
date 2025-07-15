@@ -1313,8 +1313,8 @@ class BonsaiExperiment(object):
         # Set Root_Folder to the session output directory (parent of the pkl file)
         if self.session_output_path:
             root_folder = os.path.dirname(self.session_output_path)
-            bonsai_args.extend(["--property", "Root_Folder=%s" % root_folder])
-            logging.debug("Added Bonsai property: Root_Folder=%s" % root_folder)
+            bonsai_args.extend(["--property", "RootFolder=%s" % root_folder])
+            logging.debug("Added Bonsai property: RootFolder=%s" % root_folder)
 
         # Forward all parameters in the forwarded_parameters list
         forwarded_count = 0
