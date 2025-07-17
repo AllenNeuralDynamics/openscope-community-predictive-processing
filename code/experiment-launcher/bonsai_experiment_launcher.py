@@ -20,7 +20,6 @@ import datetime
 import platform
 import subprocess
 import yaml  
-import socket
 import uuid
 import cPickle as pickle
 import ConfigParser
@@ -31,9 +30,15 @@ import psutil
 import threading
 import shutil  # Added for directory operations
 import argparse
-import mpeconfig
+try:
+    import mpeconfig
+except ImportError:
+    mpeconfig = None
+    logging.warning("mpeconfig not available. Using default configuration.")
 import json
 import stat
+import csv
+import numpy as np
 
 # Import Windows-specific modules for process management
 try:
@@ -48,12 +53,6 @@ except ImportError:
 # Configure logging
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-
-# Constants
-BONSAI_EXE_PATH = os.path.abspath(os.path.join(
-    os.path.dirname(__file__),
-    "..", "stimulus-control", "bonsai", "Bonsai.exe"
-))
 
 # Default configuration for CamStim-like behavior
 if "Windows" in platform.system():
@@ -174,6 +173,9 @@ class BonsaiExperiment(object):
         # Custom output path for -o flag compatibility
         self.custom_output_path = None
         
+        # Bonsai executable path - will be set from parameters during setup
+        self.bonsai_exe_path = None
+        
         # Add variables to capture stdout and stderr
         self.stdout_data = []
         self.stderr_data = []
@@ -198,13 +200,13 @@ class BonsaiExperiment(object):
         signal.signal(signal.SIGTERM, self.signal_handler)
         
     def get_platform_info(self):
-        """Gets system and version information."""
+        """Gets system and version information, similar to CAMSTIM format."""
         info = {
             "python": sys.version.split()[0],
             "os": (platform.system(), platform.release(), platform.version()),
             "hardware": (platform.processor(), platform.machine()),
             "computer_name": platform.node(),
-            "rig_id": os.environ.get('RIG_ID', socket.gethostname()),
+            "rig_id": os.environ.get('RIG_ID', 'unknown'),  # Use 'unknown' like CAMSTIM
         }
         return info
     
@@ -229,10 +231,7 @@ class BonsaiExperiment(object):
                 logging.warning("No parameter file provided, using default parameters. THIS IS NOT THE EXPECTED BEHAVIOR FOR PRODUCTION RUNS")
                 self.params = {}
             
-            # Set default values for optional parameters
-            if 'bonsai_exe_path' not in self.params:
-                self.params['bonsai_exe_path'] = 'code/stimulus-control/bonsai/Bonsai.exe'
-            
+            # Set default values for optional parameters  
             if 'bonsai_setup_script' not in self.params:
                 self.params['bonsai_setup_script'] = 'code/stimulus-control/bonsai/setup.cmd'
                 
@@ -437,7 +436,7 @@ class BonsaiExperiment(object):
         self.params["output_path"] = self.session_output_path
         
         return self.session_output_path
-            
+    
     def get_bonsai_args(self):
         """
         Construct command-line arguments for Bonsai
@@ -469,7 +468,12 @@ class BonsaiExperiment(object):
         # Base arguments - use correct Bonsai CLI syntax:
         # 1. Bonsai executable
         # 2. Workflow file as positional argument
-        args = [BONSAI_EXE_PATH, workflow_path]
+        if not self.bonsai_exe_path:
+            raise ValueError("No Bonsai executable path set. Make sure parameters include 'bonsai_exe_path'.")
+        if not os.path.exists(self.bonsai_exe_path):
+            raise ValueError("Bonsai executable not found at: %s" % self.bonsai_exe_path)
+            
+        args = [self.bonsai_exe_path, workflow_path]
         
         # Run in non-interactive application mode with both flags
         args.append("--start")
@@ -702,7 +706,7 @@ class BonsaiExperiment(object):
         """Clean up resources when the script exits"""
         logging.info("Cleaning up resources...")
         self.stop()
-    
+        
     def save_output(self):
         """
         Save experiment data as a pickle file in CAMSTIM-compatible format.
@@ -714,49 +718,58 @@ class BonsaiExperiment(object):
         self.stop_time = datetime.datetime.now()
         dt_str = self.start_time.strftime('%y%m%d%H%M%S')
         
-        # Create structure similar to CAMSTIM's output format
+        # Load and process Bonsai-generated CSV data
+        stimuli_data = self._load_bonsai_stimulus_data()
+        
+        # Calculate total_frames from logger.csv data (last frame in the experiment)
+        total_frames = self._get_total_frames_from_logger()
+        
+        # Get full path to the Bonsai workflow for script field
+        bonsai_path = self.params.get('bonsai_path', '')
+        if bonsai_path:
+            # Convert to full absolute path like CAMSTIM does
+            if hasattr(self, 'get_absolute_path_from_repo'):
+                full_script_path = self.get_absolute_path_from_repo(bonsai_path)
+                if full_script_path:
+                    script_path = full_script_path
+                else:
+                    script_path = bonsai_path
+            else:
+                script_path = bonsai_path
+        else:
+            script_path = ''
+        
+        # Create structure matching CAMSTIM's output format
+        # Include additional fields found in reference CAMSTIM files
         output_data = {
-            # Top level experiment data
-            'platform_info': self.platform_info,
-            'start_time': self.start_time,
-            'stop_time': self.stop_time,
-            'duration': (self.stop_time - self.start_time).total_seconds(),
-            'session_uuid': self.session_uuid,
-            
-            # Standard CAMSTIM metadata fields
-            'rig_id': os.environ.get('aibs_rig_id', self.platform_info.get('rig_id', 'undefined')),
-            'comp_id': os.environ.get('aibs_comp_id', self.platform_info.get('computer_name', 'undefined')),
-            'script': os.path.basename(self.params.get('bonsai_path', '')),
-            'script_md5': self.script_checksum,
-            'params_md5': self.params_checksum,
-            
-            # Store stdout and stderr data for debugging
-            'bonsai_stdout': self.stdout_data,
-            'bonsai_stderr': self.stderr_data,
-            
-            # Items field organizes components like behavior, stim, etc.
+            # Core fields present in original CAMSTIM session dictionaries
+            'stimuli': stimuli_data,
+            'fps': 60.0,
+            'start_time': time.mktime(self.start_time.timetuple()),  # Use timestamp like original
+            'stop_time': time.mktime(self.stop_time.timetuple()),   # Use timestamp like original
+            'script': script_path,  # Full path to the workflow/script
+            'config': self.config,
+            'params': self.params,
             'items': {
                 'behavior': {
-                    'config': self.config.get('Behavior', {}),
-                    'mouse_id': self.mouse_id,
-                    'user_id': self.user_id,
-                    # Placeholder for behavior data coming from Bonsai
-                    'bonsai_data': self.params.get('bonsai_output', {})
-                },
-                'stimulus': {
-                    'config': {
-                        'params': self.params,
-                        'config': self.config
-                    },
-                    'name': self.params.get('workflow_name', os.path.basename(self.params.get('bonsai_path', ''))),
-                    'workflow_path': self.params.get('bonsai_path', ''),
-                    'return_code': self.bonsai_process.returncode if self.bonsai_process else None
+                    'cl_params': {
+                        'stage': self.params.get('workflow_name', os.path.basename(self.params.get('bonsai_path', 'unknown'))),
+                    }
                 }
             },
             
-            # Config sections - for downstream compatibility
-            'config': self.config,
-            'params': self.params
+            # Additional fields that exist in original CAMSTIM for completeness
+            'platform': self.platform_info,  # Called 'platform' in original, not 'platform_info'
+            'total_frames': total_frames,  # Calculate from actual stimulus data
+            'unpickleable': [],  # Will be populated by wecanpicklethat
+            
+            # Additional fields found in reference CAMSTIM files
+            'mouse_id': self.mouse_id,
+            'user_id': self.user_id,
+            'session_uuid': self.session_uuid,
+            
+            # Field required by mtrain_lims for passive sessions - store as datetime object like CAMSTIM
+            'startdatetime': self.start_time if self.start_time else None
         }
         
         # Use the session output path that was set up earlier
@@ -873,14 +886,19 @@ class BonsaiExperiment(object):
                 logging.error("Bonsai setup failed")
                 return False
             
-            # Step 3: Update BONSAI_EXE_PATH to use the installed executable
-            global BONSAI_EXE_PATH
+            # Step 3: Set Bonsai executable path from parameters
             bonsai_exe_relative_path = self.params.get('bonsai_exe_path')
-            if bonsai_exe_relative_path:
-                bonsai_exe_path = self.get_absolute_path_from_repo(bonsai_exe_relative_path)
-                if bonsai_exe_path and os.path.exists(bonsai_exe_path):
-                    BONSAI_EXE_PATH = bonsai_exe_path
-                    logging.info("Using Bonsai executable: %s" % BONSAI_EXE_PATH)
+            if not bonsai_exe_relative_path:
+                logging.error("No 'bonsai_exe_path' specified in parameters")
+                return False
+                
+            bonsai_exe_path = self.get_absolute_path_from_repo(bonsai_exe_relative_path)
+            if not bonsai_exe_path or not os.path.exists(bonsai_exe_path):
+                logging.error("Bonsai executable not found at: %s" % bonsai_exe_path)
+                return False
+                
+            self.bonsai_exe_path = bonsai_exe_path
+            logging.info("Using Bonsai executable: %s" % self.bonsai_exe_path)
             
             # Step 5: Start Bonsai
             logging.info("Step 4: Starting Bonsai experiment...")
@@ -1326,6 +1344,350 @@ class BonsaiExperiment(object):
         
         logging.info("Created %d Bonsai arguments from %d forwarded parameters" % (len(bonsai_args) // 2, forwarded_count))
         return bonsai_args
+    
+    def _load_bonsai_stimulus_data(self):
+        """
+        Load and process stimulus data from Bonsai-generated CSV files.
+        
+        This method reads the orientations_orientations0.csv and orientations_logger.csv
+        files generated by the Bonsai workflow and converts them into a format
+        compatible with CAMSTIM's expected stimulus structure.
+        
+        The CAMSTIM system expects stimuli as a list of stimulus objects where each
+        stimulus object represents a block of presentations with the following structure:
+        - stim_path: path to stimulus data
+        - sweep_frames: list of [start_frame, end_frame] pairs
+        - sweep_order: list of sweep indices
+        - display_sequence: list of display intervals  
+        - dimnames: list of parameter names
+        - sweep_table: list of parameter value tuples
+        - stim: string representation of the stimulus
+        
+        Returns:
+            list: List of stimulus objects compatible with CAMSTIM
+        """
+        # Look for CSV files in the output directory (RootFolder) that was provided to Bonsai
+        orientations_file = None
+        logger_file = None
+        
+        # Get the output directory - this is where Bonsai saves the CSV files
+        if self.session_output_path:
+            output_dir = os.path.dirname(self.session_output_path)
+        else:
+            output_dir = os.getcwd()
+        
+        logging.info("Looking for Bonsai CSV files in: %s" % output_dir)
+        
+        # Search for the CSV files in the output directory and subdirectories
+        for root, dirs, files in os.walk(output_dir):
+            for file in files:
+                if file.startswith('orientations_orientations') and file.endswith('.csv'):
+                    orientations_file = os.path.join(root, file)
+                    logging.info("Found orientations file: %s" % orientations_file)
+                elif file.startswith('orientations_logger') and file.endswith('.csv'):
+                    logger_file = os.path.join(root, file)
+                    logging.info("Found logger file: %s" % logger_file)
+        
+        if not orientations_file or not logger_file:
+            logging.error("Could not find required Bonsai-generated CSV files. Cannot create stimulus data without real data.")
+            return []
+        
+        try:
+            # Read the CSV files using built-in csv module
+            logging.info("Loading stimulus data from %s" % orientations_file)
+            orientations_data = self._read_csv_file(orientations_file)
+            
+            logging.info("Loading timing data from %s" % logger_file)
+            logger_data = self._read_csv_file(logger_file)
+            
+            # Create timing map from logger data
+            timing_map = self._create_timing_map(logger_data)
+            
+            # Group presentations by block type to create stimulus objects
+            stimuli = []
+            
+            # Group by BlockType to create separate stimulus objects for each block
+            grouped_data = self._group_by_block_type(orientations_data)
+            
+            for block_type, block_data in grouped_data.items():
+                stimulus_obj = self._create_stimulus_object_from_block(
+                    block_data, block_type, timing_map
+                )
+                stimuli.append(stimulus_obj)
+            
+            logging.info("Successfully processed %d stimulus blocks with %d total presentations" % (
+                len(stimuli), len(orientations_data)
+            ))
+            return stimuli
+            
+        except Exception as e:
+            logging.error("Error processing Bonsai CSV files: %s" % e)
+            logging.error("No fallback stimulus structure will be created. Returning empty stimuli list.")
+            return []
+    
+    def _read_csv_file(self, file_path):
+        """
+        Read a CSV file using built-in csv module, returning a list of dictionaries.
+        
+        Args:
+            file_path (str): Path to the CSV file
+            
+        Returns:
+            list: List of dictionaries, one per row
+        """
+        data = []
+        try:
+            with open(file_path, 'r') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    data.append(row)
+            logging.debug("Read %d rows from %s" % (len(data), file_path))
+        except Exception as e:
+            logging.error("Error reading CSV file %s: %s" % (file_path, e))
+        
+        return data
+    
+    def _group_by_block_type(self, orientations_data):
+        """
+        Group orientation data by BlockType without using pandas.
+        
+        Args:
+            orientations_data (list): List of orientation dictionaries
+            
+        Returns:
+            dict: Dictionary with BlockType as keys and lists of rows as values
+        """
+        grouped = {}
+        for row in orientations_data:
+            block_type = row.get('BlockType')
+            if not block_type:  # Handle None, empty string, etc.
+                block_type = 'unknown_block_type'
+            if block_type not in grouped:
+                grouped[block_type] = []
+            grouped[block_type].append(row)
+        
+        return grouped
+    
+    def _create_timing_map(self, logger_data):
+        """
+        Create a mapping of stimulus IDs to frame/timestamp information from logger CSV.
+        
+        Args:
+            logger_data (list): List of logger dictionaries with timing information
+            
+        Returns:
+            dict: Mapping from stimulus ID to timing info
+        """
+        timing_map = {}
+        
+        try:
+            for row in logger_data:
+                value = row.get('Value', '')
+                frame = row.get('Frame', '0')
+                timestamp = row.get('Timestamp', '0.0')
+                
+                if value.startswith('StimStart-'):
+                    stim_id = value.replace('StimStart-', '')
+                    timing_map[stim_id] = {
+                        'start_frame': int(frame),
+                        'start_timestamp': float(timestamp)
+                    }
+                elif value.startswith('StimEnd-'):
+                    stim_id = value.replace('StimEnd-', '')
+                    if stim_id in timing_map:
+                        timing_map[stim_id]['end_frame'] = int(frame)
+                        timing_map[stim_id]['end_timestamp'] = float(timestamp)
+        except Exception as e:
+            logging.warning("Could not create timing map from logger: %s" % e)
+            
+        return timing_map
+    
+    def _get_total_frames_from_logger(self):
+        """
+        Get the total number of frames by reading the last frame from the logger CSV file.
+        
+        Returns:
+            int: Total number of frames in the experiment
+        """
+        # Look for logger file in the output directory
+        logger_file = None
+        
+        if self.session_output_path:
+            output_dir = os.path.dirname(self.session_output_path)
+        else:
+            output_dir = os.getcwd()
+        
+        # Search for the logger CSV file
+        for root, dirs, files in os.walk(output_dir):
+            for file in files:
+                if file.startswith('orientations_logger') and file.endswith('.csv'):
+                    logger_file = os.path.join(root, file)
+                    break
+            if logger_file:
+                break
+        
+        if not logger_file:
+            logging.warning("Could not find logger file to determine total_frames")
+            return 0
+        
+        try:
+            # Read the logger CSV file
+            logger_data = self._read_csv_file(logger_file)
+            
+            # Find the highest frame number in the logger data
+            max_frame = 0
+            for row in logger_data:
+                try:
+                    frame = int(row.get('Frame', '0'))
+                    if frame > max_frame:
+                        max_frame = frame
+                except ValueError:
+                    continue
+                    
+            logging.info("Total frames from logger: %d" % max_frame)
+            return max_frame
+            
+        except Exception as e:
+            logging.warning("Could not read logger file to determine total_frames: %s" % e)
+            return 0
+    
+    def _create_stimulus_object_from_block(self, block_data, block_type, timing_map):
+        """
+        Create a CAMSTIM-compatible stimulus object from a block of presentations.
+        
+        Args:
+            block_data (list): List of presentation dictionaries in this block
+            block_type (str): Type of the block (e.g., 'motor_oddball')
+            timing_map (dict): Mapping from stimulus IDs to timing info
+            
+        Returns:
+            dict: CAMSTIM-compatible stimulus object
+        """
+        # Extract unique parameter names (dimnames)
+        param_columns = ['Orientation', 'SpatialFrequency', 'TemporalFrequency', 
+                        'Contrast', 'Phase', 'Diameter', 'X', 'Y', 'Duration', 'Delay']
+        dimnames = []
+        
+        # Check which parameters are present in the data
+        if block_data:
+            for col in param_columns:
+                if col in block_data[0]:
+                    dimnames.append(col)
+        
+        # Create sweep_frames and sweep_table
+        sweep_frames = []
+        sweep_table = []
+        sweep_order = []
+        
+        for idx, row in enumerate(block_data):
+            stim_id = row.get('Id', '')
+            
+            # Get timing info from timing_map
+            if stim_id in timing_map:
+                timing_info = timing_map[stim_id]
+                start_frame = timing_info.get('start_frame')
+                end_frame = timing_info.get('end_frame')
+                
+                # Only use timing if both start and end are available
+                if start_frame is not None and end_frame is not None:
+                    sweep_frames.append([start_frame, end_frame])
+                else:
+                    # Use None to indicate missing timing data
+                    sweep_frames.append([None, None])
+            else:
+                # No timing data available for this stimulus
+                sweep_frames.append([None, None])
+            
+            # Create parameter tuple for this sweep
+            param_values = []
+            for dimname in dimnames:
+                value = row.get(dimname)
+                if value is None or value == '':
+                    # No default values - use None to indicate missing data
+                    param_values.append(None)
+                else:
+                    try:
+                        # Try to convert to number
+                        if '.' in str(value):
+                            param_values.append(float(value))
+                        else:
+                            param_values.append(int(value))
+                    except (ValueError, TypeError):
+                        # If conversion fails, keep the original string value
+                        param_values.append(value)
+            sweep_table.append(tuple(param_values))
+            
+            sweep_order.append(idx)
+        
+        # Create display_sequence using actual timestamps from logger data
+        if sweep_frames:
+            # Find the actual start and end timestamps from timing_map
+            start_timestamps = []
+            end_timestamps = []
+            
+            for idx, row in enumerate(block_data):
+                stim_id = row.get('Id', '')
+                if stim_id in timing_map:
+                    timing_info = timing_map[stim_id]
+                    start_time = timing_info.get('start_timestamp')
+                    end_time = timing_info.get('end_timestamp')
+                    
+                    if start_time is not None:
+                        start_timestamps.append(start_time)
+                    if end_time is not None:
+                        end_timestamps.append(end_time)
+            
+            if start_timestamps and end_timestamps:
+                # Use the earliest start time and latest end time for the display sequence
+                display_start_sec = min(start_timestamps)
+                display_end_sec = max(end_timestamps)
+                # Create as numpy array like in CAMSTIM
+                display_sequence = np.array([[display_start_sec, display_end_sec]])
+            else:
+                # No valid timing data available
+                display_sequence = np.array([[None, None]])
+        else:
+            display_sequence = np.array([[None, None]])
+        
+        # Convert sweep_frames to tuples like in CAMSTIM (not lists)
+        sweep_frames_tuples = []
+        for frame_pair in sweep_frames:
+            if isinstance(frame_pair, list) and len(frame_pair) >= 2:
+                sweep_frames_tuples.append((frame_pair[0], frame_pair[1]))
+            else:
+                sweep_frames_tuples.append(frame_pair)
+        
+        # Get the Bonsai workflow path for stim_path
+        workflow_path = self.params.get('bonsai_path', 'unknown_workflow')
+        
+        # Create stimulus object matching CAMSTIM format
+        # Remove 'block_type' and 'num_sweeps' as they don't exist in reference
+        stimulus_obj = {
+            'stim_path': workflow_path,
+            'stim': block_type,
+            'sweep_frames': sweep_frames_tuples,  # Use tuples like CAMSTIM
+            'sweep_order': sweep_order,
+            'display_sequence': display_sequence,  # As numpy array in seconds
+            'dimnames': dimnames,
+            'sweep_table': sweep_table
+        }
+        
+        return stimulus_obj
+    
+    def cleanup(self):
+        """
+        Clean up resources when the script exits
+        
+        This method is called on normal program termination and
+        should release any resources, stop processes, etc.
+        """
+        logging.info("Cleaning up resources...")
+        
+        # Stop Bonsai process if running
+        self.stop()
+        
+        # Additional cleanup tasks can be added here
+        logging.info("Cleanup completed")
     
 if __name__ == "__main__":
     
