@@ -176,6 +176,9 @@ class BonsaiExperiment(object):
         # Bonsai executable path - will be set from parameters during setup
         self.bonsai_exe_path = None
         
+        # Session folder for organizing output files
+        self.session_folder = None
+        
         # Add variables to capture stdout and stderr
         self.stdout_data = []
         self.stderr_data = []
@@ -405,33 +408,54 @@ class BonsaiExperiment(object):
     
     def setup_output_path(self, output_path=None):
         """
-        Set up the output path for the experiment data, using the same pattern
-        as camstim's agent.
+        Set up the output path for the experiment data, creating a unique session folder.
+        
+        This creates a session folder structure where:
+        - Session folder: contains both the .pkl file and Bonsai's CSV files
+        - PKL file: stored in the session folder
+        - Bonsai CSV files: also stored in the session folder (via RootFolder parameter)
         
         Args:
             output_path (str, optional): Specific output path to use
         
         Returns:
-            str: The output file path
+            str: The output file path (pkl file)
         """
         if output_path:
-            # Use provided output path
-            output_folder = os.path.dirname(output_path)
-            if not os.path.isdir(output_folder):
-                os.makedirs(output_folder)
-            self.session_output_path = output_path
+            # Use provided output path - create session folder based on it
+            base_name = os.path.splitext(os.path.basename(output_path))[0]
+            output_dir = os.path.dirname(output_path)
+            session_folder = os.path.join(output_dir, base_name + "_bonsai")
+            
+            if not os.path.isdir(session_folder):
+                os.makedirs(session_folder)
+                
+            # Store pkl file in the session folder
+            pkl_filename = os.path.basename(output_path)
+            self.session_output_path = os.path.join(session_folder, pkl_filename)
+            self.session_folder = session_folder
         else:
-            # Generate output path based on datetime, mouse ID, and session UUID
+            # Generate session folder and output path based on datetime, mouse ID, and session UUID
             dt_str = datetime.datetime.now().strftime('%y%m%d%H%M%S')
             mouse_id = self.mouse_id if self.mouse_id else "unknown_mouse"
-            filename = "%s.pkl" % dt_str
+            
+            # Create unique session folder name
+            session_folder_name = "%s_%s_bonsai" % (dt_str, mouse_id)
             
             # Create output directory if it doesn't exist
             if not os.path.isdir(OUTPUT_DIR):
                 os.makedirs(OUTPUT_DIR)
                 
-            self.session_output_path = os.path.join(OUTPUT_DIR, filename)
+            # Create session folder
+            self.session_folder = os.path.join(OUTPUT_DIR, session_folder_name)
+            if not os.path.isdir(self.session_folder):
+                os.makedirs(self.session_folder)
+                
+            # Store pkl file in the session folder
+            pkl_filename = "%s.pkl" % dt_str
+            self.session_output_path = os.path.join(self.session_folder, pkl_filename)
             
+        logging.info("Session folder: %s" % self.session_folder)
         logging.info("Session output path: %s" % self.session_output_path)
         self.params["output_path"] = self.session_output_path
         
@@ -718,8 +742,8 @@ class BonsaiExperiment(object):
         self.stop_time = datetime.datetime.now()
         dt_str = self.start_time.strftime('%y%m%d%H%M%S')
         
-        # Load and process Bonsai-generated CSV data
-        stimuli_data = self._load_bonsai_stimulus_data()
+        # Load and process Bonsai-generated CSV data (both processed and raw)
+        stimuli_data, bonsai_raw_data = self._load_and_process_bonsai_data()
         
         # Calculate total_frames from logger.csv data (last frame in the experiment)
         total_frames = self._get_total_frames_from_logger()
@@ -769,7 +793,10 @@ class BonsaiExperiment(object):
             'session_uuid': self.session_uuid,
             
             # Field required by mtrain_lims for passive sessions - store as datetime object like CAMSTIM
-            'startdatetime': self.start_time if self.start_time else None
+            'startdatetime': self.start_time if self.start_time else None,
+            
+            # Bonsai raw data - store original CSV data for complete traceability
+            'bonsai': bonsai_raw_data
         }
         
         # Use the session output path that was set up earlier
@@ -1327,11 +1354,10 @@ class BonsaiExperiment(object):
             'blocks_test_motor'
         ]
 
-        # Set Root_Folder to the session output directory (parent of the pkl file)
-        if self.session_output_path:
-            root_folder = os.path.dirname(self.session_output_path)
-            bonsai_args.extend(["--property", "RootFolder=%s" % root_folder])
-            logging.debug("Added Bonsai property: RootFolder=%s" % root_folder)
+        # Set Root_Folder to the session folder where Bonsai will store its CSV files
+        if self.session_folder:
+            bonsai_args.extend(["--property", "RootFolder=%s" % self.session_folder])
+            logging.debug("Added Bonsai property: RootFolder=%s" % self.session_folder)
 
         # Forward all parameters in the forwarded_parameters list
         forwarded_count = 0
@@ -1345,85 +1371,140 @@ class BonsaiExperiment(object):
         logging.info("Created %d Bonsai arguments from %d forwarded parameters" % (len(bonsai_args) // 2, forwarded_count))
         return bonsai_args
     
-    def _load_bonsai_stimulus_data(self):
+    def _find_bonsai_csv_files(self):
         """
-        Load and process stimulus data from Bonsai-generated CSV files.
-        
-        This method reads the orientations_orientations0.csv and orientations_logger.csv
-        files generated by the Bonsai workflow and converts them into a format
-        compatible with CAMSTIM's expected stimulus structure.
-        
-        The CAMSTIM system expects stimuli as a list of stimulus objects where each
-        stimulus object represents a block of presentations with the following structure:
-        - stim_path: path to stimulus data
-        - sweep_frames: list of [start_frame, end_frame] pairs
-        - sweep_order: list of sweep indices
-        - display_sequence: list of display intervals  
-        - dimnames: list of parameter names
-        - sweep_table: list of parameter value tuples
-        - stim: string representation of the stimulus
+        Find Bonsai-generated CSV files in the session folder.
         
         Returns:
-            list: List of stimulus objects compatible with CAMSTIM
+            tuple: (orientations_file_path, logger_file_path, all_csv_files)
+                   Returns (None, None, []) if files not found
         """
-        # Look for CSV files in the output directory (RootFolder) that was provided to Bonsai
-        orientations_file = None
-        logger_file = None
-        
-        # Get the output directory - this is where Bonsai saves the CSV files
-        if self.session_output_path:
-            output_dir = os.path.dirname(self.session_output_path)
+        # Use the session folder where Bonsai was configured to save CSV files
+        if self.session_folder:
+            output_dir = self.session_folder
         else:
             output_dir = os.getcwd()
         
-        logging.info("Looking for Bonsai CSV files in: %s" % output_dir)
+        logging.info("Searching for Bonsai CSV files in: %s" % output_dir)
+        
+        orientations_file = None
+        logger_file = None
+        all_csv_files = []
         
         # Search for the CSV files in the output directory and subdirectories
         for root, dirs, files in os.walk(output_dir):
             for file in files:
+                file_path = os.path.join(root, file)
+                
                 if file.startswith('orientations_orientations') and file.endswith('.csv'):
-                    orientations_file = os.path.join(root, file)
+                    orientations_file = file_path
+                    all_csv_files.append(file_path)
                     logging.info("Found orientations file: %s" % orientations_file)
                 elif file.startswith('orientations_logger') and file.endswith('.csv'):
-                    logger_file = os.path.join(root, file)
+                    logger_file = file_path
+                    all_csv_files.append(file_path)
                     logging.info("Found logger file: %s" % logger_file)
         
-        if not orientations_file or not logger_file:
-            logging.error("Could not find required Bonsai-generated CSV files. Cannot create stimulus data without real data.")
-            return []
+        return orientations_file, logger_file, all_csv_files
+    
+    def _load_bonsai_csv_data(self, orientations_file, logger_file):
+        """
+        Load data from Bonsai CSV files.
         
+        Args:
+            orientations_file (str): Path to orientations CSV file
+            logger_file (str): Path to logger CSV file
+            
+        Returns:
+            tuple: (orientations_data, logger_data) or (None, None) if error
+        """
         try:
-            # Read the CSV files using built-in csv module
             logging.info("Loading stimulus data from %s" % orientations_file)
             orientations_data = self._read_csv_file(orientations_file)
             
             logging.info("Loading timing data from %s" % logger_file)
             logger_data = self._read_csv_file(logger_file)
             
+            return orientations_data, logger_data
+            
+        except Exception as e:
+            logging.error("Error loading Bonsai CSV files: %s" % e)
+            return None, None
+
+    def _load_and_process_bonsai_data(self):
+        """
+        Load and process Bonsai CSV data, returning both processed stimuli and raw data.
+        
+        This unified method loads the CSV files once and returns both:
+        1. Processed stimulus objects compatible with CAMSTIM
+        2. Raw CSV data for traceability
+        
+        Returns:
+            tuple: (stimuli_data, raw_data) where:
+                - stimuli_data is a list of stimulus objects
+                - raw_data is a dict containing raw CSV data
+        """
+        # Initialize empty returns
+        stimuli_data = []
+        raw_data = {
+            'orientations': [],
+            'logger': [],
+            'files_found': []
+        }
+        
+        # Find CSV files (shared by both processing paths)
+        orientations_file, logger_file, all_csv_files = self._find_bonsai_csv_files()
+        
+        if not orientations_file or not logger_file:
+            logging.warning("Could not find required Bonsai CSV files")
+            return stimuli_data, raw_data
+        
+        # Load CSV data (shared by both processing paths)
+        orientations_data, logger_data = self._load_bonsai_csv_data(orientations_file, logger_file)
+        
+        if orientations_data is None or logger_data is None:
+            logging.error("Failed to load CSV data")
+            return stimuli_data, raw_data
+        
+        # Process for stimulus objects (CAMSTIM compatibility)
+        try:
             # Create timing map from logger data
             timing_map = self._create_timing_map(logger_data)
             
             # Group presentations by block type to create stimulus objects
-            stimuli = []
-            
-            # Group by BlockType to create separate stimulus objects for each block
             grouped_data = self._group_by_block_type(orientations_data)
             
             for block_type, block_data in grouped_data.items():
                 stimulus_obj = self._create_stimulus_object_from_block(
                     block_data, block_type, timing_map
                 )
-                stimuli.append(stimulus_obj)
+                stimuli_data.append(stimulus_obj)
             
             logging.info("Successfully processed %d stimulus blocks with %d total presentations" % (
-                len(stimuli), len(orientations_data)
+                len(stimuli_data), len(orientations_data)
             ))
-            return stimuli
             
         except Exception as e:
-            logging.error("Error processing Bonsai CSV files: %s" % e)
+            logging.error("Error processing Bonsai CSV files for stimulus objects: %s" % e)
             logging.error("No fallback stimulus structure will be created. Returning empty stimuli list.")
-            return []
+        
+        # Prepare raw data for traceability
+        raw_data['orientations'] = orientations_data
+        raw_data['logger'] = logger_data
+        raw_data['files_found'] = all_csv_files
+        
+        # Add metadata about the raw data
+        raw_data['metadata'] = {
+            'session_folder': self.session_folder,
+            'load_time': datetime.datetime.now().isoformat(),
+            'total_files_found': len(raw_data['files_found'])
+        }
+        
+        logging.info("Unified Bonsai data loading complete: %d stimulus blocks, %d orientation rows, %d logger rows from %d files" % (
+            len(stimuli_data), len(raw_data['orientations']), len(raw_data['logger']), len(raw_data['files_found'])
+        ))
+        
+        return stimuli_data, raw_data
     
     def _read_csv_file(self, file_path):
         """
@@ -1509,15 +1590,15 @@ class BonsaiExperiment(object):
         Returns:
             int: Total number of frames in the experiment
         """
-        # Look for logger file in the output directory
+        # Look for logger file in the session folder
         logger_file = None
         
-        if self.session_output_path:
-            output_dir = os.path.dirname(self.session_output_path)
+        if self.session_folder:
+            output_dir = self.session_folder
         else:
             output_dir = os.getcwd()
         
-        # Search for the logger CSV file
+        # Search for the logger CSV file in the session folder
         for root, dirs, files in os.walk(output_dir):
             for file in files:
                 if file.startswith('orientations_logger') and file.endswith('.csv'):
