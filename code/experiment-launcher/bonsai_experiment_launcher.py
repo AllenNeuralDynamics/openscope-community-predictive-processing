@@ -775,10 +775,8 @@ class BonsaiExperiment(object):
             'config': self.config,
             'params': self.params,
             'items': {
-                'behavior': {
-                    'cl_params': {
-                        'stage': self.params.get('workflow_name', os.path.basename(self.params.get('bonsai_path', 'unknown'))),
-                    }
+                'foraging': {
+                    'intervalsms': self._calculate_intervalsms()
                 }
             },
             
@@ -1769,6 +1767,68 @@ class BonsaiExperiment(object):
         
         # Additional cleanup tasks can be added here
         logging.info("Cleanup completed")
+    
+    def _calculate_intervalsms(self):
+        """
+        Calculate frame intervals in milliseconds from the logger data.
+        
+        This matches what CAMSTIM's agent.py expects in data['items']['foraging']['intervalsms']
+        or data['items']['behavior']['intervalsms'].
+        
+        The logger CSV contains multiple entries per frame (Frame events, StimStart/StimEnd events).
+        We only use the 'Frame' events to calculate true frame intervals.
+        
+        Returns:
+            numpy.array: Array of frame intervals in milliseconds, or empty array if no data
+        """
+        try:
+            # Find logger file to get frame timing data
+            _, logger_file, _ = self._find_bonsai_csv_files()
+            
+            if not logger_file:
+                logging.warning("No logger file found for intervalsms calculation")
+                return np.array([])
+            
+            # Load logger data
+            logger_data = self._read_csv_file(logger_file)
+            
+            if not logger_data:
+                logging.warning("No logger data found for intervalsms calculation")
+                return np.array([])
+            
+            # Extract timestamps only from 'Frame' events (ignore StimStart/StimEnd events)
+            frame_timestamps = []
+            for row in logger_data:
+                value = row.get('Value', '')
+                if value == 'Frame':  # Only process Frame events
+                    try:
+                        timestamp = float(row.get('Timestamp', '0.0'))
+                        frame_timestamps.append(timestamp)
+                    except (ValueError, TypeError):
+                        continue
+            
+            if len(frame_timestamps) < 2:
+                logging.warning("Not enough frame timestamps for intervalsms calculation")
+                return np.array([])
+            
+            # Convert to numpy array for efficient calculation
+            frame_timestamps = np.array(frame_timestamps)
+            
+            # Calculate intervals between successive frame timestamps (in seconds)
+            intervals_sec = np.diff(frame_timestamps)
+            
+            # Convert to milliseconds
+            intervals_ms = intervals_sec * 1000.0
+            
+            logging.info("Calculated %d frame intervals from Frame events (mean: %.2f ms, std: %.2f ms)" % (
+                len(intervals_ms), np.mean(intervals_ms), np.std(intervals_ms)
+            ))
+            
+            return intervals_ms
+            
+        except Exception as e:
+            logging.error("Error calculating intervalsms: %s" % e)
+            return np.array([])
     
 if __name__ == "__main__":
     
