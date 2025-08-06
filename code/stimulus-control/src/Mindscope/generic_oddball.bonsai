@@ -9,7 +9,6 @@
                  xmlns:num="clr-namespace:Bonsai.Numerics;assembly=Bonsai.Numerics"
                  xmlns:scr="clr-namespace:Bonsai.Scripting.Expressions;assembly=Bonsai.Scripting.Expressions"
                  xmlns:p1="clr-namespace:Aind.Behavior.Amt10Encoder;assembly=Aind.Behavior.Amt10Encoder"
-                 xmlns:sys="clr-namespace:System;assembly=mscorlib"
                  xmlns:p2="clr-namespace:Aind.Ni.DigitalOutput.Configuration;assembly=Aind.Ni.DigitalOutput.Configuration"
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
@@ -562,7 +561,7 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         <Name>EndExpt</Name>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
-        <Property Name="PortName" DisplayName="WheelPort" />
+        <Property Name="PortName" DisplayName="WheelComPort" />
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:AMT10EncoderSource">
@@ -586,33 +585,19 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
       <Expression xsi:type="MemberSelector">
         <Selector>Degrees</Selector>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="gl:RenderFrame" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:ElementIndex" />
-      </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>Index</Selector>
-      </Expression>
-      <Expression xsi:type="Multiply">
-        <Operand xsi:type="IntProperty">
-          <Value>100</Value>
-        </Operand>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:OnErrorResumeNext" />
-      </Expression>
       <Expression xsi:type="rx:PublishSubject">
         <Name>WheelDegrees</Name>
       </Expression>
-      <Expression xsi:type="Divide">
-        <Operand xsi:type="WorkflowProperty" TypeArguments="sys:Int16">
-          <Value>360</Value>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Value" DisplayName="WheelGain" />
+      </Expression>
+      <Expression xsi:type="Multiply">
+        <Operand xsi:type="DoubleProperty">
+          <Value>0.1</Value>
         </Operand>
       </Expression>
       <Expression xsi:type="Mod">
-        <Operand xsi:type="WorkflowProperty" TypeArguments="sys:Int16">
+        <Operand xsi:type="DoubleProperty">
           <Value>360</Value>
         </Operand>
       </Expression>
@@ -683,148 +668,202 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         <io:Suffix>FileCount</io:Suffix>
         <io:IncludeHeader>true</io:IncludeHeader>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="ExternalizedMapping">
-          <Property Name="ChannelName" DisplayName="acq_frame_line" />
-        </Builder>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Value" DisplayName="AcqLine" />
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="p2:DigitalOutputConfigurationSource">
-            <p2:ChannelName />
-            <p2:Lines>Dev1/port0</p2:Lines>
-            <p2:Grouping>OneChannelForEachLine</p2:Grouping>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>None</Value>
+        </Combinator>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="p2:ToDigitalOutputConfigCollection" />
-        </Builder>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>AcqLine</Name>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="PropertyMapping">
-          <PropertyMappings>
-            <Property Name="Channels" />
-          </PropertyMappings>
-        </Builder>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>AcqLine</Name>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="gl:RenderFrame" />
-        </Builder>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="Lines" />
+        </PropertyMappings>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="BooleanProperty">
-            <Value>true</Value>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:DigitalOutputConfigurationSource">
+          <p2:ChannelName />
+          <p2:Lines>Dev1/port0</p2:Lines>
+          <p2:Grouping>OneChannelForEachLine</p2:Grouping>
+        </Combinator>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="rx:Delay">
-            <rx:DueTime>PT0.01S</rx:DueTime>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:ToDigitalOutputConfigCollection" />
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="BooleanProperty">
-            <Value>false</Value>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="Channels" />
+        </PropertyMappings>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="rx:Merge" />
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:RenderFrame" />
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="p2:DigitalOutputWriter">
-            <p2:Channels />
-            <p2:SignalSource />
-            <p2:SampleRate>1000</p2:SampleRate>
-            <p2:ActiveEdge>Rising</p2:ActiveEdge>
-            <p2:SampleMode>ContinuousSamples</p2:SampleMode>
-            <p2:BufferSize>1000</p2:BufferSize>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="BooleanProperty">
+          <Value>true</Value>
+        </Combinator>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="ExternalizedMapping">
-          <Property Name="ChannelName" DisplayName="acq_session_line" />
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Delay">
+          <rx:DueTime>PT0.01S</rx:DueTime>
+        </Combinator>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="p2:DigitalOutputConfigurationSource">
-            <p2:ChannelName />
-            <p2:Lines>Dev1/port0</p2:Lines>
-            <p2:Grouping>OneChannelForEachLine</p2:Grouping>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="BooleanProperty">
+          <Value>false</Value>
+        </Combinator>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="p2:ToDigitalOutputConfigCollection" />
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Merge" />
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="PropertyMapping">
-          <PropertyMappings>
-            <Property Name="Channels" />
-          </PropertyMappings>
-        </Builder>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>AcqLine</Name>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="gl:RenderFrame" />
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:CombineLatest" />
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="rx:Take">
-            <rx:Count>1</rx:Count>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="rx:Condition">
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="MemberSelector">
+              <Selector>Item2</Selector>
+            </Expression>
+            <Expression xsi:type="NotEqual">
+              <Operand xsi:type="StringProperty">
+                <Value>None</Value>
+              </Operand>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+            <Edge From="2" To="3" Label="Source1" />
+          </Edges>
+        </Workflow>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="BooleanProperty">
-            <Value>true</Value>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Item1</Selector>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="SubscribeSubject">
-          <Name>EndSession</Name>
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:DigitalOutputWriter">
+          <p2:Channels />
+          <p2:SignalSource />
+          <p2:SampleRate>1000</p2:SampleRate>
+          <p2:ActiveEdge>Rising</p2:ActiveEdge>
+          <p2:SampleMode>ContinuousSamples</p2:SampleMode>
+          <p2:BufferSize>1000</p2:BufferSize>
+        </Combinator>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="BooleanProperty">
-            <Value>false</Value>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Value" DisplayName="FrameLine" />
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="rx:Merge" />
-        </Builder>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="StringProperty">
+          <Value>None</Value>
+        </Combinator>
       </Expression>
-      <Expression xsi:type="Disable">
-        <Builder xsi:type="Combinator">
-          <Combinator xsi:type="p2:DigitalOutputWriter">
-            <p2:Channels />
-            <p2:SignalSource />
-            <p2:SampleRate>1000</p2:SampleRate>
-            <p2:ActiveEdge>Rising</p2:ActiveEdge>
-            <p2:SampleMode>ContinuousSamples</p2:SampleMode>
-            <p2:BufferSize>1000</p2:BufferSize>
-          </Combinator>
-        </Builder>
+      <Expression xsi:type="rx:PublishSubject">
+        <Name>FrameLine</Name>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>FrameLine</Name>
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="Lines" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:DigitalOutputConfigurationSource">
+          <p2:ChannelName />
+          <p2:Lines>Dev1/port0</p2:Lines>
+          <p2:Grouping>OneChannelForEachLine</p2:Grouping>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:ToDigitalOutputConfigCollection" />
+      </Expression>
+      <Expression xsi:type="PropertyMapping">
+        <PropertyMappings>
+          <Property Name="Channels" />
+        </PropertyMappings>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:RenderFrame" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Take">
+          <rx:Count>1</rx:Count>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="BooleanProperty">
+          <Value>true</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>EndSession</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="BooleanProperty">
+          <Value>false</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:Merge" />
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>FrameLine</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:CombineLatest" />
+      </Expression>
+      <Expression xsi:type="rx:Condition">
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="MemberSelector">
+              <Selector>Item2</Selector>
+            </Expression>
+            <Expression xsi:type="NotEqual">
+              <Operand xsi:type="StringProperty">
+                <Value>None</Value>
+              </Operand>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+            <Edge From="2" To="3" Label="Source1" />
+          </Edges>
+        </Workflow>
+      </Expression>
+      <Expression xsi:type="MemberSelector">
+        <Selector>Item1</Selector>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="p2:DigitalOutputWriter">
+          <p2:Channels />
+          <p2:SignalSource />
+          <p2:SampleRate>1000</p2:SampleRate>
+          <p2:ActiveEdge>Rising</p2:ActiveEdge>
+          <p2:SampleMode>ContinuousSamples</p2:SampleMode>
+          <p2:BufferSize>1000</p2:BufferSize>
+        </Combinator>
       </Expression>
     </Nodes>
     <Edges>
@@ -918,48 +957,58 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
       <Edge From="92" To="93" Label="Source2" />
       <Edge From="93" To="94" Label="Source1" />
       <Edge From="94" To="95" Label="Source1" />
-      <Edge From="95" To="100" Label="Source1" />
-      <Edge From="96" To="97" Label="Source1" />
-      <Edge From="97" To="98" Label="Source1" />
+      <Edge From="95" To="96" Label="Source1" />
+      <Edge From="96" To="98" Label="Source1" />
+      <Edge From="97" To="98" Label="Source2" />
       <Edge From="98" To="99" Label="Source1" />
-      <Edge From="99" To="100" Label="Source2" />
-      <Edge From="100" To="101" Label="Source1" />
-      <Edge From="101" To="102" Label="Source1" />
+      <Edge From="99" To="100" Label="Source1" />
+      <Edge From="101" To="105" Label="Source1" />
       <Edge From="102" To="103" Label="Source1" />
       <Edge From="103" To="104" Label="Source1" />
-      <Edge From="105" To="109" Label="Source1" />
-      <Edge From="106" To="107" Label="Source1" />
+      <Edge From="104" To="105" Label="Source2" />
+      <Edge From="105" To="106" Label="Source1" />
+      <Edge From="106" To="109" Label="Source1" />
       <Edge From="107" To="108" Label="Source1" />
       <Edge From="108" To="109" Label="Source2" />
-      <Edge From="109" To="110" Label="Source1" />
-      <Edge From="110" To="113" Label="Source1" />
+      <Edge From="110" To="115" Label="Source1" />
       <Edge From="111" To="112" Label="Source1" />
-      <Edge From="112" To="113" Label="Source2" />
-      <Edge From="114" To="119" Label="Source1" />
-      <Edge From="115" To="116" Label="Source1" />
+      <Edge From="112" To="113" Label="Source1" />
+      <Edge From="113" To="115" Label="Source2" />
+      <Edge From="114" To="115" Label="Source3" />
       <Edge From="116" To="117" Label="Source1" />
-      <Edge From="117" To="119" Label="Source2" />
-      <Edge From="118" To="119" Label="Source3" />
+      <Edge From="117" To="118" Label="Source1" />
+      <Edge From="119" To="120" Label="Source1" />
       <Edge From="120" To="121" Label="Source1" />
       <Edge From="121" To="122" Label="Source1" />
       <Edge From="122" To="123" Label="Source1" />
-      <Edge From="123" To="129" Label="Source1" />
+      <Edge From="123" To="133" Label="Source1" />
       <Edge From="124" To="125" Label="Source1" />
       <Edge From="124" To="127" Label="Source1" />
       <Edge From="125" To="126" Label="Source1" />
       <Edge From="126" To="128" Label="Source1" />
       <Edge From="127" To="128" Label="Source2" />
-      <Edge From="128" To="129" Label="Source2" />
+      <Edge From="128" To="130" Label="Source1" />
+      <Edge From="129" To="130" Label="Source2" />
       <Edge From="130" To="131" Label="Source1" />
       <Edge From="131" To="132" Label="Source1" />
-      <Edge From="132" To="133" Label="Source1" />
-      <Edge From="133" To="140" Label="Source1" />
+      <Edge From="132" To="133" Label="Source2" />
       <Edge From="134" To="135" Label="Source1" />
       <Edge From="135" To="136" Label="Source1" />
-      <Edge From="136" To="139" Label="Source1" />
       <Edge From="137" To="138" Label="Source1" />
-      <Edge From="138" To="139" Label="Source2" />
-      <Edge From="139" To="140" Label="Source2" />
+      <Edge From="138" To="139" Label="Source1" />
+      <Edge From="139" To="140" Label="Source1" />
+      <Edge From="140" To="141" Label="Source1" />
+      <Edge From="141" To="152" Label="Source1" />
+      <Edge From="142" To="143" Label="Source1" />
+      <Edge From="143" To="144" Label="Source1" />
+      <Edge From="144" To="147" Label="Source1" />
+      <Edge From="145" To="146" Label="Source1" />
+      <Edge From="146" To="147" Label="Source2" />
+      <Edge From="147" To="149" Label="Source1" />
+      <Edge From="148" To="149" Label="Source2" />
+      <Edge From="149" To="150" Label="Source1" />
+      <Edge From="150" To="151" Label="Source1" />
+      <Edge From="151" To="152" Label="Source2" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>

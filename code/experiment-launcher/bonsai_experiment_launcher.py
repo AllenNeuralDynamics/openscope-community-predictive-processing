@@ -317,7 +317,8 @@ class BonsaiExperiment(object):
             self.load_config_section("SweepStim", config)
             self.load_config_section("Display", config)
             self.load_config_section("Datastream", config)
-            
+            self.load_config_section("DigitalEncoder", config)
+
         except Exception as e:
             logging.warning("Error reading config file: %s" % e)
     
@@ -1342,20 +1343,52 @@ class BonsaiExperiment(object):
             'Photodiode_ExtentY', 
             'Photodiode_LocationX',
             'Photodiode_LocationY',
-            'WheelPort',
-            'Screen_BlueColor',
-            'Screen_GreenColor', 
-            'Screen_RedColor',
-            'blocks_vest_jitter',
-            'blocks_vest_sequential',
-            'blocks_vest_standard',
-            'blocks_test_motor'
+            'norm_screen_bluecolor',
+            'norm_screen_greencolor',
+            'norm_screen_redcolor',
+            'WheelGain',
         ]
 
         # Set Root_Folder to the session folder where Bonsai will store its CSV files
         if self.session_folder:
             bonsai_args.extend(["--property", "RootFolder=%s" % self.session_folder])
             logging.debug("Added Bonsai property: RootFolder=%s" % self.session_folder)
+
+        # Extract hardware parameters from config and forward to Bonsai
+        # 1. AcqLine - from config['Sync']['frame_pulse']
+        acq_line = "None"
+        if 'Sync' in self.config and 'frame_pulse' in self.config['Sync']:
+            frame_pulse = self.config['Sync']['frame_pulse']
+            if isinstance(frame_pulse, (list, tuple)) and len(frame_pulse) >= 3:
+                # frame_pulse format: ('Dev1', 1, 4) -> Dev1/port1/line4
+                device, port, line = frame_pulse[0], frame_pulse[1], frame_pulse[2]
+                acq_line = "%s/port%s/line%s" % (device, port, line)
+        
+        bonsai_args.extend(["--property", "AcqLine=%s" % acq_line])
+        logging.debug("Added Bonsai property: AcqLine=%s" % acq_line)
+        
+        # 2. FrameLine - from config['Sync']['acq_on_pulse'] 
+        frame_line = "None"
+        if 'Sync' in self.config and 'acq_on_pulse' in self.config['Sync']:
+            acq_on_pulse = self.config['Sync']['acq_on_pulse']
+            if isinstance(acq_on_pulse, (list, tuple)) and len(acq_on_pulse) >= 3:
+                # acq_on_pulse format: ('Dev1', 1, 7) -> Dev1/port1/line7
+                device, port, line = acq_on_pulse[0], acq_on_pulse[1], acq_on_pulse[2]
+                frame_line = "%s/port%s/line%s" % (device, port, line)
+        
+        bonsai_args.extend(["--property", "FrameLine=%s" % frame_line])
+        logging.debug("Added Bonsai property: FrameLine=%s" % frame_line)
+        
+        # 3. WheelComPort - from config['DigitalEncoder']['serial_device']
+        wheel_com_port = "None"
+        if 'DigitalEncoder' in self.config and 'serial_device' in self.config['DigitalEncoder']:
+            serial_device = self.config['DigitalEncoder']['serial_device']
+            # Remove quotes if present: "'COM6'" -> "COM6"
+            if isinstance(serial_device, str):
+                wheel_com_port = serial_device.strip("'\"")
+        
+        bonsai_args.extend(["--property", "WheelComPort=%s" % wheel_com_port])
+        logging.debug("Added Bonsai property: WheelComPort=%s" % wheel_com_port)
 
         # Forward all parameters in the forwarded_parameters list
         forwarded_count = 0
@@ -1366,7 +1399,6 @@ class BonsaiExperiment(object):
                 logging.debug("Added Bonsai property: %s=%s" % (param_name, value))
                 forwarded_count += 1
         
-        logging.info("Created %d Bonsai arguments from %d forwarded parameters" % (len(bonsai_args) // 2, forwarded_count))
         return bonsai_args
     
     def _find_bonsai_csv_files(self):
