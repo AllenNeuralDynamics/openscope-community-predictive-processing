@@ -589,7 +589,7 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         <Name>WheelDegrees</Name>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
-        <Property Name="Value" DisplayName="WheelGain" />
+        <Property Name="Value" DisplayName="Wheel2GratingPhase" />
       </Expression>
       <Expression xsi:type="Multiply">
         <Operand xsi:type="DoubleProperty">
@@ -676,67 +676,11 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
           <Value>None</Value>
         </Combinator>
       </Expression>
-      <Expression xsi:type="rx:PublishSubject">
-        <Name>AcqLine</Name>
-      </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>AcqLine</Name>
-      </Expression>
-      <Expression xsi:type="PropertyMapping">
-        <PropertyMappings>
-          <Property Name="Lines" />
-        </PropertyMappings>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:DigitalOutputConfigurationSource">
-          <p2:ChannelName />
-          <p2:Lines>Dev1/port0</p2:Lines>
-          <p2:Grouping>OneChannelForEachLine</p2:Grouping>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:ToDigitalOutputConfigCollection" />
-      </Expression>
-      <Expression xsi:type="PropertyMapping">
-        <PropertyMappings>
-          <Property Name="Channels" />
-        </PropertyMappings>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="gl:RenderFrame" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="BooleanProperty">
-          <Value>true</Value>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Delay">
-          <rx:DueTime>PT0.01S</rx:DueTime>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="BooleanProperty">
-          <Value>false</Value>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Merge" />
-      </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>AcqLine</Name>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:CombineLatest" />
-      </Expression>
       <Expression xsi:type="rx:Condition">
         <Workflow>
           <Nodes>
             <Expression xsi:type="WorkflowInput">
               <Name>Source1</Name>
-            </Expression>
-            <Expression xsi:type="MemberSelector">
-              <Selector>Item2</Selector>
             </Expression>
             <Expression xsi:type="NotEqual">
               <Operand xsi:type="StringProperty">
@@ -748,22 +692,84 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
           <Edges>
             <Edge From="0" To="1" Label="Source1" />
             <Edge From="1" To="2" Label="Source1" />
-            <Edge From="2" To="3" Label="Source1" />
           </Edges>
         </Workflow>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>Item1</Selector>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:DigitalOutputWriter">
-          <p2:Channels />
-          <p2:SignalSource />
-          <p2:SampleRate>1000</p2:SampleRate>
-          <p2:ActiveEdge>Rising</p2:ActiveEdge>
-          <p2:SampleMode>ContinuousSamples</p2:SampleMode>
-          <p2:BufferSize>1000</p2:BufferSize>
-        </Combinator>
+      <Expression xsi:type="rx:SelectMany">
+        <Name>TriggerSyncAcq</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Lines" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="p2:DigitalOutputConfigurationSource">
+                <p2:ChannelName />
+                <p2:Lines>Dev1/port0</p2:Lines>
+                <p2:Grouping>OneChannelForEachLine</p2:Grouping>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="p2:ToDigitalOutputConfigCollection" />
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Channels" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:RenderFrame" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="BooleanProperty">
+                <Value>true</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Delay">
+                <rx:DueTime>PT0.01S</rx:DueTime>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="BooleanProperty">
+                <Value>false</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Merge" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="p2:DigitalOutputWriter">
+                <p2:Channels />
+                <p2:SignalSource />
+                <p2:SampleRate>1000</p2:SampleRate>
+                <p2:ActiveEdge>Rising</p2:ActiveEdge>
+                <p2:SampleMode>ContinuousSamples</p2:SampleMode>
+                <p2:BufferSize>1000</p2:BufferSize>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+            <Edge From="2" To="3" Label="Source1" />
+            <Edge From="3" To="4" Label="Source1" />
+            <Edge From="4" To="10" Label="Source1" />
+            <Edge From="5" To="6" Label="Source1" />
+            <Edge From="5" To="8" Label="Source1" />
+            <Edge From="6" To="7" Label="Source1" />
+            <Edge From="7" To="9" Label="Source1" />
+            <Edge From="8" To="9" Label="Source2" />
+            <Edge From="9" To="10" Label="Source2" />
+            <Edge From="10" To="11" Label="Source1" />
+          </Edges>
+        </Workflow>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
         <Property Name="Value" DisplayName="FrameLine" />
@@ -773,70 +779,11 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
           <Value>None</Value>
         </Combinator>
       </Expression>
-      <Expression xsi:type="rx:PublishSubject">
-        <Name>FrameLine</Name>
-      </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>FrameLine</Name>
-      </Expression>
-      <Expression xsi:type="PropertyMapping">
-        <PropertyMappings>
-          <Property Name="Lines" />
-        </PropertyMappings>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:DigitalOutputConfigurationSource">
-          <p2:ChannelName />
-          <p2:Lines>Dev1/port0</p2:Lines>
-          <p2:Grouping>OneChannelForEachLine</p2:Grouping>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:ToDigitalOutputConfigCollection" />
-      </Expression>
-      <Expression xsi:type="PropertyMapping">
-        <PropertyMappings>
-          <Property Name="Channels" />
-        </PropertyMappings>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="gl:RenderFrame" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Take">
-          <rx:Count>1</rx:Count>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="BooleanProperty">
-          <Value>true</Value>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>EndSession</Name>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="BooleanProperty">
-          <Value>false</Value>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:Merge" />
-      </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>FrameLine</Name>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:CombineLatest" />
-      </Expression>
       <Expression xsi:type="rx:Condition">
         <Workflow>
           <Nodes>
             <Expression xsi:type="WorkflowInput">
               <Name>Source1</Name>
-            </Expression>
-            <Expression xsi:type="MemberSelector">
-              <Selector>Item2</Selector>
             </Expression>
             <Expression xsi:type="NotEqual">
               <Operand xsi:type="StringProperty">
@@ -848,22 +795,87 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
           <Edges>
             <Edge From="0" To="1" Label="Source1" />
             <Edge From="1" To="2" Label="Source1" />
-            <Edge From="2" To="3" Label="Source1" />
           </Edges>
         </Workflow>
       </Expression>
-      <Expression xsi:type="MemberSelector">
-        <Selector>Item1</Selector>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="p2:DigitalOutputWriter">
-          <p2:Channels />
-          <p2:SignalSource />
-          <p2:SampleRate>1000</p2:SampleRate>
-          <p2:ActiveEdge>Rising</p2:ActiveEdge>
-          <p2:SampleMode>ContinuousSamples</p2:SampleMode>
-          <p2:BufferSize>1000</p2:BufferSize>
-        </Combinator>
+      <Expression xsi:type="rx:SelectMany">
+        <Name>TriggerSyncFrame</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Lines" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="p2:DigitalOutputConfigurationSource">
+                <p2:ChannelName />
+                <p2:Lines>Dev1/port0</p2:Lines>
+                <p2:Grouping>OneChannelForEachLine</p2:Grouping>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="p2:ToDigitalOutputConfigCollection" />
+            </Expression>
+            <Expression xsi:type="PropertyMapping">
+              <PropertyMappings>
+                <Property Name="Channels" />
+              </PropertyMappings>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="gl:RenderFrame" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Take">
+                <rx:Count>1</rx:Count>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="BooleanProperty">
+                <Value>true</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>EndSession</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="BooleanProperty">
+                <Value>false</Value>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Merge" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="p2:DigitalOutputWriter">
+                <p2:Channels />
+                <p2:SignalSource />
+                <p2:SampleRate>1000</p2:SampleRate>
+                <p2:ActiveEdge>Rising</p2:ActiveEdge>
+                <p2:SampleMode>ContinuousSamples</p2:SampleMode>
+                <p2:BufferSize>1000</p2:BufferSize>
+              </Combinator>
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="2" Label="Source1" />
+            <Edge From="2" To="3" Label="Source1" />
+            <Edge From="3" To="4" Label="Source1" />
+            <Edge From="4" To="11" Label="Source1" />
+            <Edge From="5" To="6" Label="Source1" />
+            <Edge From="6" To="7" Label="Source1" />
+            <Edge From="7" To="10" Label="Source1" />
+            <Edge From="8" To="9" Label="Source1" />
+            <Edge From="9" To="10" Label="Source2" />
+            <Edge From="10" To="11" Label="Source2" />
+            <Edge From="11" To="12" Label="Source1" />
+          </Edges>
+        </Workflow>
       </Expression>
     </Nodes>
     <Edges>
@@ -977,38 +989,10 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
       <Edge From="114" To="115" Label="Source3" />
       <Edge From="116" To="117" Label="Source1" />
       <Edge From="117" To="118" Label="Source1" />
-      <Edge From="119" To="120" Label="Source1" />
+      <Edge From="118" To="119" Label="Source1" />
       <Edge From="120" To="121" Label="Source1" />
       <Edge From="121" To="122" Label="Source1" />
       <Edge From="122" To="123" Label="Source1" />
-      <Edge From="123" To="133" Label="Source1" />
-      <Edge From="124" To="125" Label="Source1" />
-      <Edge From="124" To="127" Label="Source1" />
-      <Edge From="125" To="126" Label="Source1" />
-      <Edge From="126" To="128" Label="Source1" />
-      <Edge From="127" To="128" Label="Source2" />
-      <Edge From="128" To="130" Label="Source1" />
-      <Edge From="129" To="130" Label="Source2" />
-      <Edge From="130" To="131" Label="Source1" />
-      <Edge From="131" To="132" Label="Source1" />
-      <Edge From="132" To="133" Label="Source2" />
-      <Edge From="134" To="135" Label="Source1" />
-      <Edge From="135" To="136" Label="Source1" />
-      <Edge From="137" To="138" Label="Source1" />
-      <Edge From="138" To="139" Label="Source1" />
-      <Edge From="139" To="140" Label="Source1" />
-      <Edge From="140" To="141" Label="Source1" />
-      <Edge From="141" To="152" Label="Source1" />
-      <Edge From="142" To="143" Label="Source1" />
-      <Edge From="143" To="144" Label="Source1" />
-      <Edge From="144" To="147" Label="Source1" />
-      <Edge From="145" To="146" Label="Source1" />
-      <Edge From="146" To="147" Label="Source2" />
-      <Edge From="147" To="149" Label="Source1" />
-      <Edge From="148" To="149" Label="Source2" />
-      <Edge From="149" To="150" Label="Source1" />
-      <Edge From="150" To="151" Label="Source1" />
-      <Edge From="151" To="152" Label="Source2" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
