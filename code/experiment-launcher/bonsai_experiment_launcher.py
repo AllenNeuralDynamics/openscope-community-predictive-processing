@@ -1346,7 +1346,7 @@ class BonsaiExperiment(object):
             'norm_screen_bluecolor',
             'norm_screen_greencolor',
             'norm_screen_redcolor',
-            'WheelGain',
+            'WheelGratingPhase',
         ]
 
         # Set Root_Folder to the session folder where Bonsai will store its CSV files
