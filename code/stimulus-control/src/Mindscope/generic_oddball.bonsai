@@ -669,7 +669,7 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         <io:IncludeHeader>true</io:IncludeHeader>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
-        <Property Name="Value" DisplayName="AcqLine" />
+        <Property Name="Value" DisplayName="FrameLine" />
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
@@ -696,7 +696,7 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         </Workflow>
       </Expression>
       <Expression xsi:type="rx:SelectMany">
-        <Name>TriggerSyncAcq</Name>
+        <Name>TriggerSyncFrame</Name>
         <Workflow>
           <Nodes>
             <Expression xsi:type="WorkflowInput">
@@ -772,7 +772,7 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         </Workflow>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
-        <Property Name="Value" DisplayName="FrameLine" />
+        <Property Name="Value" DisplayName="AcqLine" />
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
@@ -799,7 +799,7 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         </Workflow>
       </Expression>
       <Expression xsi:type="rx:SelectMany">
-        <Name>TriggerSyncFrame</Name>
+        <Name>TriggerSyncAcq</Name>
         <Workflow>
           <Nodes>
             <Expression xsi:type="WorkflowInput">
