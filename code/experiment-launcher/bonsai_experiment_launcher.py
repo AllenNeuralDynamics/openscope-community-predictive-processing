@@ -1390,6 +1390,28 @@ class BonsaiExperiment(object):
         bonsai_args.extend(["--property", "WheelComPort=%s" % wheel_com_port])
         logging.debug("Added Bonsai property: WheelComPort=%s" % wheel_com_port)
 
+        # 4. sync_sqr - from config['Sync']['sync_sqr'] (boolean)
+        sync_sqr = "None"
+        if 'Sync' in self.config and 'sync_sqr' in self.config['Sync']:
+            sync_sqr_value = self.config['Sync']['sync_sqr']
+            # Convert boolean to string that Bonsai can understand
+            if isinstance(sync_sqr_value, bool):
+                sync_sqr = "true" if sync_sqr_value else "false"
+            else:
+                sync_sqr = str(sync_sqr_value)
+        
+        bonsai_args.extend(["--property", "sync_sqr=%s" % sync_sqr])
+        logging.debug("Added Bonsai property: sync_sqr=%s" % sync_sqr)
+        
+        # 5. sync_sqr_freq - from config['Sync']['sync_sqr_freq'] (integer)
+        sync_sqr_freq = "None"
+        if 'Sync' in self.config and 'sync_sqr_freq' in self.config['Sync']:
+            sync_sqr_freq_value = self.config['Sync']['sync_sqr_freq']
+            sync_sqr_freq = str(sync_sqr_freq_value)
+        
+        bonsai_args.extend(["--property", "sync_sqr_freq=%s" % sync_sqr_freq])
+        logging.debug("Added Bonsai property: sync_sqr_freq=%s" % sync_sqr_freq)
+
         # Forward all parameters in the forwarded_parameters list
         forwarded_count = 0
         for param_name in forwarded_parameters:
