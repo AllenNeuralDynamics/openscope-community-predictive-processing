@@ -1391,7 +1391,7 @@ class BonsaiExperiment(object):
         logging.debug("Added Bonsai property: WheelComPort=%s" % wheel_com_port)
 
         # 4. sync_sqr - from config['Sync']['sync_sqr'] (boolean)
-        sync_sqr = "None"
+        sync_sqr = "false"
         if 'Sync' in self.config and 'sync_sqr' in self.config['Sync']:
             sync_sqr_value = self.config['Sync']['sync_sqr']
             # Convert boolean to string that Bonsai can understand
@@ -1404,7 +1404,7 @@ class BonsaiExperiment(object):
         logging.debug("Added Bonsai property: sync_sqr=%s" % sync_sqr)
         
         # 5. sync_sqr_freq - from config['Sync']['sync_sqr_freq'] (integer)
-        sync_sqr_freq = "None"
+        sync_sqr_freq = 60
         if 'Sync' in self.config and 'sync_sqr_freq' in self.config['Sync']:
             sync_sqr_freq_value = self.config['Sync']['sync_sqr_freq']
             sync_sqr_freq = str(sync_sqr_freq_value)
