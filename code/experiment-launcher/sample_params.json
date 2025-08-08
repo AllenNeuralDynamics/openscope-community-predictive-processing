@@ -6,5 +6,5 @@
     "bonsai_exe_path": "code/stimulus-control/bonsai/Bonsai.exe",
     "bonsai_setup_script": "code/stimulus-control/bonsai/setup.cmd",
     "mouse_id": "test_mouse",
-    "user_id": "test_user"
+    "user_id": "test_user",
 }

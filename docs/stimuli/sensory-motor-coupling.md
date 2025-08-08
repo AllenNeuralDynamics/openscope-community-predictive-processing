@@ -69,35 +69,6 @@ The formula ensures that when the mouse runs forward by a distance `d`, the visu
 4. **Modulo Operation**: The result is wrapped to 360° to maintain continuous phase cycling
 5. **Visual Rendering**: The calculated phase offset is applied to the vertical gratings
 
-### Code Structure
-
-```xml
-<!-- Encoder source -->
-<Combinator xsi:type="p1:AMT10EncoderSource">
-  <p1:CountsPerRevolution>8192</p1:CountsPerRevolution>
-</Combinator>
-
-<!-- Extract degrees from encoder data -->
-<MemberSelector>
-  <Selector>Degrees</Selector>
-</MemberSelector>
-
-<!-- Combine with coupling parameters -->
-<Combinator xsi:type="rx:CombineLatest" />
-
-<!-- Apply coupling formula -->
-<scr:ExpressionTransform>
-  <scr:Expression>Math.Atan(2 * Math.PI / 360 * it.Item2 * it.Item1) * 180 / (it.Item3 * Math.PI)</scr:Expression>
-</scr:ExpressionTransform>
-
-<!-- Wrap to 360 degrees -->
-<Mod>
-  <Operand xsi:type="DoubleProperty">
-    <Value>360</Value>
-  </Operand>
-</Mod>
-```
-
 ## Configuration Parameters
 
 The coupling system uses several configurable parameters:
@@ -113,12 +84,6 @@ These parameters can be adjusted to modify the coupling strength or adapt to dif
 The sensory-motor coupling implementation is found in:
 - [`/code/stimulus-control/src/Mindscope/generic_oddball.bonsai`](https://github.com/allenneuraldynamics/openscope-community-predictive-processing/blob/main/code/stimulus-control/src/Mindscope/generic_oddball.bonsai)
 
-## Applications
-
-This coupling mechanism is used in several experimental paradigms:
-
-- **[Sensory-Motor Closed-Loop](sensory-motor-closed-loop.md)**: Creates predictable sensorimotor relationships that can be violated
-- **[Generic Oddball Protocol](generic-oddball.md)**: Provides motor-coupled visual feedback in various experimental contexts
 
 ## Technical Considerations
 
@@ -131,15 +96,3 @@ This coupling mechanism is used in several experimental paradigms:
 - **[Sensory-Motor Closed-Loop](sensory-motor-closed-loop.md)**: Implementation of oddball violations in motor-coupled environments
 - **[Generic Oddball Protocol](generic-oddball.md)**: Flexible framework using this coupling mechanism
 - **[Bonsai Instructions](bonsai_instructions.md)**: Setup and deployment instructions
-
-<!-- DISCUSSION_LINK_START -->
-<div class="discussion-link">
-    <hr>
-    <p>
-        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/sensory-motor-coupling" target="_blank">
-            💬 Start a discussion for this page on GitHub
-        </a>
-        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
-    </p>
-</div>
-<!-- DISCUSSION_LINK_END -->
