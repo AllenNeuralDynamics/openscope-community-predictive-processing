@@ -175,10 +175,10 @@
               <Property Name="LocationY" DisplayName="Photodiode_LocationY" />
             </Expression>
             <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawQuad.bonsai">
-              <ExtentX>6</ExtentX>
-              <ExtentY>7.5</ExtentY>
-              <LocationX>32</LocationX>
-              <LocationY>-20</LocationY>
+              <ExtentX>8</ExtentX>
+              <ExtentY>8</ExtentY>
+              <LocationX>59</LocationX>
+              <LocationY>28</LocationY>
               <Layer>2</Layer>
               <Angle>0</Angle>
               <ColorR>0</ColorR>
@@ -275,8 +275,8 @@
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.OrthographicView.bonsai">
         <Left>-90</Left>
         <Right>90</Right>
-        <Bottom>-45</Bottom>
-        <Top>45</Top>
+        <Bottom>-50</Bottom>
+        <Top>50</Top>
       </Expression>
       <Expression xsi:type="rx:PublishSubject">
         <Name>Draw</Name>
