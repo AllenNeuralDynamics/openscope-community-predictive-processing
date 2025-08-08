@@ -291,8 +291,8 @@
         <FaceSize xsi:nil="true" />
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.ViewWindow.bonsai">
-        <Width>20.4</Width>
-        <Height>15.4</Height>
+        <Width>51.8</Width>
+        <Height>32.4</Height>
         <Rotation>
           <X>0</X>
           <Y>0</Y>
@@ -642,7 +642,7 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="p1:AMT10EncoderSource">
-          <p1:PortName>2</p1:PortName>
+          <p1:PortName />
           <p1:BaudRate>9600</p1:BaudRate>
           <p1:Timeout>500</p1:Timeout>
           <p1:CountsPerRevolution>8192</p1:CountsPerRevolution>
@@ -667,12 +667,26 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         <Name>WheelDegrees</Name>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
-        <Property Name="Value" DisplayName="Wheel2GratingPhase" />
+        <Property Name="Value" DisplayName="WheelRadiusOverScreenRatio" />
       </Expression>
-      <Expression xsi:type="Multiply">
-        <Operand xsi:type="DoubleProperty">
-          <Value>0.1</Value>
-        </Operand>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="FloatProperty">
+          <Value>0.36</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="Value" DisplayName="MotorCouplingCPD" />
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="FloatProperty">
+          <Value>0.04</Value>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:CombineLatest" />
+      </Expression>
+      <Expression xsi:type="scr:ExpressionTransform">
+        <scr:Expression>Math.Atan(2 * Math.PI / 360 * it.Item2 * it.Item1) * 180 / (it.Item3 * Math.PI)</scr:Expression>
       </Expression>
       <Expression xsi:type="Mod">
         <Operand xsi:type="DoubleProperty">
@@ -702,7 +716,7 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         <Append>false</Append>
         <Overwrite>true</Overwrite>
         <Suffix>None</Suffix>
-        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250714T233516/orientations_logger.csv</FileName>
+        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250808T113022/orientations_logger.csv</FileName>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
         <Format>Frame</Format>
@@ -740,7 +754,7 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         <Text><![CDATA[]]></Text>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250714T233516/orientations_orientations.csv</io:FileName>
+        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250808T113022/orientations_orientations.csv</io:FileName>
         <io:Append>true</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>FileCount</io:Suffix>
@@ -1044,29 +1058,33 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
       <Edge From="89" To="90" Label="Source1" />
       <Edge From="90" To="91" Label="Source1" />
       <Edge From="91" To="92" Label="Source1" />
-      <Edge From="92" To="94" Label="Source1" />
-      <Edge From="93" To="94" Label="Source2" />
-      <Edge From="94" To="95" Label="Source1" />
+      <Edge From="92" To="97" Label="Source1" />
+      <Edge From="93" To="94" Label="Source1" />
+      <Edge From="94" To="97" Label="Source2" />
       <Edge From="95" To="96" Label="Source1" />
-      <Edge From="97" To="101" Label="Source1" />
+      <Edge From="96" To="97" Label="Source3" />
+      <Edge From="97" To="98" Label="Source1" />
       <Edge From="98" To="99" Label="Source1" />
       <Edge From="99" To="100" Label="Source1" />
-      <Edge From="100" To="101" Label="Source2" />
-      <Edge From="101" To="102" Label="Source1" />
-      <Edge From="102" To="105" Label="Source1" />
+      <Edge From="101" To="105" Label="Source1" />
+      <Edge From="102" To="103" Label="Source1" />
       <Edge From="103" To="104" Label="Source1" />
       <Edge From="104" To="105" Label="Source2" />
-      <Edge From="106" To="111" Label="Source1" />
+      <Edge From="105" To="106" Label="Source1" />
+      <Edge From="106" To="109" Label="Source1" />
       <Edge From="107" To="108" Label="Source1" />
-      <Edge From="108" To="109" Label="Source1" />
-      <Edge From="109" To="111" Label="Source2" />
-      <Edge From="110" To="111" Label="Source3" />
+      <Edge From="108" To="109" Label="Source2" />
+      <Edge From="110" To="115" Label="Source1" />
+      <Edge From="111" To="112" Label="Source1" />
       <Edge From="112" To="113" Label="Source1" />
-      <Edge From="113" To="114" Label="Source1" />
-      <Edge From="114" To="115" Label="Source1" />
+      <Edge From="113" To="115" Label="Source2" />
+      <Edge From="114" To="115" Label="Source3" />
       <Edge From="116" To="117" Label="Source1" />
       <Edge From="117" To="118" Label="Source1" />
       <Edge From="118" To="119" Label="Source1" />
+      <Edge From="120" To="121" Label="Source1" />
+      <Edge From="121" To="122" Label="Source1" />
+      <Edge From="122" To="123" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>

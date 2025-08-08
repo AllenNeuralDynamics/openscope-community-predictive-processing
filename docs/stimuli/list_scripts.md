@@ -66,6 +66,7 @@ If you've created a new script that should be added to this documentation, follo
 - **[Bonsai Instructions](bonsai_instructions.md)**: How to set up and run Bonsai scripts
 - **[Standard Oddball](standard-oddball.md)**: Details about the standard oddball paradigm 
 - **[Sensory-Motor Closed Loop](sensory-motor-closed-loop.md)**: Information about the sensory-motor paradigm
+- **[Sensory-Motor Coupling](sensory-motor-coupling.md)**: Technical details about wheel-to-visual coupling implementation
 - **[Experimental Plan](../experimental-plan.md)**: Overview of all experimental paradigms
 
 <!-- DISCUSSION_LINK_START -->
