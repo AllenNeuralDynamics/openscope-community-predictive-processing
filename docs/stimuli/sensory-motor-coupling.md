@@ -26,6 +26,7 @@ Phase Offset = Math.Atan(2 * Math.PI / 360 * WheelRadiusOverScreenRatio * WheelA
 ```
 
 Where:
+
 - **WheelAngle** (Item1): The encoder reading in degrees representing the wheel's rotational position
 - **WheelRadiusOverScreenRatio** (Item2): The ratio of 5.5/15 = 0.367, accounting for the geometric relationship between wheel radius and screen distance
 - **SpatialFrequency** (Item3): The spatial frequency of the gratings in cycles per degree (typically 0.04 cpd)
@@ -39,6 +40,7 @@ The formula implements a perspective projection that accounts for the geometric 
 1. **Angular Conversion**: `2 * Math.PI / 360 * WheelAngle` converts the wheel angle from degrees to radians
 
 2. **Geometric Scaling**: The ratio `5.5/15` (0.367) represents the relationship between:
+
    - The distance from the mouse to the wheel center (5.5 cm)
    - The distance from the mouse to the screen (15 cm)
    
@@ -53,6 +55,7 @@ The formula implements a perspective projection that accounts for the geometric 
 ### Physical Interpretation
 
 The goal is to create a realistic spatial coupling where:
+
 - Forward wheel movement → Forward visual motion
 - Backward wheel movement → Backward visual motion
 - The amount of visual motion matches the mouse's perceived movement through space
@@ -82,6 +85,7 @@ These parameters can be adjusted to modify the coupling strength or adapt to dif
 ## Script Location
 
 The sensory-motor coupling implementation is found in:
+
 - [`/code/stimulus-control/src/Mindscope/generic_oddball.bonsai`](https://github.com/allenneuraldynamics/openscope-community-predictive-processing/blob/main/code/stimulus-control/src/Mindscope/generic_oddball.bonsai)
 
 
