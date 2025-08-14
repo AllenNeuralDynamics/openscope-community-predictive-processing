@@ -22,35 +22,31 @@ The sensory-motor coupling relies on a specific geometric arrangement:
 The conversion from wheel rotation to grating phase offset is accomplished through the following geometric transformation:
 
 ```
-Phase Offset = Math.Atan(2 * Math.PI / 360 * WheelRadiusOverScreenRatio * WheelAngle) * 180 / (SpatialFrequency * Math.PI)
+Phase Offset = 2 * Math.PI * WheelRadiusOverScreenRatio * WheelAngle / (Math.tan((1/SpatialFrequency) * Math.PI / 180))
 ```
 
 Where:
 
 - **WheelAngle** (Item1): The encoder reading in degrees representing the wheel's rotational position
-- **WheelRadiusOverScreenRatio** (Item2): The ratio of 5.5/15 = 0.367, accounting for the geometric relationship between wheel radius and screen distance
+- **WheelRadiusOverScreenRatio** (Item2): The ratio of 5.5/15 = 0.36, accounting for the geometric relationship between wheel radius and screen distance
 - **SpatialFrequency** (Item3): The spatial frequency of the gratings in cycles per degree (typically 0.04 cpd)
 
 ## Geometric Analysis
 
 ### The Coupling Formula Explained
 
-The formula implements a perspective projection that accounts for the geometric relationship between the wheel movement and the visual field:
+The formula implements a geometric transformation that accounts for the relationship between wheel movement and visual field displacement:
 
-1. **Angular Conversion**: `2 * Math.PI / 360 * WheelAngle` converts the wheel angle from degrees to radians
+1. **Linear Distance Calculation**: `2 * Math.PI * WheelRadiusOverScreenRatio * WheelAngle` calculates the linear distance the mouse has "moved" based on wheel rotation:
+   - `WheelAngle` is converted from degrees to a proportion of full rotation
+   - Multiplied by `2 * Math.PI` to get radians of wheel rotation
+   - Scaled by `WheelRadiusOverScreenRatio` to account for the geometric relationship between wheel and screen
 
-2. **Geometric Scaling**: The ratio `5.5/15` (0.367) represents the relationship between:
+2. **Spatial Frequency Conversion**: `Math.tan((1/SpatialFrequency) * Math.PI / 180)` converts the spatial frequency to the appropriate scaling factor:
+   - `1/SpatialFrequency` gives the spatial period (degrees per cycle)
+   - Converted to radians and tangent calculated to account for visual field geometry
 
-   - The distance from the mouse to the wheel center (5.5 cm)
-   - The distance from the mouse to the screen (15 cm)
-   
-   This ratio ensures that when the mouse moves forward by a certain distance, the visual pattern moves by a proportional amount in the visual field.
-
-3. **Perspective Projection**: `Math.Atan()` function calculates the angular displacement in the mouse's visual field that corresponds to the wheel movement. This arctangent transformation accounts for the fact that equal distances at different depths create different angular changes in the visual field.
-
-4. **Spatial Frequency Compensation**: Division by spatial frequency (`SpatialFrequency * Math.PI`) ensures that the phase offset is appropriate for the specific grating being displayed. Higher spatial frequencies require smaller phase changes to achieve the same visual displacement.
-
-5. **Degree Conversion**: `* 180 / Math.PI` converts the result back to degrees for use in the rendering system.
+3. **Phase Calculation**: The division gives the final phase offset that corresponds to the appropriate visual displacement for the given spatial frequency.
 
 ### Physical Interpretation
 
@@ -60,14 +56,14 @@ The goal is to create a realistic spatial coupling where:
 - Backward wheel movement → Backward visual motion
 - The amount of visual motion matches the mouse's perceived movement through space
 
-The formula ensures that when the mouse runs forward by a distance `d`, the visual pattern shifts by an angle that corresponds to what the mouse would see if actually moving through a stationary visual environment.
+The formula ensures that when the mouse runs forward by rotating the wheel, the visual pattern shifts by a distance that accurately represents the mouse's movement through a stationary visual environment. The spatial frequency scaling ensures that the visual displacement is appropriate for the specific grating pattern being displayed.
 
 ## Implementation in Bonsai
 
 ### Data Flow
 
 1. **Encoder Input**: The AMT10 encoder continuously reports wheel position in degrees
-2. **Parameter Combination**: The wheel angle is combined with the coupling ratio (0.367) and spatial frequency (0.04 cpd)
+2. **Parameter Combination**: The wheel angle is combined with the coupling ratio (0.36) and spatial frequency (0.04 cpd)
 3. **Phase Calculation**: The coupling formula calculates the appropriate phase offset
 4. **Modulo Operation**: The result is wrapped to 360° to maintain continuous phase cycling
 5. **Visual Rendering**: The calculated phase offset is applied to the vertical gratings
@@ -76,7 +72,7 @@ The formula ensures that when the mouse runs forward by a distance `d`, the visu
 
 The coupling system uses several configurable parameters:
 
-- **WheelRadiusOverScreenRatio**: 0.367 (ratio of 5.5cm/15cm)
+- **WheelRadiusOverScreenRatio**: 0.36 (ratio of 5.5cm/15cm)
 - **MotorCouplingCPD**: 0.04 cycles per degree (spatial frequency of the gratings)
 - **CountsPerRevolution**: 8192 (encoder resolution)
 

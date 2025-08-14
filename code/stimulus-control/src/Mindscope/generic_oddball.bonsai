@@ -686,7 +686,7 @@ Guid.NewGuid().ToString() as Id) </scr:Expression>
         <Combinator xsi:type="rx:CombineLatest" />
       </Expression>
       <Expression xsi:type="scr:ExpressionTransform">
-        <scr:Expression>Math.Atan(2 * Math.PI / 360 * it.Item2 * it.Item1) * 180 / (it.Item3 * Math.PI)</scr:Expression>
+        <scr:Expression>2 * Math.PI * it.Item2 * it.Item1 / (Math.tan((1/it.Item3) * Math.PI / 180))</scr:Expression>
       </Expression>
       <Expression xsi:type="Mod">
         <Operand xsi:type="DoubleProperty">

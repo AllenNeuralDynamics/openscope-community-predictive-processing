@@ -7,4 +7,6 @@
     "bonsai_setup_script": "code/stimulus-control/bonsai/setup.cmd",
     "mouse_id": "test_mouse",
     "user_id": "test_user",
+    "WheelRadiusOverScreenRatio": 0.36,
+    "MotorCouplingCPD": 0.04
 }
