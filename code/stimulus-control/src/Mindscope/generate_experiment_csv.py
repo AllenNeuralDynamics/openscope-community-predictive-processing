@@ -1202,6 +1202,76 @@ def generate_test_variants():
             print(f"  - {csv_file}")
 
 
+def generate_motor_nooddball_csv(duration_seconds=2100, frame_rate=60, n_variants=10):
+    """
+    Generate motor no-oddball CSV files with pure close-loop control for 35 minutes.
+    
+    This creates blocks that are purely close-loop - all frames have wheel control
+    for the Phase column, with no oddballs whatsoever. This is useful for testing
+    sustained close-loop behavior.
+    
+    Args:
+        duration_seconds: Total duration of the stimulus in seconds (default 35 min = 2100s)
+        frame_rate: Frame rate in Hz
+        n_variants: Number of variants to generate
+    """
+    print("=== Generating Motor No-Oddball Variants (Pure Close-Loop) ===")
+    
+    total_frames = int(duration_seconds * frame_rate)
+    frame_duration = 1.0 / frame_rate  # Duration per frame
+    
+    # Default parameters for motor no-oddball (all frames controlled by wheel movement)
+    default_params = {
+        'Contrast': 1,
+        'Delay': 0,
+        'Diameter': 380,  # Motor no-oddball marker (different from oddball=360 and control=370)
+        'Duration': frame_duration,
+        'Orientation': 0,
+        'Spatial_Frequency': 0.04,
+        'Temporal_Frequency': 0,  # Set to 0 for wheel-controlled
+        'X': 0,
+        'Y': 0,
+        'Phase': 'wheel',  # All frames use wheel control
+        'Trial_Type': 'standard',
+        'Block_Type': 'motor_nooddball'
+    }
+    
+    print(f"Motor no-oddball parameters:")
+    print(f"  - Duration: {duration_seconds}s ({duration_seconds/60:.1f} minutes, {total_frames} frames)")
+    print(f"  - Frame rate: {frame_rate} Hz")
+    print(f"  - Phase: ALL frames controlled by wheel ('wheel' value)")
+    print(f"  - NO oddballs - pure close-loop control")
+    print(f"  - Block type: motor_nooddball")
+    print()
+    
+    for variant in range(n_variants):
+        print(f"Generating motor no-oddball variant {variant + 1}/{n_variants}")
+        
+        # Generate frame-by-frame data - all frames are identical close-loop
+        all_frames = []
+        
+        for frame_num in range(total_frames):
+            frame_data = default_params.copy()
+            # Every frame uses wheel control - no variation needed
+            all_frames.append(frame_data)
+        
+        # Save to CSV in the motor_nooddball subfolder
+        output_file = f"blocks/motor_nooddball/motor_nooddball_variant_{variant + 1:02d}.csv"
+        filepath = Path(output_file)
+        filepath.parent.mkdir(parents=True, exist_ok=True)
+        
+        with open(filepath, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
+            writer.writeheader()
+            writer.writerows(all_frames)
+        
+        print(f"  Saved: {output_file} ({len(all_frames)} frames)")
+    
+    print(f"\nGenerated {n_variants} motor no-oddball variants (35 minutes each, pure close-loop)")
+    print(f"All files saved in: blocks/motor_nooddball/")
+    print()
+
+
 def main():
     """Main function - generate all experiment CSV files."""
     print("Generating all experiment CSV files...")
@@ -1245,6 +1315,10 @@ def main():
     generate_test_variants()
     print()
     
+    # Generate motor no-oddball variants (pure close-loop)
+    generate_motor_nooddball_csv(duration_seconds=2100, frame_rate=60, n_variants=1)
+    print()
+    
     print("All CSV files generated successfully!")
     print("Files created:")
     # Control variants
@@ -1265,6 +1339,8 @@ def main():
         print(f"  - blocks/motor/motor_oddball_variant_{variant:02d}.csv")
     for variant in range(1, 11):
         print(f"  - blocks/motor/motor_control_variant_{variant:02d}.csv")
+    for variant in range(1, 11):
+        print(f"  - blocks/motor_nooddball/motor_nooddball_variant_{variant:02d}.csv")
     # Test files (organized in subfolders matching normal structure)
     test_base = Path("blocks/test")
     for subfolder in ['standard', 'jitter', 'sequentials', 'motor']:
