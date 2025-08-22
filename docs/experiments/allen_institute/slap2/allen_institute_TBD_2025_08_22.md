@@ -28,3 +28,15 @@ The code fix bug with camera file closure and fake initial pulses sent to SlAP.
     - Head fixation started at about XX:XX
     - Experiment started at XX:XX
     - We ended exactly on time at XX:XX
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20experiments/allen_institute/slap2/allen_institute_TBD_2025_08_22" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
