@@ -1116,7 +1116,7 @@ groupMasks:
           <p2:Trials>
             <p2:GratingParameters>
               <p2:Contrast>1</p2:Contrast>
-              <p2:Orientation>0</p2:Orientation>
+              <p2:Orientation>90</p2:Orientation>
             </p2:GratingParameters>
           </p2:Trials>
         </Combinator>
@@ -1138,7 +1138,7 @@ groupMasks:
             </p2:GratingParameters>
             <p2:GratingParameters>
               <p2:Contrast>1</p2:Contrast>
-              <p2:Orientation>90</p2:Orientation>
+              <p2:Orientation>0</p2:Orientation>
             </p2:GratingParameters>
             <p2:GratingParameters>
               <p2:Contrast>0</p2:Contrast>
