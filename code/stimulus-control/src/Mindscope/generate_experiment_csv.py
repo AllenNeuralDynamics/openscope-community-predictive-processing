@@ -1,18 +1,30 @@
 #!/usr/bin/env python3
 """
-Drifting Grating Experiment CSV Generator
+Experimental Session CSV Generator for Visual Mismatch Paradigms
 
-This script generates a CSV file with parameters for a drifting grating experiment
-for recordings in mice. It creates standard trials with default parameters
-and allows adding oddball trials with modified parameters.
+This script generates CSV files for visual mismatch paradigms in mice, organized into
+separate folders with multiple variants per session type.
 
 Usage:
     python generate_experiment_csv.py
+
+This generates 6 session folders, each with 10 variants:
+1. Visual Mismatch (Standard oddball)
+2. Sensory-Motor Mismatch (Motor coupling)  
+3. Sequence Mismatch (Sequential learning)
+4. Duration Mismatch (Temporal oddball)
+5. Sequence No-Oddball (long blocks without oddballs)
+6. Sensory-Motor No-Oddball (long blocks without oddballs)
+
+Each session includes appropriate control blocks and RF mapping.
 """
 
 import csv
 from pathlib import Path
 import random
+import numpy as np
+import math
+import os
 
 # Standard column order for all CSV files
 STANDARD_FIELDNAMES = [
@@ -21,11 +33,14 @@ STANDARD_FIELDNAMES = [
     'Phase', 'Trial_Type', 'Block_Type'
 ]
 
+# Default stimulus size
+DEFAULT_STIMULUS_SIZE = 360  # degrees (full field)
+
 # Default parameters for standard trials
 DEFAULT_PARAMS = {
     'Contrast': 1,
     'Delay': 0.343,
-    'Diameter': 360,  # Standard oddball context
+    'Diameter': DEFAULT_STIMULUS_SIZE,  # Full field stimulus
     'Duration': 0.343,
     'Orientation': 0,  # degrees
     'Spatial_Frequency': 0.04,
@@ -41,7 +56,7 @@ DEFAULT_PARAMS = {
 SEQUENTIAL_PARAMS = {
     'Contrast': 1,
     'Delay': 0,  # 0 delay for sequential
-    'Diameter': 340,  # Sequential context
+    'Diameter': DEFAULT_STIMULUS_SIZE,  # Full field stimulus
     'Duration': 0.250,  # 250ms duration
     'Orientation': 0,  # will be overridden
     'Spatial_Frequency': 0.04,
@@ -53,1302 +68,821 @@ SEQUENTIAL_PARAMS = {
     'Block_Type': 'sequential_oddball'
 }
 
-# Diameter markers for different contexts
-DIAMETER_MARKERS = {
-    'sequential_normal': 340,
-    'sequential_oddball': 341,
-    'jitter_normal': 350,
-    'jitter_oddball': 351,
-    'standard_normal': 360,
-    'standard_oddball': 361,
-    'standard_control': 370,  # For standard control (orientation tuning)
-    'jitter_control': 380,   # For jitter control (duration tuning)
-    'sequential_control': 390  # For sequential control (if needed)
+# Oddball type definitions for flexible configuration
+ODDBALL_TYPES = {
+    'orientation_45': {'Orientation': 45, 'Trial_Type': 'orientation_45'},
+    'orientation_90': {'Orientation': 90, 'Trial_Type': 'orientation_90'},
+    'halt': {'Temporal_Frequency': 0, 'Trial_Type': 'halt'},
+    'omission': {'Contrast': 0, 'Trial_Type': 'omission'},
+    'jitter_150': {'Duration': 0.150, 'Trial_Type': 'jitter'},
+    'jitter_350': {'Duration': 0.350, 'Trial_Type': 'jitter'},
+    'motor_halt': {'Temporal_Frequency': 0, 'Delay': 0, 'Trial_Type': 'halt'},
+    'motor_omission': {'Contrast': 0, 'Delay': 0, 'Trial_Type': 'omission'},
+    'motor_orientation_45': {'Orientation': 45, 'Delay': 0, 'Trial_Type': 'orientation_45'},
+    'motor_orientation_90': {'Orientation': 90, 'Delay': 0, 'Trial_Type': 'orientation_90'}
 }
 
-def generate_experiment_csv(output_file, n_standard_trials, oddball_configs, context_type='standard'):
+def generate_rf_mapping_positions():
     """
-    Generate experiment CSV with standard and oddball trials.
+    Generate (X, Y) positions for a 9x9 RF mapping grid.
+    Grid spans from -40 to +40 degrees in 10-degree steps.
+    
+    Returns:
+        List of (x, y) tuples for RF mapping positions.
+    """
+    positions = []
+    for x in range(-40, 50, 10):  # -40 to +40 in 10° steps (9 positions)
+        for y in range(-40, 50, 10):  # -40 to +40 in 10° steps (9 positions)
+            positions.append((x, y))
+    return positions
+
+def main_single_csv():
+    """Main function for generating separate CSV files for each session type."""
+    
+    print("Generating session folders with multiple variants...")
+    print()
+
+    # Generate 10 variants for each session type in separate folders
+    session_files = generate_separate_session_csvs(n_variants=10)
+    
+    print(f"\nSuccess! Generated session folders with variants:")
+    print("\nEach session type has its own folder with 10 variants:")
+    print("- visual_mismatch/")
+    print("- sensorimotor_mismatch/") 
+    print("- sequence_mismatch/")
+    print("- duration_mismatch/")
+    print("- sequence_mismatch_no_oddball/")
+    print("- sensorimotor_mismatch_no_oddball/")
+    print("\nEach folder contains variant_01.csv through variant_10.csv")
+    print("Load the appropriate CSV file in Bonsai for your experiment.")
+
+def generate_separate_session_csvs(n_variants=10):
+    """
+    Generate separate CSV files for each session type matching the experimental diagram.
+    
+    Each session has the same control block structure but different mismatch blocks:
+    1. Visual Mismatch Session (visual_mismatch_session.csv)
+    2. Sensory-Motor Mismatch Session (sensorimotor_mismatch_session.csv)  
+    3. Sequence Mismatch Session (sequence_mismatch_session.csv)
+    4. Duration Mismatch Session (duration_mismatch_session.csv)
+    5. Sequence No-Oddball Session (sequence_mismatch_no_oddball_session.csv)
+    6. Sensory-Motor No-Oddball Session (sensorimotor_mismatch_no_oddball_session.csv)
     
     Args:
-        output_file: Path to output CSV file
-        n_standard_trials: Number of standard trials
-        oddball_configs: List of tuples (n_trials, modified_params_dict)
-        context_type: Type of context ('standard', 'jitter', 'control')
+        n_variants: Number of session variants to generate (default 1)
+    
+    Returns:
+        Dictionary mapping session type to generated file path
     """
+    
+    print("="*80)
+    print("GENERATING SEPARATE SESSION CSV FILES")
+    print("="*80)
+    print()
+    print("Creating 6 separate CSV files, one for each experimental session:")
+    print("1. Visual Mismatch (Standard oddball)")
+    print("2. Sensory-Motor Mismatch (Motor coupling)")  
+    print("3. Sequence Mismatch (Sequential learning)")
+    print("4. Duration Mismatch (Temporal oddball)")
+    print("5. Sequence No-Oddball (Long sequential blocks)")
+    print("6. Sensory-Motor No-Oddball (Long motor blocks)")
+    print()
+    
+    # Standard fieldnames - no session metadata needed since each file is one session
+    fieldnames = [
+        'Block_Number', 'Block_Label', 'Block_Duration_Minutes',
+        'Trial_Number', 'Sequence_Number', 'Trial_In_Sequence',
+    ] + STANDARD_FIELDNAMES
+    
+    # Session configurations matching the diagram
+    session_configs = {
+        'visual_mismatch': {
+            'folder': 'visual_mismatch',
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'standard_oddball', 'duration_minutes': 26, 'label': 'Standard mismatch block', 
+                 'oddball_config': {'orientation_45': 1.35, 'orientation_90': 1.35, 'halt': 1.35, 'omission': 1.35}},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
+                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+            ]
+        },
+        
+        'sensorimotor_mismatch': {
+            'folder': 'sensorimotor_mismatch',
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'motor_oddball', 'duration_minutes': 26, 'label': 'Sensory-motor mismatch block',
+                 'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
+                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+            ]
+        },
+        
+        'sequence_mismatch': {
+            'folder': 'sequence_mismatch',
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'sequential_oddball', 'duration_minutes': 26, 'label': 'Sequence mismatch block',
+                 'oddball_config': {'orientation_45': 1.35, 'orientation_90': 1.35, 'halt': 1.35, 'omission': 1.35}},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
+                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+            ]
+        },
+        
+        'duration_mismatch': {
+            'folder': 'duration_mismatch',
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'jitter_oddball', 'duration_minutes': 26, 'label': 'Duration mismatch block',
+                 'oddball_config': {'jitter_150': 1.35, 'jitter_350': 1.35}},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
+                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+            ]
+        },
+        
+        # No-oddball versions (long blocks without oddballs, all other blocks preserved)
+        'sequence_mismatch_no_oddball': {
+            'folder': 'sequence_mismatch_no_oddball',
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'sequential_long', 'duration_minutes': 26, 'label': 'Sequence long block (no oddball)'},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
+                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+            ]
+        },
+        
+        'sensorimotor_mismatch_no_oddball': {
+            'folder': 'sensorimotor_mismatch_no_oddball',
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'motor_long', 'duration_minutes': 26, 'label': 'Sensory-motor long block (no oddball)'},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
+                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+            ]
+        }
+    }
+    
+    session_files = {}
+    
+    # Generate each session separately
+    for session_variant in range(n_variants):
+        print(f"Generating session variant {session_variant + 1}/{n_variants}")
+        
+        for session_type, session_config in session_configs.items():
+            print(f"  Processing {session_type} session...")
+            
+            all_trials = []
+            trial_counter = 0
+            
+            # Generate each block in the session
+            for block_number, block_config in enumerate(session_config['blocks'], 1):
+                block_type = block_config['type']
+                duration_minutes = block_config['duration_minutes']
+                block_label = block_config['label']
+                oddball_config = block_config.get('oddball_config', None)
+                
+                print(f"    Block {block_number}: {block_label} ({duration_minutes} min)")
+                
+                # Generate trials for this block
+                block_trials = generate_block_trials(
+                    block_type=block_type,
+                    duration_minutes=duration_minutes,
+                    oddball_config=oddball_config,
+                    variant=session_variant
+                )
+                
+                # Add block metadata to each trial
+                sequence_counter = 0
+                current_sequence_trial = 0
+                
+                for i, trial in enumerate(block_trials):
+                    trial_counter += 1
+                    
+                    # Handle sequence numbering for sequential blocks
+                    if block_type in ['sequential_oddball', 'open_loop_prerecorded']:
+                        if current_sequence_trial == 0:
+                            sequence_counter += 1
+                        current_sequence_trial = (current_sequence_trial + 1) % 5
+                        trial_in_sequence = current_sequence_trial if current_sequence_trial > 0 else 5
+                    else:
+                        sequence_counter = 0
+                        trial_in_sequence = 0
+                    
+                    # Add metadata (no session info since each file is one session)
+                    enriched_trial = {
+                        'Block_Number': block_number,
+                        'Block_Label': block_label,
+                        'Block_Duration_Minutes': duration_minutes,
+                        'Trial_Number': trial_counter,
+                        'Sequence_Number': sequence_counter,
+                        'Trial_In_Sequence': trial_in_sequence,
+                        **trial  # Add all the stimulus parameters
+                    }
+                    
+                    all_trials.append(enriched_trial)
+            
+            # Save this session's CSV in the appropriate folder with variant naming
+            session_folder = session_config['folder']
+            folder_path = Path(session_folder)
+            folder_path.mkdir(exist_ok=True)
+            
+            variant_filename = f"variant_{session_variant+1:02d}.csv"
+            filepath = folder_path / variant_filename
+            
+            with open(filepath, 'w', newline='') as csvfile:
+                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+                writer.writeheader()
+                writer.writerows(all_trials)
+            
+            session_files[f"{session_type}_variant_{session_variant+1:02d}"] = str(filepath)
+            
+            # Print session summary
+            print(f"    Generated {len(all_trials)} trials -> {filepath}")
+    
+    # Print overall summary
+    print()
+    print("="*80)
+    print("SESSION CSV GENERATION COMPLETE")
+    print("="*80)
+    print()
+    print("Generated session folders and variants:")
+    
+    # Group files by session type for display
+    session_folders = {}
+    for key, filepath in session_files.items():
+        session_type = key.split('_variant_')[0]
+        if session_type not in session_folders:
+            session_folders[session_type] = []
+        session_folders[session_type].append(filepath)
+    
+    for session_type, filepaths in session_folders.items():
+        folder_name = session_configs[session_type]['folder']
+        print(f"  {folder_name}/  ({len(filepaths)} variants)")
+        for filepath in sorted(filepaths):
+            variant_name = Path(filepath).name
+            print(f"    {variant_name}")
+    
+    print()
+    print("Each CSV file contains one complete experimental session:")
+    print("- 7 blocks total (Control 1.1 → Mismatch → Control 1.2 → Control 2 → Control 3 → Control 4 → RF mapping)")
+    print("- Block structure matches the experimental diagram exactly")
+    print("- Use Block_Number column to run blocks sequentially")
+    print("- Use Sequence_Number for sequential block analysis")
+    
+    return session_files
+
+def generate_block_trials(block_type, duration_minutes, oddball_config=None, variant=0):
+    """
+    Generate trials for a specific block type.
+    
+    Args:
+        block_type: Type of block to generate
+        duration_minutes: Duration of the block in minutes
+        oddball_config: Dictionary of oddball configurations
+        variant: Variant number for randomization
+        
+    Returns:
+        List of trial dictionaries
+    """
+    random.seed(variant * 42 + hash(block_type))
+    
+    duration_seconds = duration_minutes * 60
     trials = []
     
-    # Set diameter markers and block type based on context
-    if context_type == 'standard':
-        normal_diameter = DIAMETER_MARKERS['standard_normal']
-        oddball_diameter = DIAMETER_MARKERS['standard_oddball']
-        block_type = 'standard_oddball'
-    elif context_type == 'jitter':
-        normal_diameter = DIAMETER_MARKERS['jitter_normal']
-        oddball_diameter = DIAMETER_MARKERS['jitter_oddball']
-        block_type = 'jitter_oddball'
-    elif context_type == 'standard_control':
-        normal_diameter = DIAMETER_MARKERS['standard_control']
-        oddball_diameter = DIAMETER_MARKERS['standard_control']
-        block_type = 'standard_control'
-    elif context_type == 'jitter_control':
-        normal_diameter = DIAMETER_MARKERS['jitter_control']
-        oddball_diameter = DIAMETER_MARKERS['jitter_control']
-        block_type = 'jitter_control'
-    elif context_type == 'sequential_control':
-        normal_diameter = DIAMETER_MARKERS['sequential_control']
-        oddball_diameter = DIAMETER_MARKERS['sequential_control']
-        block_type = 'sequential_control'
-    else:  # Default case
-        normal_diameter = 360
-        oddball_diameter = 361
-        block_type = 'standard_oddball'
-    
-    # Add standard trials
-    for _ in range(n_standard_trials):
-        trial = DEFAULT_PARAMS.copy()
-        trial['Diameter'] = normal_diameter
-        trial['Trial_Type'] = 'standard'
-        trial['Block_Type'] = block_type
-        trials.append(trial)
-    
-    # Add oddball trials
-    for n_trials, modified_params in oddball_configs:
-        oddball_params = DEFAULT_PARAMS.copy()
-        oddball_params.update(modified_params)
-        oddball_params['Diameter'] = oddball_diameter
-        oddball_params['Block_Type'] = block_type
+    if block_type == 'standard_control':
+        # Control block 1: 14 orientations + omissions + halts, shuffled
+        # Similar to sequential_control_block but with standard trial duration (343ms)
         
-        # Determine trial type based on modified parameters
-        if 'Duration' in modified_params and modified_params.get('Contrast', 1) > 0:
-            trial_type = 'jitter'
-        elif modified_params.get('Contrast', 1) == 0:
-            trial_type = 'omission'
-        elif modified_params.get('Temporal_Frequency', 2) == 0:
-            trial_type = 'halt'
-        elif modified_params.get('Orientation', 0) == 45:
-            trial_type = 'orientation_45'
-        elif modified_params.get('Orientation', 0) == 90:
-            trial_type = 'orientation_90'
-        elif 'Orientation' in modified_params and context_type in ['standard_control', 'jitter_control', 'sequential_control']:
-            trial_type = 'single'
-        else:
-            trial_type = 'standard'
+        # 14 directions (every 22.5 degrees)
+        orientations = list(np.arange(0, 360, 22.5)[:14])  # 14 orientations
+        n_repeats = max(1, int(duration_minutes * 60 / (len(orientations) + 2) / 0.686))  # +2 for omission and halt types
         
-        oddball_params['Trial_Type'] = trial_type
-        
-        for _ in range(n_trials):
-            trials.append(oddball_params.copy())
-            trials.append(oddball_params.copy())
-    
-    # Save to CSV
-    filepath = Path(output_file)
-    filepath.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(filepath, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-        
-        writer.writeheader()
-        for trial in trials:
-            writer.writerow(trial)
-    
-    print(f"Generated {len(trials)} trials:")
-    print(f"  - {n_standard_trials} standard trials (diameter: {normal_diameter})")
-    for n_trials, params in oddball_configs:
-        print(f"  - {n_trials} oddball trials with: {params} (diameter: {oddball_diameter})")
-    print(f"Saved to: {output_file}")
-
-
-def generate_standard_oddball_variants(n_variants=10):
-    """Generate multiple shuffled variants of standard oddball experiment."""
-    print("=== Generating Standard Oddball Variants ===")
-    
-    # Standard oddball configuration
-    n_standard_trials = 1000
-    oddball_configs = [
-        (10, {'Orientation': 45}),   # 45 degrees
-        (10, {'Orientation': 90}),   # 90 degrees  
-        (10, {'Spatial_Frequency': 0}),  # Spatial frequency 0 (halt)
-        (10, {'Contrast': 0})        # Contrast 0 (omission)
-    ]
-    
-    for variant in range(n_variants):
-        print(f"Generating standard oddball variant {variant + 1}/{n_variants}")
-        
-        # Generate trials
-        trials = []
-        
-        # Add standard trials
-        for _ in range(n_standard_trials):
-            trial = DEFAULT_PARAMS.copy()
-            trial['Diameter'] = DIAMETER_MARKERS['standard_normal']
-            trials.append(trial)
-        
-        # Add oddball trials
-        for n_trials, modified_params in oddball_configs:
-            oddball_params = DEFAULT_PARAMS.copy()
-            oddball_params.update(modified_params)
-            oddball_params['Diameter'] = DIAMETER_MARKERS['standard_oddball']
-            
-            for _ in range(n_trials):
-                trials.append(oddball_params.copy())
-        
-        # Shuffle trials for this variant
-        import random
-        random.seed(variant * 123)  # Different seed than sequential
-        random.shuffle(trials)
-        
-        # Save to CSV
-        output_file = f"blocks/standard/standard_oddball_variant_{variant + 1:02d}.csv"
-        filepath = Path(output_file)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(filepath, 'w', newline='') as csvfile:
-            fieldnames = list(DEFAULT_PARAMS.keys())
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            
-            writer.writeheader()
-            for trial in trials:
-                writer.writerow(trial)
-        
-        print(f"  Saved {len(trials)} trials to {output_file}")
-    
-    print(f"\nGenerated {n_variants} standard oddball variants")
-    print(f"Each variant contains {n_standard_trials} standard + {sum(n for n, _ in oddball_configs)} oddball trials")
-
-
-def generate_jitter_variants(n_variants=10):
-    """Generate multiple shuffled variants of jitter experiment."""
-    print("=== Generating Jitter Variants ===")
-    
-    # Jitter configuration
-    n_standard_trials = 1000
-    oddball_configs = [
-        (10, {'Duration': 0.050}),   # 50ms duration
-        (10, {'Duration': 0.100}),   # 100ms duration
-        (10, {'Duration': 0.200}),   # 200ms duration
-        (10, {'Contrast': 0})        # Contrast 0 (omission)
-    ]
-    
-    for variant in range(n_variants):
-        print(f"Generating jitter variant {variant + 1}/{n_variants}")
-        
-        # Generate trials
-        trials = []
-        
-        # Add standard trials
-        for _ in range(n_standard_trials):
-            trial = DEFAULT_PARAMS.copy()
-            trial['Diameter'] = DIAMETER_MARKERS['jitter_normal']
-            trials.append(trial)
-        
-        # Add oddball trials
-        for n_trials, modified_params in oddball_configs:
-            oddball_params = DEFAULT_PARAMS.copy()
-            oddball_params.update(modified_params)
-            oddball_params['Diameter'] = DIAMETER_MARKERS['jitter_oddball']
-            
-            for _ in range(n_trials):
-                trials.append(oddball_params.copy())
-        
-        # Shuffle trials for this variant
-        import random
-        random.seed(variant * 456)  # Different seed than sequential and standard
-        random.shuffle(trials)
-        
-        # Save to CSV
-        output_file = f"blocks/jitter/jitter_variant_{variant + 1:02d}.csv"
-        filepath = Path(output_file)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(filepath, 'w', newline='') as csvfile:
-            fieldnames = list(DEFAULT_PARAMS.keys())
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-            
-            writer.writeheader()
-            for trial in trials:
-                writer.writerow(trial)
-        
-        print(f"  Saved {len(trials)} trials to {output_file}")
-    
-    print(f"\nGenerated {n_variants} jitter variants")
-    print(f"Each variant contains {n_standard_trials} standard + {sum(n for n, _ in oddball_configs)} oddball trials")
-
-
-def generate_standard_oddball_csv():
-    """Generate standard oddball experiment CSV."""
-    print("=== Generating Standard Oddball Experiment ===")
-    
-    # Standard oddball configuration
-    n_standard_trials = 1000
-    oddball_configs = [
-        (10, {'Orientation': 45}),   # 45 degrees
-        (10, {'Orientation': 90}),   # 90 degrees  
-        (10, {'Spatial_Frequency': 0}),  # Spatial frequency 0 (halt)
-        (10, {'Contrast': 0})        # Contrast 0 (omission)
-    ]
-    
-    generate_experiment_csv("blocks/standard/standard_oddball.csv", n_standard_trials, oddball_configs, 'standard')
-
-
-def generate_jitter_csv():
-    """Generate jitter experiment CSV."""
-    print("=== Generating Jitter Experiment ===")
-    
-    # Jitter configuration
-    n_standard_trials = 1000
-    oddball_configs = [
-        (10, {'Duration': 0.050}),   # 50ms duration
-        (10, {'Duration': 0.100}),   # 100ms duration
-        (10, {'Duration': 0.200}),   # 200ms duration
-        (10, {'Contrast': 0})        # Contrast 0 (omission)
-    ]
-    
-    generate_experiment_csv("blocks/jitter/jitter.csv", n_standard_trials, oddball_configs, 'jitter')
-
-
-def generate_standard_control_csv():
-    """Generate standard control CSV variants (orientation tuning)."""
-    print("=== Generating Standard Control (Orientation Tuning) Variants ===")
-    
-    # Generate orientations from 0 to 360 degrees
-    n_control_per_orientation = 10
-    orientations = list(range(0, 360, 15))  # Every 15 degrees: 0, 15, 30, ..., 345
-    
-    for variant in range(10):
-        print(f"Generating standard control variant {variant + 1}/10")
-        
-        trials = []
+        all_trials_pool = []
         
         # Add orientation trials
         for orientation in orientations:
-            for _ in range(n_control_per_orientation):
+            for _ in range(n_repeats):
                 trial = DEFAULT_PARAMS.copy()
                 trial['Orientation'] = orientation
-                trial['Diameter'] = DIAMETER_MARKERS['standard_control']
                 trial['Trial_Type'] = 'single'
                 trial['Block_Type'] = 'standard_control'
-                trials.append(trial)
+                trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                all_trials_pool.append(trial)
         
-        # Shuffle trials for this variant
-        import random
-        random.seed(variant * 101)  # Different seed for control variants
-        random.shuffle(trials)
+        # Add omission trials (same number of repeats)
+        for _ in range(n_repeats):
+            trial = DEFAULT_PARAMS.copy()
+            trial['Contrast'] = 0
+            trial['Trial_Type'] = 'omission'
+            trial['Block_Type'] = 'standard_control'
+            trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            all_trials_pool.append(trial)
         
-        # Save to CSV
-        output_file = f"blocks/standard/standard_control_variant_{variant + 1:02d}.csv"
-        filepath = Path(output_file)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
+        # Add halt trials (same number of repeats)
+        for _ in range(n_repeats):
+            trial = DEFAULT_PARAMS.copy()
+            trial['Temporal_Frequency'] = 0
+            trial['Trial_Type'] = 'halt'
+            trial['Block_Type'] = 'standard_control'
+            trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            all_trials_pool.append(trial)
         
-        with open(filepath, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-            writer.writeheader()
-            writer.writerows(trials)
-        
-        print(f"  Saved {len(trials)} trials to {output_file}")
+        # Shuffle all trials
+        random.shuffle(all_trials_pool)
+        trials.extend(all_trials_pool)
     
-    print(f"\nGenerated 10 standard control variants")
-    print(f"Each variant contains {len(orientations)} orientations × {n_control_per_orientation} trials each = {len(orientations) * n_control_per_orientation} orientation trials")
-
-
-def generate_jitter_control_csv():
-    """Generate jitter control CSV variants (duration tuning)."""
-    print("=== Generating Jitter Control (Duration Tuning) Variants ===")
-    
-    # All durations presented equally
-    n_control_per_duration = 50
-    durations = [0.050, 0.100, 0.200, 0.343]  # Including the default duration
-    
-    for variant in range(10):
-        print(f"Generating jitter control variant {variant + 1}/10")
+    elif block_type == 'jitter_control':
+        # Duration tuning
+        durations = [0.050, 0.100, 0.200, 0.343]
+        n_repeats = max(1, int(duration_minutes * 60 / (len(durations) * 0.686)))
         
-        trials = []
-        
-        # Add duration trials
         for duration in durations:
-            for _ in range(n_control_per_duration):
+            for _ in range(n_repeats):
                 trial = DEFAULT_PARAMS.copy()
                 trial['Duration'] = duration
-                trial['Diameter'] = DIAMETER_MARKERS['jitter_control']
+                trial['Diameter'] = DEFAULT_STIMULUS_SIZE
                 trial['Trial_Type'] = 'single'
                 trial['Block_Type'] = 'jitter_control'
                 trials.append(trial)
+    
+    elif block_type == 'open_loop_prerecorded':
+        # Open-loop pre-recorded sequence (Control block 4)
+        # Simulates a pre-recorded sensory-motor sequence where visual stimuli change 
+        # independently of wheel input, representing playback of a recorded session
         
-        # Shuffle trials for this variant
-        import random
-        random.seed(variant * 102)  # Different seed for jitter control variants
-        random.shuffle(trials)
+        # Frame rate for temporal sampling
+        frame_rate = 60
+        total_frames = int(duration_seconds * frame_rate)
+        frame_duration = 1.0 / frame_rate
         
-        # Save to CSV
-        output_file = f"blocks/jitter/jitter_control_variant_{variant + 1:02d}.csv"
-        filepath = Path(output_file)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
+        # Create a simulated pre-recorded sensory-motor sequence pattern
+        # In sensory-motor paradigms, orientation stays constant (vertical)
+        # and only phase varies based on recorded wheel movement
         
-        with open(filepath, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-            writer.writeheader()
-            writer.writerows(trials)
+        # Simulate realistic wheel-driven phase changes over time
         
-        print(f"  Saved {len(trials)} trials to {output_file}")
-    
-    print(f"\nGenerated 10 jitter control variants")
-    print(f"Each variant contains {len(durations)} durations × {n_control_per_duration} trials each = {len(durations) * n_control_per_duration} duration trials")
-
-
-def generate_sequential_csv(n_normal_sequences, n_oddball_45, n_oddball_90, n_oddball_halt, n_oddball_omission, shuffle_variant=0):
-    """
-    Generate sequential experiment CSV with sequences of 4 gratings + omission.
-    
-    Args:
-        n_normal_sequences: Number of normal sequences (90°, 45°, 0°, 45°)
-        n_oddball_45: Number of sequences with 45° replacing 3rd grating
-        n_oddball_90: Number of sequences with 90° replacing 3rd grating  
-        n_oddball_halt: Number of sequences with halt replacing 3rd grating
-        n_oddball_omission: Number of sequences with omission replacing 3rd grating
-        shuffle_variant: Variant number for shuffling (0-9)
-    """
-    import random
-    
-    # Standard sequence: 90°, 45°, 0°, 45°, omission
-    standard_sequence = [90, 45, 0, 45]
-    
-    # Create list of all sequences to generate
-    sequence_types = []
-    
-    # Add normal sequences
-    for _ in range(n_normal_sequences):
-        sequence_types.append(('normal', standard_sequence))
-    
-    # Add oddball sequences
-    for _ in range(n_oddball_45):
-        oddball_seq = [90, 45, 45, 45]  # Replace 3rd grating with 45°
-        sequence_types.append(('oddball_45', oddball_seq))
-    
-    for _ in range(n_oddball_90):
-        oddball_seq = [90, 45, 90, 45]  # Replace 3rd grating with 90°
-        sequence_types.append(('oddball_90', oddball_seq))
-    
-    for _ in range(n_oddball_halt):
-        oddball_seq = [90, 45, -1, 45]  # Replace 3rd grating with halt
-        sequence_types.append(('oddball_halt', oddball_seq))
-    
-    for _ in range(n_oddball_omission):
-        oddball_seq = [90, 45, -2, 45]  # Replace 3rd grating with omission
-        sequence_types.append(('oddball_omission', oddball_seq))
-    
-    # Shuffle the sequence order for this variant
-    random.seed(shuffle_variant * 42)
-    random.shuffle(sequence_types)
-    
-    trials = []
-    
-    for seq_type, sequence in sequence_types:
-        # Determine if this is a normal or oddball sequence
-        is_oddball = seq_type != 'normal'
-        
-        # Add the 4 gratings
-        for orientation in sequence:
-            trial = SEQUENTIAL_PARAMS.copy()
+        for frame in range(total_frames):
+            # Time-based phase evolution (simulating recorded wheel movement)
+            time_seconds = frame / frame_rate
             
-            # Set diameter marker based on sequence type
-            if is_oddball:
-                trial['Diameter'] = DIAMETER_MARKERS['sequential_oddball']
-            else:
-                trial['Diameter'] = DIAMETER_MARKERS['sequential_normal']
+            # Orientation stays constant at vertical (0°) for sensory-motor paradigm
+            # Only phase changes to simulate the pre-recorded wheel movement
+            final_orientation = 0  # Always vertical for sensory-motor
             
-            # Set trial type and block type
-            trial['Block_Type'] = 'sequential_oddball'
+            # Phase changes over time (simulating continuous motion from recorded wheel data)
+            # This creates realistic wheel-driven motion patterns
+            # Use multiple frequency components to simulate natural wheel movement
+            base_phase = time_seconds * 120  # Base drift rate
+            fine_motion = 30 * math.sin(time_seconds * 8)  # Higher frequency component
+            micro_motion = 10 * math.sin(time_seconds * 25)  # Fine-scale motion
+            simulated_phase = (base_phase + fine_motion + micro_motion) % 360
             
-            if orientation == -1:  # halt
-                trial['Orientation'] = 0
-                trial['Spatial_Frequency'] = 0
-                trial['Trial_Type'] = 'halt'
-            elif orientation == -2:  # omission
-                trial['Orientation'] = 0
-                trial['Contrast'] = 0
-                trial['Trial_Type'] = 'omission'
-            else:
-                trial['Orientation'] = orientation
-                if is_oddball:
-                    if orientation == 45:
-                        trial['Trial_Type'] = 'orientation_45'
-                    elif orientation == 90:
-                        trial['Trial_Type'] = 'orientation_90'
-                    else:
-                        trial['Trial_Type'] = 'standard'
-                else:
-                    trial['Trial_Type'] = 'standard'
-            
+            trial = {
+                'Contrast': 1,
+                'Delay': 0,
+                'Diameter': DEFAULT_STIMULUS_SIZE,
+                'Duration': frame_duration,
+                'Orientation': int(final_orientation),
+                'Spatial_Frequency': 0.04,
+                'Temporal_Frequency': 0,  # Static, phase controlled by prerecorded data
+                'X': 0,
+                'Y': 0,
+                'Phase': int(simulated_phase),  # Prerecorded phase evolution
+                'Trial_Type': 'prerecorded',
+                'Block_Type': 'open_loop_prerecorded'
+            }
             trials.append(trial)
+    
+    elif block_type == 'sequential_control_block':
+        # Control block 2: Sequential-like stimuli but shuffled (not in sequences)
+        # 14 orientations + omissions + halts, each repeated 70 times, shuffled
+        # Uses 250ms duration like sequential blocks but without sequence structure
         
-        # Add the omission (5th trial in sequence)
-        omission_trial = SEQUENTIAL_PARAMS.copy()
-        omission_trial['Contrast'] = 0
-        omission_trial['Trial_Type'] = 'omission'
-        omission_trial['Block_Type'] = 'sequential_oddball'
-        # Set diameter marker for omission trial
-        if is_oddball:
-            omission_trial['Diameter'] = DIAMETER_MARKERS['sequential_oddball']
-        else:
-            omission_trial['Diameter'] = DIAMETER_MARKERS['sequential_normal']
-        trials.append(omission_trial)
+        # 14 directions (every 22.5 degrees)
+        orientations = list(np.arange(0, 360, 22.5)[:14])  # 14 orientations
+        n_repeats = 70
+        
+        all_trials_pool = []
+        
+        # Add orientation trials
+        for orientation in orientations:
+            for _ in range(n_repeats):
+                trial = SEQUENTIAL_PARAMS.copy()
+                trial['Orientation'] = orientation
+                trial['Trial_Type'] = 'single'
+                trial['Block_Type'] = 'sequential_control_block'
+                trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                all_trials_pool.append(trial)
+        
+        # Add omission trials (70 repeats)
+        for _ in range(n_repeats):
+            trial = SEQUENTIAL_PARAMS.copy()
+            trial['Contrast'] = 0
+            trial['Trial_Type'] = 'omission'
+            trial['Block_Type'] = 'sequential_control_block'
+            trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            all_trials_pool.append(trial)
+        
+        # Add halt trials (70 repeats)
+        for _ in range(n_repeats):
+            trial = SEQUENTIAL_PARAMS.copy()
+            trial['Temporal_Frequency'] = 0
+            trial['Trial_Type'] = 'halt'
+            trial['Block_Type'] = 'sequential_control_block'
+            trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            all_trials_pool.append(trial)
+        
+        # Shuffle all trials
+        random.shuffle(all_trials_pool)
+        trials.extend(all_trials_pool)
+    
+    elif block_type == 'sequential_long':
+        # Long sequential block without oddballs - just repeating standard sequences
+        sequence_duration = 1.25  # 5 × 0.250s
+        total_sequences = int(duration_seconds / sequence_duration)
+        
+        # Standard sequence pattern repeated for the entire duration
+        standard_sequence = [90, 45, 0, 45]
+        
+        for _ in range(total_sequences):
+            # Generate 5 trials per sequence (4 gratings + 1 omission)
+            for trial_in_seq in range(5):
+                trial = SEQUENTIAL_PARAMS.copy()
+                trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                trial['Block_Type'] = 'sequential_long'
+                
+                if trial_in_seq == 4:  # Last trial is omission
+                    trial['Contrast'] = 0
+                    trial['Trial_Type'] = 'omission'
+                else:
+                    trial['Orientation'] = standard_sequence[trial_in_seq]
+                    trial['Trial_Type'] = 'standard'
+                
+                trials.append(trial)
+    
+    elif block_type == 'motor_long':
+        # Long motor block without oddballs - just continuous closed-loop control
+        frame_rate = 60
+        total_frames = int(duration_seconds * frame_rate)
+        frame_duration = 1.0 / frame_rate
+        
+        # Generate frame-by-frame trials with wheel-controlled phase
+        for frame in range(total_frames):
+            trial = {
+                'Contrast': 1,
+                'Delay': 0,
+                'Diameter': DEFAULT_STIMULUS_SIZE,
+                'Duration': frame_duration,
+                'Orientation': 0,
+                'Spatial_Frequency': 0.04,
+                'Temporal_Frequency': 0,  # Wheel-controlled
+                'X': 0,
+                'Y': 0,
+                'Phase': 'wheel',  # Phase controlled by wheel
+                'Trial_Type': 'standard',
+                'Block_Type': 'motor_long'
+            }
+            trials.append(trial)
+    
+    elif block_type == 'rf_mapping':
+        # RF mapping with parameters matching create_receptive_field_mapping()
+        rf_positions = generate_rf_mapping_positions()  # 81 positions (9×9 grid)
+        orientations = [0, 45, 90]  # 3 orientations  
+        n_repeats = 10  # 10 repeats (corrected from 5)
+        
+        # Parameters matching experimental code
+        contrast = 0.8
+        spatial_frequency = 0.08  # cycles/degree
+        temporal_frequency = 4.0  # Hz
+        sweep_length = 0.25  # seconds
+        size = 20  # degrees diameter
+        
+        for x, y in rf_positions:
+            for orientation in orientations:
+                for _ in range(n_repeats):
+                    trial = {
+                        'Contrast': contrast,
+                        'Delay': 0.0,  # No ISI (blank_length=0.0)
+                        'Diameter': size,
+                        'Duration': sweep_length,
+                        'Orientation': orientation,
+                        'Spatial_Frequency': spatial_frequency,
+                        'Temporal_Frequency': temporal_frequency,
+                        'X': x,
+                        'Y': y,
+                        'Phase': 0,
+                        'Trial_Type': 'rf_mapping',
+                        'Block_Type': 'rf_mapping'
+                    }
+                    trials.append(trial)
+    
+    elif block_type in ['standard_oddball', 'jitter_oddball', 'sequential_oddball']:
+        # Oddball blocks with specified mismatch rates
+        trials = generate_oddball_block_trials(block_type, duration_minutes, oddball_config, variant)
+    
+    elif block_type in ['motor_oddball', 'motor_control']:
+        # Motor blocks - frame-by-frame control
+        trials = generate_motor_block_trials(block_type, duration_minutes, oddball_config, variant)
+    
+    # Shuffle trials (except for those which maintains structure)
+    if block_type not in ['open_loop_prerecorded', 'sequential_oddball', 'sequential_long']:
+        random.shuffle(trials)
     
     return trials
 
-
-def generate_all_sequential_variants(n_normal_sequences=80, n_oddball_45=5, n_oddball_90=5, n_oddball_halt=5, n_oddball_omission=5, n_variants=10):
-    """Generate all sequential experiment variants."""
-    print("=== Generating Sequential Experiments ===")
+def generate_oddball_block_trials(block_type, duration_minutes, oddball_config, variant):
+    """Generate trials for oddball blocks (standard, jitter, sequential)."""
+    random.seed(variant * 123 + hash(block_type))
     
-    total_sequences = n_normal_sequences + n_oddball_45 + n_oddball_90 + n_oddball_halt + n_oddball_omission
-    print(f"Each variant will have {total_sequences} sequences:")
-    print(f"  - {n_normal_sequences} normal sequences")
-    print(f"  - {n_oddball_45} oddball sequences (45° replacing 3rd grating)")
-    print(f"  - {n_oddball_90} oddball sequences (90° replacing 3rd grating)")
-    print(f"  - {n_oddball_halt} oddball sequences (halt replacing 3rd grating)")
-    print(f"  - {n_oddball_omission} oddball sequences (omission replacing 3rd grating)")
-    print()
+    duration_seconds = duration_minutes * 60
+    trials = []
     
-    for variant in range(n_variants):
-        print(f"Generating sequential variant {variant + 1}/{n_variants}")
+    if block_type == 'standard_oddball':
+        trial_duration = 0.686  # 0.343s + 0.343s delay
+        total_trials = int(duration_seconds / trial_duration)
         
-        trials = generate_sequential_csv(n_normal_sequences, n_oddball_45, n_oddball_90, 
-                                       n_oddball_halt, n_oddball_omission, shuffle_variant=variant)
+        # Calculate oddball trials
+        total_oddball_rate = sum(oddball_config.values()) if oddball_config else 8.0  # per minute
+        total_oddballs = int(total_oddball_rate * duration_minutes)
+        n_standards = total_trials - total_oddballs
         
-        # Save to CSV
-        output_file = f"blocks/sequentials/sequential_variant_{variant + 1:02d}.csv"
-        filepath = Path(output_file)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
+        # Add standard trials
+        for _ in range(n_standards):
+            trial = DEFAULT_PARAMS.copy()
+            trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            trial['Trial_Type'] = 'standard'
+            trial['Block_Type'] = 'standard_oddball'
+            trials.append(trial)
         
-        with open(filepath, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
+        # Add oddball trials
+        if oddball_config:
+            for oddball_type, rate_per_minute in oddball_config.items():
+                n_oddballs = int(rate_per_minute * duration_minutes)
+                oddball_params = ODDBALL_TYPES[oddball_type]
+                
+                for _ in range(n_oddballs):
+                    trial = DEFAULT_PARAMS.copy()
+                    trial.update(oddball_params)
+                    trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                    trial['Block_Type'] = 'standard_oddball'
+                    trials.append(trial)
+    
+    elif block_type == 'jitter_oddball':
+        # Similar logic for jitter oddball
+        trial_duration = 0.686
+        total_trials = int(duration_seconds / trial_duration)
+        
+        total_oddball_rate = sum(oddball_config.values()) if oddball_config else 4.0
+        total_oddballs = int(total_oddball_rate * duration_minutes)
+        n_standards = total_trials - total_oddballs
+        
+        # Add standard trials (using jitter context)
+        for _ in range(n_standards):
+            trial = DEFAULT_PARAMS.copy()
+            trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            trial['Trial_Type'] = 'standard'
+            trial['Block_Type'] = 'jitter_oddball'
+            trials.append(trial)
+        
+        # Add oddball trials
+        if oddball_config:
+            for oddball_type, rate_per_minute in oddball_config.items():
+                n_oddballs = int(rate_per_minute * duration_minutes)
+                oddball_params = ODDBALL_TYPES[oddball_type]
+                
+                for _ in range(n_oddballs):
+                    trial = DEFAULT_PARAMS.copy()
+                    trial.update(oddball_params)
+                    trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                    trial['Block_Type'] = 'jitter_oddball'
+                    trials.append(trial)
+    
+    elif block_type == 'sequential_oddball':
+        # Sequential blocks work with sequences (5 trials each)
+        sequence_duration = 1.25  # 5 × 0.250s
+        total_sequences = int(duration_seconds / sequence_duration)
+        
+        total_oddball_rate = sum(oddball_config.values()) if oddball_config else 2.0  # sequences per minute
+        total_oddball_sequences = int(total_oddball_rate * duration_minutes)
+        n_standard_sequences = total_sequences - total_oddball_sequences
+        
+        # Generate sequences
+        sequences = []
+        
+        # Standard sequences
+        standard_sequence = [90, 45, 0, 45]
+        for _ in range(n_standard_sequences):
+            sequences.append(('normal', standard_sequence))
+        
+        # Oddball sequences
+        if oddball_config:
+            oddball_sequences_per_type = total_oddball_sequences // len(oddball_config)
+            for oddball_type in oddball_config:
+                for _ in range(oddball_sequences_per_type):
+                    if oddball_type == 'orientation_45':
+                        sequences.append(('oddball_45', [90, 45, 45, 45]))
+                    elif oddball_type == 'orientation_90':
+                        sequences.append(('oddball_90', [90, 45, 90, 45]))
+                    elif oddball_type == 'halt':
+                        sequences.append(('oddball_halt', [90, 45, -1, 45]))  # -1 = halt
+                    elif oddball_type == 'omission':
+                        sequences.append(('oddball_omission', [90, 45, -2, 45]))  # -2 = omission
+        
+        # Shuffle sequences
+        random.shuffle(sequences)
+        
+        # Convert sequences to trials
+        for seq_type, sequence in sequences:
+            is_oddball = seq_type != 'normal'
             
-            writer.writeheader()
-            for trial in trials:
-                writer.writerow(trial)
-        
-        print(f"  Saved {len(trials)} trials to {output_file}")
-    
-    print(f"\nGenerated {n_variants} sequential variants")
-    print(f"Each variant contains {total_sequences} sequences (5 trials each = {total_sequences * 5} total trials)")
-
-
-def generate_sequential_control_csv():
-    """Generate sequential control CSV variants (orientation tuning with sequential parameters)."""
-    print("=== Generating Sequential Control (Orientation Tuning) Variants ===")
-    
-    # Generate orientations from 0 to 360 degrees with sequential parameters
-    n_control_per_orientation = 10
-    orientations = list(range(0, 360, 15))  # Every 15 degrees: 0, 15, 30, ..., 345
-    
-    for variant in range(10):
-        print(f"Generating sequential control variant {variant + 1}/10")
-        
-        trials = []
-        
-        # Add orientation trials with sequential parameters
-        for orientation in orientations:
-            for _ in range(n_control_per_orientation):
+            # Generate 5 trials per sequence
+            for orientation in sequence:
                 trial = SEQUENTIAL_PARAMS.copy()
-                trial['Orientation'] = orientation
-                trial['Diameter'] = DIAMETER_MARKERS['sequential_control']
-                trial['Trial_Type'] = 'single'
-                trial['Block_Type'] = 'sequential_control'
+                trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                trial['Block_Type'] = 'sequential_oddball'
+                
+                if orientation == -1:  # halt
+                    trial['Orientation'] = 0
+                    trial['Spatial_Frequency'] = 0
+                    trial['Trial_Type'] = 'halt'
+                elif orientation == -2:  # omission
+                    trial['Orientation'] = 0
+                    trial['Contrast'] = 0
+                    trial['Trial_Type'] = 'omission'
+                else:
+                    trial['Orientation'] = orientation
+                    trial['Trial_Type'] = 'standard'
+                
                 trials.append(trial)
-        
-        # Add omission trials (same number as one orientation)
-        for _ in range(n_control_per_orientation):
+            
+            # Add sequence-ending omission
             omission_trial = SEQUENTIAL_PARAMS.copy()
             omission_trial['Contrast'] = 0
-            omission_trial['Diameter'] = DIAMETER_MARKERS['sequential_control']
             omission_trial['Trial_Type'] = 'omission'
-            omission_trial['Block_Type'] = 'sequential_control'
+            omission_trial['Block_Type'] = 'sequential_oddball'
+            omission_trial['Diameter'] = DEFAULT_STIMULUS_SIZE
             trials.append(omission_trial)
-        
-        # Shuffle trials for this variant
-        import random
-        random.seed(variant * 103)  # Different seed for sequential control variants
-        random.shuffle(trials)
-        
-        # Save to CSV
-        output_file = f"blocks/sequentials/sequential_control_variant_{variant + 1:02d}.csv"
-        filepath = Path(output_file)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(filepath, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-            writer.writeheader()
-            writer.writerows(trials)
-        
-        print(f"  Saved {len(trials)} trials to {output_file}")
     
-    print(f"\nGenerated 10 sequential control variants")
-    print(f"Each variant contains {len(orientations)} orientations × {n_control_per_orientation} trials + {n_control_per_orientation} omission trials = {len(orientations) * n_control_per_orientation + n_control_per_orientation} total trials")
+    return trials
 
-
-def generate_motor_oddball_csv(duration_seconds=600, frame_rate=60, n_oddball_per_type=20, min_interval_seconds=2.0, n_variants=10):
-    """
-    Generate motor oddball CSV files with frame-by-frame control information.
+def generate_motor_block_trials(block_type, duration_minutes, oddball_config, variant):
+    """Generate frame-by-frame trials for motor blocks."""
+    random.seed(variant * 789 + hash(block_type))
     
-    Args:
-        duration_seconds: Total duration of the stimulus in seconds
-        frame_rate: Frame rate in Hz
-        n_oddball_per_type: Number of oddballs per type
-        min_interval_seconds: Minimum interval between oddballs in seconds
-        n_variants: Number of shuffled variants to generate
-    """
-    print("=== Generating Motor Oddball Variants ===")
-    
+    frame_rate = 60
+    duration_seconds = duration_minutes * 60
     total_frames = int(duration_seconds * frame_rate)
-    min_interval_frames = int(min_interval_seconds * frame_rate)
-    oddball_duration_frames = int(0.343 * frame_rate)  # 0.343s in frames
-    frame_duration = 1.0 / frame_rate  # Duration per frame
+    frame_duration = 1.0 / frame_rate
     
-    # Oddball types with their parameters (motor oddball uses delay=0 and halt uses temporal_frequency=0)
-    oddball_types = [
-        {'name': 'halt', 'Orientation': 0, 'Spatial_Frequency': 0.04, 'Temporal_Frequency': 0, 'Contrast': 1, 'Delay': 0, 'Diameter': 361, 'Phase': 'fixed'},
-        {'name': 'omission', 'Orientation': 0, 'Spatial_Frequency': 0.04, 'Temporal_Frequency': 2, 'Contrast': 0, 'Delay': 0, 'Diameter': 361, 'Phase': 0},
-        {'name': 'orientation_45', 'Orientation': 45, 'Spatial_Frequency': 0.04, 'Temporal_Frequency': 2, 'Contrast': 1, 'Delay': 0, 'Diameter': 361, 'Phase': 0},
-        {'name': 'orientation_90', 'Orientation': 90, 'Spatial_Frequency': 0.04, 'Temporal_Frequency': 2, 'Contrast': 1, 'Delay': 0, 'Diameter': 361, 'Phase': 0}
-    ]
+    trials = []
     
-    # Default parameters for normal frames (controlled by wheel)
-    default_params = {
-        'Orientation': 0,
-        'Spatial_Frequency': 0.04,
-        'Temporal_Frequency': 0,  # Set to 0 for normal frames
-        'Contrast': 1,
-        'Delay': 0,
-        'Diameter': 360,  # Normal frame marker
-        'X': 0,
-        'Y': 0,
-        'Phase': 'wheel',
-        'Trial_Type': 'standard',
-        'Block_Type': 'motor_oddball'
-    }
-    
-    total_oddballs = n_oddball_per_type * len(oddball_types)
-    
-    print(f"Motor oddball parameters:")
-    print(f"  - Duration: {duration_seconds}s ({total_frames} frames)")
-    print(f"  - Frame rate: {frame_rate} Hz")
-    print(f"  - {n_oddball_per_type} oddballs per type × {len(oddball_types)} types = {total_oddballs} total oddballs")
-    print(f"  - Minimum interval: {min_interval_seconds}s ({min_interval_frames} frames)")
-    print(f"  - Oddball duration: {0.343}s ({oddball_duration_frames} frames)")
-    print()
-    
-    for variant in range(n_variants):
-        print(f"Generating motor oddball variant {variant + 1}/{n_variants}")
+    if block_type == 'motor_control':
+        # Pure closed-loop control - generate realistic wheel movement
+        phase_values = []
+        current_phase = 0.0
+        velocity = 0.0
         
-        import random
-        random.seed(variant * 789)  # Different seed for motor oddballs
+        for frame in range(total_frames):
+            # Simple mouse wheel simulation
+            if frame % 60 == 0:  # Update behavior every second
+                velocity += random.gauss(0, 0.05)
+                velocity *= 0.95  # friction
+                velocity = max(-0.3, min(0.3, velocity))
+            
+            current_phase += velocity
+            current_phase = current_phase % (2 * math.pi)
+            phase_values.append(current_phase)
         
-        # Generate list of possible frame numbers (avoiding edges)
-        edge_buffer_frames = int(5 * frame_rate)  # 5 second buffer from start/end
-        possible_frames = list(range(edge_buffer_frames, total_frames - edge_buffer_frames))
+        for frame in range(total_frames):
+            trial = {
+                'Contrast': 1,
+                'Delay': 0,
+                'Diameter': DEFAULT_STIMULUS_SIZE,
+                'Duration': frame_duration,
+                'Orientation': 0,
+                'Spatial_Frequency': 0.04,
+                'Temporal_Frequency': 0,  # Wheel-controlled
+                'X': 0,
+                'Y': 0,
+                'Phase': phase_values[frame],
+                'Trial_Type': 'standard',
+                'Block_Type': 'motor_control'
+            }
+            trials.append(trial)
+    
+    elif block_type == 'motor_oddball':
+        # Motor oddball with discrete oddball events
+        min_interval_frames = 120  # 2 seconds minimum
+        oddball_duration_frames = 21  # ~0.35 seconds
         
-        # Shuffle possible frames
+        # Calculate oddball positions
+        total_oddball_rate = sum(oddball_config.values()) if oddball_config else 8.0
+        total_oddballs = int(total_oddball_rate * duration_minutes)
+        
+        # Generate oddball positions with minimum intervals
+        possible_frames = list(range(300, total_frames - 300))  # 5s buffer
         random.shuffle(possible_frames)
         
-        # Select frames ensuring minimum interval
-        selected_frames = []
+        oddball_frames = []
         for frame in possible_frames:
-            # Check if this frame is far enough from all previously selected frames
-            if all(abs(frame - selected) >= min_interval_frames for selected in selected_frames):
-                selected_frames.append(frame)
-                if len(selected_frames) >= total_oddballs:
+            if all(abs(frame - selected) >= min_interval_frames for selected in oddball_frames):
+                oddball_frames.append(frame)
+                if len(oddball_frames) >= total_oddballs:
                     break
         
-        if len(selected_frames) < total_oddballs:
-            print(f"  Warning: Could only fit {len(selected_frames)} oddballs instead of {total_oddballs}")
+        oddball_frames.sort()
         
-        # Sort selected frames
-        selected_frames.sort()
+        # Assign oddball types
+        oddball_types_list = []
+        if oddball_config:
+            for oddball_type, rate in oddball_config.items():
+                n_type = int(rate * duration_minutes)
+                oddball_types_list.extend([oddball_type] * n_type)
+        random.shuffle(oddball_types_list)
         
-        # Create a shuffled list of oddball types
-        oddball_type_list = []
-        for oddball_type in oddball_types:
-            for _ in range(n_oddball_per_type):
-                oddball_type_list.append(oddball_type)
+        # Generate frame-by-frame trials
+        frame = 0
+        oddball_index = 0
         
-        # Shuffle the oddball types to interleave them
-        random.shuffle(oddball_type_list)
-        
-        # Create a set of oddball start frames for easy lookup
-        oddball_start_frames = set()
-        oddball_frame_map = {}
-        for i, oddball_type in enumerate(oddball_type_list):
-            if i < len(selected_frames):
-                start_frame = selected_frames[i]
-                oddball_start_frames.add(start_frame)
-                oddball_frame_map[start_frame] = oddball_type
-        
-        # Generate frame-by-frame data
-        all_frames = []
-        frame_num = 0
-        
-        while frame_num < total_frames:
-            if frame_num in oddball_start_frames:
-                # This is an oddball start frame - add single row for entire oddball
-                oddball_type = oddball_frame_map[frame_num]
-                frame_data = {
-                    'Contrast': oddball_type['Contrast'],
-                    'Delay': oddball_type['Delay'],
-                    'Diameter': oddball_type['Diameter'],
+        while frame < total_frames:
+            if oddball_index < len(oddball_frames) and frame == oddball_frames[oddball_index]:
+                # This is an oddball frame
+                oddball_type = oddball_types_list[oddball_index] if oddball_index < len(oddball_types_list) else 'motor_halt'
+                oddball_params = ODDBALL_TYPES[oddball_type]
+                
+                trial = {
+                    'Contrast': oddball_params.get('Contrast', 1),
+                    'Delay': 0,
+                    'Diameter': DEFAULT_STIMULUS_SIZE,
                     'Duration': 0.343,  # Oddball duration
-                    'Orientation': oddball_type['Orientation'],
-                    'Spatial_Frequency': oddball_type['Spatial_Frequency'],
-                    'Temporal_Frequency': oddball_type['Temporal_Frequency'],
-                    'X': oddball_type.get('X', 0),
-                    'Y': oddball_type.get('Y', 0),
-                    'Phase': oddball_type['Phase'],
-                    'Trial_Type': oddball_type['name'],
+                    'Orientation': oddball_params.get('Orientation', 0),
+                    'Spatial_Frequency': 0.04,
+                    'Temporal_Frequency': oddball_params.get('Temporal_Frequency', 2),
+                    'X': 0,
+                    'Y': 0,
+                    'Phase': 'wheel',
+                    'Trial_Type': oddball_params['Trial_Type'],
                     'Block_Type': 'motor_oddball'
                 }
-                all_frames.append(frame_data)
+                trials.append(trial)
                 
-                # Skip ahead by the oddball duration
-                frame_num += oddball_duration_frames
+                frame += oddball_duration_frames
+                oddball_index += 1
             else:
-                # This is a normal frame (controlled by wheel)
-                frame_data = {
-                    'Contrast': default_params['Contrast'],
-                    'Delay': default_params['Delay'],
-                    'Diameter': default_params['Diameter'],
-                    'Duration': frame_duration,  # Single frame duration
-                    'Orientation': default_params['Orientation'],
-                    'Spatial_Frequency': default_params['Spatial_Frequency'],
-                    'Temporal_Frequency': default_params['Temporal_Frequency'],
-                    'X': default_params['X'],
-                    'Y': default_params['Y'],
-                    'Phase': default_params['Phase'],
-                    'Trial_Type': default_params['Trial_Type'],
-                    'Block_Type': default_params['Block_Type']
+                # Normal frame
+                trial = {
+                    'Contrast': 1,
+                    'Delay': 0,
+                    'Diameter': DEFAULT_STIMULUS_SIZE,
+                    'Duration': frame_duration,
+                    'Orientation': 0,
+                    'Spatial_Frequency': 0.04,
+                    'Temporal_Frequency': 0,
+                    'X': 0,
+                    'Y': 0,
+                    'Phase': 'wheel',
+                    'Trial_Type': 'standard',
+                    'Block_Type': 'motor_oddball'
                 }
-                all_frames.append(frame_data)
-                frame_num += 1
-        
-        # Save to CSV
-        output_file = f"blocks/motor/motor_oddball_variant_{variant + 1:02d}.csv"
-        filepath = Path(output_file)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(filepath, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-            
-            writer.writeheader()
-            for frame in all_frames:
-                writer.writerow(frame)
-        
-        print(f"  Saved {len(all_frames)} frames to {output_file}")
-        
-        # Count trial types from all frames
-        type_counts = {}
-        for frame in all_frames:
-            trial_type = frame['Trial_Type']
-            type_counts[trial_type] = type_counts.get(trial_type, 0) + 1
-        
-        print(f"    Trial type counts: {type_counts}")
+                trials.append(trial)
+                frame += 1
     
-    print(f"\nGenerated {n_variants} motor oddball variants")
-    print(f"Each variant contains frame-by-frame control data over {duration_seconds}s duration")
-
-
-def generate_motor_control_csv(duration_seconds=600, frame_rate=60, n_variants=10):
-    """
-    Generate motor control CSV files that simulate a mouse moving and providing a phase.
-    Each variant simulates a different mouse behavior pattern with realistic wheel movement.
-    
-    Args:
-        duration_seconds: Total duration of the stimulus in seconds
-        frame_rate: Frame rate in Hz
-        n_variants: Number of variants to generate
-    """
-    print("=== Generating Motor Control Variants ===")
-    
-    import numpy as np
-    import random
-    
-    total_frames = int(duration_seconds * frame_rate)
-    frame_duration = 1.0 / frame_rate  # Duration per frame
-    
-    # Default parameters for motor control (controlled by wheel movement)
-    default_params = {
-        'Contrast': 1,
-        'Delay': 0,
-        'Diameter': 370,  # Motor control marker
-        'Duration': frame_duration,
-        'Orientation': 0,
-        'Spatial_Frequency': 0.04,
-        'Temporal_Frequency': 0,  # Set to 0 for wheel-controlled
-        'X': 0,
-        'Y': 0,
-        'Phase': 0,  # Will be updated with realistic values
-        'Trial_Type': 'standard',
-        'Block_Type': 'motor_control'
-    }
-    
-    print(f"Motor control parameters:")
-    print(f"  - Duration: {duration_seconds}s ({total_frames} frames)")
-    print(f"  - Frame rate: {frame_rate} Hz")
-    print(f"  - Phase simulates recorded mouse wheel movement")
-    print(f"  - Continuous drifting grating stimulus")
-    print()
-    
-    for variant in range(n_variants):
-        print(f"Generating motor control variant {variant + 1}/{n_variants}")
-        
-        # Set random seed for reproducible mouse behavior per variant
-        random.seed(variant * 42)
-        np.random.seed(variant * 42)
-        
-        # Generate realistic mouse wheel movement pattern
-        phase_values = generate_mouse_wheel_behavior(total_frames, variant)
-        
-        # Generate frame-by-frame data
-        all_frames = []
-        
-        for frame_num in range(total_frames):
-            frame_data = default_params.copy()
-            frame_data['Phase'] = phase_values[frame_num]
-            all_frames.append(frame_data)
-        
-        # Save to CSV
-        output_file = f"blocks/motor/motor_control_variant_{variant + 1:02d}.csv"
-        filepath = Path(output_file)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(filepath, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-            
-            writer.writeheader()
-            for frame in all_frames:
-                writer.writerow(frame)
-        
-        print(f"  Saved {len(all_frames)} frames to {output_file}")
-        
-        # Print phase statistics for this variant
-        phase_range = max(phase_values) - min(phase_values)
-        avg_speed = abs(np.diff(phase_values)).mean() * frame_rate  # degrees per second
-        print(f"    Phase range: {min(phase_values):.2f}° to {max(phase_values):.2f}° (total: {phase_range:.2f}°)")
-        print(f"    Average speed: {avg_speed:.2f}°/sec")
-    
-    print(f"\nGenerated {n_variants} motor control variants")
-    print(f"Each variant contains frame-by-frame control data over {duration_seconds}s duration")
-    print(f"Phase values simulate realistic mouse wheel movement patterns")
-
-
-def generate_mouse_wheel_behavior(total_frames, variant_seed):
-    """
-    Generate realistic mouse wheel movement patterns with bidirectional rotation.
-    Each pattern simulates different mouse behaviors (active, moderate, slow, mixed).
-    
-    Args:
-        total_frames: Total number of frames to generate
-        variant_seed: Seed for variant-specific behavior patterns
-    
-    Returns:
-        List of phase values in radians (0 to 2π, wrapping around)
-    """
-    import numpy as np
-    import random
-    import math
-    
-    # Set seed for reproducible behavior
-    random.seed(variant_seed)
-    np.random.seed(variant_seed)
-    
-    # Define different mouse behavior patterns
-    behavior_patterns = [
-        {'name': 'active_runner', 'base_speed': 0.15, 'variability': 0.8, 'pause_prob': 0.02, 'reverse_prob': 0.05},
-        {'name': 'moderate_walker', 'base_speed': 0.08, 'variability': 0.6, 'pause_prob': 0.05, 'reverse_prob': 0.08},
-        {'name': 'slow_explorer', 'base_speed': 0.04, 'variability': 0.4, 'pause_prob': 0.08, 'reverse_prob': 0.12},
-        {'name': 'burst_runner', 'base_speed': 0.12, 'variability': 1.2, 'pause_prob': 0.03, 'reverse_prob': 0.06},
-        {'name': 'intermittent_walker', 'base_speed': 0.06, 'variability': 0.9, 'pause_prob': 0.10, 'reverse_prob': 0.10},
-        {'name': 'steady_jogger', 'base_speed': 0.10, 'variability': 0.3, 'pause_prob': 0.02, 'reverse_prob': 0.04},
-        {'name': 'variable_pacer', 'base_speed': 0.14, 'variability': 1.5, 'pause_prob': 0.06, 'reverse_prob': 0.09},
-        {'name': 'cautious_mover', 'base_speed': 0.05, 'variability': 0.5, 'pause_prob': 0.12, 'reverse_prob': 0.15},
-        {'name': 'energetic_sprinter', 'base_speed': 0.20, 'variability': 1.0, 'pause_prob': 0.01, 'reverse_prob': 0.03},
-        {'name': 'back_and_forth', 'base_speed': 0.09, 'variability': 0.7, 'pause_prob': 0.15, 'reverse_prob': 0.25}
-    ]
-    
-    # Select behavior pattern for this variant
-    pattern = behavior_patterns[variant_seed % len(behavior_patterns)]
-    
-    # Generate phase values
-    phase_values = []
-    current_phase = random.uniform(0, 2 * math.pi)  # Start at random phase
-    current_velocity = 0.0  # Current velocity (can be positive or negative)
-    direction = 1  # 1 for forward, -1 for backward
-    
-    for frame in range(total_frames):
-        # Every 30-300 frames (0.5-5 seconds), potentially change behavior
-        if frame % random.randint(30, 300) == 0:
-            # Determine if mouse changes direction
-            if random.random() < pattern['reverse_prob']:
-                direction *= -1  # Reverse direction
-                current_velocity *= random.uniform(0.3, 0.8)  # Slow down during direction change
-            
-            # Determine if mouse pauses
-            elif random.random() < pattern['pause_prob']:
-                current_velocity *= random.uniform(0.0, 0.2)  # Pause or near-pause
-                
-            # Otherwise, change speed
-            else:
-                # Generate new target velocity
-                base_speed = pattern['base_speed']
-                variability = pattern['variability']
-                
-                # Add random variation to speed (radians per frame)
-                speed_variation = random.gauss(0, variability * base_speed)
-                target_velocity = direction * (base_speed + speed_variation)
-                
-                # Gradually change velocity towards target
-                velocity_change = (target_velocity - current_velocity) * random.uniform(0.1, 0.3)
-                current_velocity += velocity_change
-                
-                # Occasionally add brief bursts or slowdowns
-                if random.random() < 0.02:  # 2% chance of burst
-                    current_velocity *= random.uniform(1.5, 3.0)
-                elif random.random() < 0.03:  # 3% chance of slowdown
-                    current_velocity *= random.uniform(0.2, 0.6)
-        
-        # Add small random noise to velocity
-        velocity_noise = random.gauss(0, 0.01)
-        actual_velocity = current_velocity + velocity_noise
-        
-        # Apply friction to make movement more realistic
-        current_velocity *= 0.998
-        
-        # Clamp velocity to reasonable bounds (prevent unrealistic speeds)
-        max_velocity = 0.5  # Maximum ~5 rotations per second
-        current_velocity = max(-max_velocity, min(max_velocity, current_velocity))
-        
-        # Update phase
-        current_phase += actual_velocity
-        
-        # Wrap phase to stay within 0-2π range
-        current_phase = current_phase % (2 * math.pi)
-        
-        phase_values.append(current_phase)
-    
-    return phase_values
-
-
-def generate_test_variants():
-    """Generate short (1 minute) test versions of each experiment type for rapid Bonsai validation.
-    
-    Creates test files in subfolders that mirror the normal file structure:
-    - blocks/test/standard/standard_oddball_variant_01.csv
-    - blocks/test/standard/standard_control_variant_01.csv
-    - blocks/test/jitter/jitter_variant_01.csv
-    - blocks/test/jitter/jitter_control_variant_01.csv
-    - blocks/test/sequentials/sequential_variant_01.csv
-    - blocks/test/sequentials/sequential_control_variant_01.csv
-    - blocks/test/motor/motor_oddball_variant_01.csv
-    - blocks/test/motor/motor_control_variant_01.csv
-    """
-    
-    # Create test directories if they don't exist
-    test_dirs = {
-        'standard': Path("blocks/test/standard"),
-        'jitter': Path("blocks/test/jitter"),
-        'sequentials': Path("blocks/test/sequentials"),
-        'motor': Path("blocks/test/motor")
-    }
-    
-    for test_dir in test_dirs.values():
-        test_dir.mkdir(parents=True, exist_ok=True)
-    
-    print("Generating test variants (1 minute each) in subfolder structure...")
-    
-    # Test variant for standard oddball (60 seconds with 1 oddball)
-    rows = []
-    # Add 12 standard trials (5 seconds each = 60 seconds total)
-    for i in range(12):
-        row = DEFAULT_PARAMS.copy()
-        row['Trial_Type'] = 'standard'
-        row['Block_Type'] = 'standard_oddball'
-        rows.append(row)
-    
-    # Add 1 oddball trial (replace the 7th trial)
-    oddball_row = DEFAULT_PARAMS.copy()
-    oddball_row['Diameter'] = 180  # Oddball diameter
-    oddball_row['Trial_Type'] = 'oddball'
-    oddball_row['Block_Type'] = 'standard_oddball'
-    rows[6] = oddball_row  # Replace 7th trial
-    
-    filename = test_dirs['standard'] / "standard_oddball_variant_01.csv"
-    with open(filename, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"Generated {filename}")
-    
-    # Test variant for jitter (60 seconds with 1 oddball)
-    rows = []
-    # Add 12 jitter trials (5 seconds each = 60 seconds total)
-    for i in range(12):
-        row = DEFAULT_PARAMS.copy()
-        row['Diameter'] = 320  # Jitter context
-        row['Duration'] = 0.500  # Jitter duration
-        row['Trial_Type'] = 'standard'
-        row['Block_Type'] = 'jitter'
-        rows.append(row)
-    
-    # Add 1 oddball trial (replace the 7th trial)
-    oddball_row = DEFAULT_PARAMS.copy()
-    oddball_row['Diameter'] = 320  # Jitter context
-    oddball_row['Duration'] = 0.100  # Oddball duration
-    oddball_row['Trial_Type'] = 'oddball'
-    oddball_row['Block_Type'] = 'jitter'
-    rows[6] = oddball_row  # Replace 7th trial
-    
-    filename = test_dirs['jitter'] / "jitter_variant_01.csv"
-    with open(filename, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"Generated {filename}")
-    
-    # Test variant for sequential (60 seconds with 1 oddball)
-    rows = []
-    # Add 240 sequential trials (0.25 seconds each = 60 seconds total)
-    for i in range(240):
-        row = SEQUENTIAL_PARAMS.copy()
-        row['Orientation'] = 0  # Standard orientation
-        row['Trial_Type'] = 'standard'
-        row['Block_Type'] = 'sequential'
-        rows.append(row)
-    
-    # Add 1 oddball trial (replace the 120th trial)
-    oddball_row = SEQUENTIAL_PARAMS.copy()
-    oddball_row['Orientation'] = 90  # Oddball orientation
-    oddball_row['Trial_Type'] = 'oddball'
-    oddball_row['Block_Type'] = 'sequential'
-    rows[119] = oddball_row  # Replace 120th trial
-    
-    filename = test_dirs['sequentials'] / "sequential_variant_01.csv"
-    with open(filename, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"Generated {filename}")
-    
-    # Test variant for motor oddball (60 seconds with halts every ~1 second)
-    rows = []
-    frame_rate = 60
-    total_frames = 60 * frame_rate  # 60 seconds
-    frame_duration = 1.0 / frame_rate  # Duration per frame (0.016666...)
-    oddball_duration = 0.343  # Oddball duration (same as regular motor oddball)
-    
-    # Add halts every ~1 second (every 60 frames) for rapid validation
-    halt_frames = set(range(60, total_frames, 60))  # Frames 60, 120, 180, ..., 3540
-    
-    for frame in range(total_frames):
-        if frame in halt_frames:
-            # This is a halt frame - use oddball duration
-            row = {
-                'Contrast': 1,
-                'Delay': 0,  # Motor oddball uses 0 delay
-                'Diameter': 360,  # Motor oddball uses 360 diameter
-                'Duration': oddball_duration,  # Oddball duration (0.343 seconds)
-                'Orientation': 0,
-                'Spatial_Frequency': 0.04,
-                'Temporal_Frequency': 0,  # Motor oddball uses 0 temporal frequency
-                'X': 0,
-                'Y': 0,
-                'Phase': 'wheel',  # Motor oddball uses 'wheel' phase
-                'Trial_Type': 'halt',
-                'Block_Type': 'motor_oddball'
-            }
-        else:
-            # This is a normal frame - use frame duration
-            row = {
-                'Contrast': 1,
-                'Delay': 0,  # Motor oddball uses 0 delay
-                'Diameter': 360,  # Motor oddball uses 360 diameter
-                'Duration': frame_duration,  # Frame duration (1/60 seconds)
-                'Orientation': 0,
-                'Spatial_Frequency': 0.04,
-                'Temporal_Frequency': 0,  # Motor oddball uses 0 temporal frequency
-                'X': 0,
-                'Y': 0,
-                'Phase': 'wheel',  # Motor oddball uses 'wheel' phase
-                'Trial_Type': 'standard',
-                'Block_Type': 'motor_oddball'
-            }
-        rows.append(row)
-    
-    filename = test_dirs['motor'] / "motor_oddball_variant_01.csv"
-    with open(filename, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"Generated {filename}")
-    
-    # Test variant for standard control (orientation tuning)
-    rows = []
-    orientations = [0, 45, 90, 135, 180, 225, 270, 315]
-    
-    # 2 repetitions of each orientation (16 trials total, ~1 minute)
-    for rep in range(2):
-        for orientation in orientations:
-            row = DEFAULT_PARAMS.copy()
-            row['Orientation'] = orientation
-            row['Trial_Type'] = 'standard'
-            row['Block_Type'] = 'standard_control'
-            rows.append(row)
-    
-    # Shuffle the trials
-    random.shuffle(rows)
-    
-    filename = test_dirs['standard'] / "standard_control_variant_01.csv"
-    with open(filename, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"Generated {filename}")
-    
-    # Test variant for jitter control (duration tuning)
-    rows = []
-    durations = [0.100, 0.200, 0.300, 0.400, 0.500, 0.600, 0.700, 0.800]
-    
-    # 2 repetitions of each duration (16 trials total, ~1 minute)
-    for rep in range(2):
-        for duration in durations:
-            row = DEFAULT_PARAMS.copy()
-            row['Diameter'] = 320  # Jitter context
-            row['Duration'] = duration
-            row['Trial_Type'] = 'standard'
-            row['Block_Type'] = 'jitter_control'
-            rows.append(row)
-    
-    # Shuffle the trials
-    random.shuffle(rows)
-    
-    filename = test_dirs['jitter'] / "jitter_control_variant_01.csv"
-    with open(filename, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"Generated {filename}")
-    
-    # Test variant for sequential control (orientation tuning with sequential parameters)
-    rows = []
-    orientations = [0, 45, 90, 135, 180, 225, 270, 315]
-    
-    # 30 repetitions of each orientation (240 trials total, ~1 minute)
-    for rep in range(30):
-        for orientation in orientations:
-            row = SEQUENTIAL_PARAMS.copy()
-            row['Orientation'] = orientation
-            row['Trial_Type'] = 'standard'
-            row['Block_Type'] = 'sequential_control'
-            rows.append(row)
-    
-    # Shuffle the trials
-    random.shuffle(rows)
-    
-    filename = test_dirs['sequentials'] / "sequential_control_variant_01.csv"
-    with open(filename, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"Generated {filename}")
-    
-    # Test variant for motor control (wheel-controlled phase)
-    rows = []
-    frame_rate = 60
-    total_frames = 60 * frame_rate  # 60 seconds
-    frame_duration = 1.0 / frame_rate  # Duration per frame (0.016666...)
-    
-    # Generate realistic mouse wheel movement for test (using variant 0 behavior)
-    test_phase_values = generate_mouse_wheel_behavior(total_frames, 0)
-    
-    # Default parameters for motor control test
-    default_params = {
-        'Contrast': 1,
-        'Delay': 0,
-        'Diameter': 370,  # Motor control marker
-        'Duration': frame_duration,
-        'Orientation': 0,
-        'Spatial_Frequency': 0.04,
-        'Temporal_Frequency': 0,  # Set to 0 for wheel-controlled
-        'X': 0,
-        'Y': 0,
-        'Phase': 0,  # Will be updated with realistic values
-        'Trial_Type': 'standard',
-        'Block_Type': 'motor_control'
-    }
-    
-    # Generate frame-by-frame data for 60 seconds
-    for frame_num in range(total_frames):
-        frame_data = default_params.copy()
-        frame_data['Phase'] = test_phase_values[frame_num]
-        rows.append(frame_data)
-    
-    filename = test_dirs['motor'] / "motor_control_variant_01.csv"
-    with open(filename, 'w', newline='') as csvfile:
-        writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-        writer.writeheader()
-        writer.writerows(rows)
-    print(f"Generated {filename}")
-    
-    total_files = sum(len(list(test_dir.glob('*.csv'))) for test_dir in test_dirs.values())
-    print(f"\nGenerated {total_files} test CSV files in subfolder structure:")
-    for test_dir in test_dirs.values():
-        for csv_file in test_dir.glob('*.csv'):
-            print(f"  - {csv_file}")
-
-
-def generate_motor_nooddball_csv(duration_seconds=2100, frame_rate=60, n_variants=10):
-    """
-    Generate motor no-oddball CSV files with pure close-loop control for 35 minutes.
-    
-    This creates blocks that are purely close-loop - all frames have wheel control
-    for the Phase column, with no oddballs whatsoever. This is useful for testing
-    sustained close-loop behavior.
-    
-    Args:
-        duration_seconds: Total duration of the stimulus in seconds (default 35 min = 2100s)
-        frame_rate: Frame rate in Hz
-        n_variants: Number of variants to generate
-    """
-    print("=== Generating Motor No-Oddball Variants (Pure Close-Loop) ===")
-    
-    total_frames = int(duration_seconds * frame_rate)
-    frame_duration = 1.0 / frame_rate  # Duration per frame
-    
-    # Default parameters for motor no-oddball (all frames controlled by wheel movement)
-    default_params = {
-        'Contrast': 1,
-        'Delay': 0,
-        'Diameter': 380,  # Motor no-oddball marker (different from oddball=360 and control=370)
-        'Duration': frame_duration,
-        'Orientation': 0,
-        'Spatial_Frequency': 0.04,
-        'Temporal_Frequency': 0,  # Set to 0 for wheel-controlled
-        'X': 0,
-        'Y': 0,
-        'Phase': 'wheel',  # All frames use wheel control
-        'Trial_Type': 'standard',
-        'Block_Type': 'motor_nooddball'
-    }
-    
-    print(f"Motor no-oddball parameters:")
-    print(f"  - Duration: {duration_seconds}s ({duration_seconds/60:.1f} minutes, {total_frames} frames)")
-    print(f"  - Frame rate: {frame_rate} Hz")
-    print(f"  - Phase: ALL frames controlled by wheel ('wheel' value)")
-    print(f"  - NO oddballs - pure close-loop control")
-    print(f"  - Block type: motor_nooddball")
-    print()
-    
-    for variant in range(n_variants):
-        print(f"Generating motor no-oddball variant {variant + 1}/{n_variants}")
-        
-        # Generate frame-by-frame data - all frames are identical close-loop
-        all_frames = []
-        
-        for frame_num in range(total_frames):
-            frame_data = default_params.copy()
-            # Every frame uses wheel control - no variation needed
-            all_frames.append(frame_data)
-        
-        # Save to CSV in the motor_nooddball subfolder
-        output_file = f"blocks/motor_nooddball/motor_nooddball_variant_{variant + 1:02d}.csv"
-        filepath = Path(output_file)
-        filepath.parent.mkdir(parents=True, exist_ok=True)
-        
-        with open(filepath, 'w', newline='') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=STANDARD_FIELDNAMES)
-            writer.writeheader()
-            writer.writerows(all_frames)
-        
-        print(f"  Saved: {output_file} ({len(all_frames)} frames)")
-    
-    print(f"\nGenerated {n_variants} motor no-oddball variants (35 minutes each, pure close-loop)")
-    print(f"All files saved in: blocks/motor_nooddball/")
-    print()
-
-
-def main():
-    """Main function - generate all experiment CSV files."""
-    print("Generating all experiment CSV files...")
-    print()
-    
-    # Generate standard oddball variants (10 shuffled versions)
-    generate_standard_oddball_variants(n_variants=10)
-    print()
-    
-    # Generate jitter variants (10 shuffled versions)
-    generate_jitter_variants(n_variants=10)
-    print()
-    
-    # Generate standard control (orientation tuning)
-    generate_standard_control_csv()
-    print()
-    
-    # Generate jitter control (duration tuning)
-    generate_jitter_control_csv()
-    print()
-    
-    # Generate sequential control (orientation tuning with sequential parameters)
-    generate_sequential_control_csv()
-    print()
-    
-    # Generate sequential variants
-    generate_all_sequential_variants(n_normal_sequences=80, n_oddball_45=5, n_oddball_90=5, 
-                                   n_oddball_halt=5, n_oddball_omission=5, n_variants=10)
-    print()
-    
-    # Generate motor oddball variants (frame-based oddballs)
-    generate_motor_oddball_csv(duration_seconds=600, frame_rate=60, n_oddball_per_type=20, 
-                              min_interval_seconds=2.0, n_variants=10)
-    print()
-    
-    # Generate motor control variants (wheel-controlled phase)
-    generate_motor_control_csv(duration_seconds=600, frame_rate=60, n_variants=10)
-    print()
-    
-    # Generate test variants (1 minute each) - for rapid Bonsai validation
-    generate_test_variants()
-    print()
-    
-    # Generate motor no-oddball variants (pure close-loop)
-    generate_motor_nooddball_csv(duration_seconds=2100, frame_rate=60, n_variants=1)
-    print()
-    
-    print("All CSV files generated successfully!")
-    print("Files created:")
-    # Control variants
-    for variant in range(1, 11):
-        print(f"  - blocks/standard/standard_control_variant_{variant:02d}.csv")
-    for variant in range(1, 11):
-        print(f"  - blocks/jitter/jitter_control_variant_{variant:02d}.csv")
-    for variant in range(1, 11):
-        print(f"  - blocks/sequentials/sequential_control_variant_{variant:02d}.csv")
-    # Oddball variants  
-    for variant in range(1, 11):
-        print(f"  - blocks/standard/standard_oddball_variant_{variant:02d}.csv")
-    for variant in range(1, 11):
-        print(f"  - blocks/jitter/jitter_variant_{variant:02d}.csv")
-    for variant in range(1, 11):
-        print(f"  - blocks/sequentials/sequential_variant_{variant:02d}.csv")
-    for variant in range(1, 11):
-        print(f"  - blocks/motor/motor_oddball_variant_{variant:02d}.csv")
-    for variant in range(1, 11):
-        print(f"  - blocks/motor/motor_control_variant_{variant:02d}.csv")
-    for variant in range(1, 11):
-        print(f"  - blocks/motor_nooddball/motor_nooddball_variant_{variant:02d}.csv")
-    # Test files (organized in subfolders matching normal structure)
-    test_base = Path("blocks/test")
-    for subfolder in ['standard', 'jitter', 'sequentials', 'motor']:
-        test_dir = test_base / subfolder
-        if test_dir.exists():
-            for test_file in test_dir.glob("*.csv"):
-                print(f"  - {test_file}")
-
+    return trials
 
 if __name__ == "__main__":
-    main()
+    print("="*80)
+    print("EXPERIMENTAL SESSION CSV GENERATOR")
+    print("="*80)
+    print()
+    print("This script generates separate CSV files for each experimental session")
+    print("matching the visual mismatch paradigm diagram:")
+    print("1. Visual Mismatch Session")
+    print("2. Sensory-Motor Mismatch Session")  
+    print("3. Sequence Mismatch Session")
+    print("4. Duration Mismatch Session")
+    print("5. Sequence No-Oddball Session (long blocks without oddballs)")
+    print("6. Sensory-Motor No-Oddball Session (long blocks without oddballs)")
+    print()
+    print("Each session has the same control block structure but different main blocks.")
+    print()
+    
+    # Generate separate session CSV files
+    main_single_csv()
