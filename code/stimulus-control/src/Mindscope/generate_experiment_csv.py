@@ -312,7 +312,7 @@ def generate_separate_session_csvs(n_variants=10):
             variant_filename = "variant_%02d.csv" % (session_variant + 1)
             filepath = os.path.join(folder_path, variant_filename)
             
-            with open(filepath, 'w') as csvfile:
+            with open(filepath, 'wb') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
                 writer.writerows(all_trials)
@@ -1041,7 +1041,7 @@ def generate_single_session_csv(session_type, output_path, seed=None):
         if output_dir and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         
-        with open(output_path, 'w') as csvfile:
+        with open(output_path, 'wb') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(all_trials)
