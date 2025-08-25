@@ -332,7 +332,7 @@
         <GammaLut>..\..\..\Gamma\Rigs\2025-07-03-NP1-gammalut.bmp</GammaLut>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
-        <Property Name="Value" DisplayName="stimulu_table_path" />
+        <Property Name="Value" DisplayName="stimulus_table_path" />
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty" />
