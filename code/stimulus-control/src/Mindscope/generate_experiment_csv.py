@@ -6,7 +6,8 @@ This script generates CSV files for visual mismatch paradigms in mice, organized
 separate folders with multiple variants per session type.
 
 Usage:
-    python generate_experiment_csv.py
+    python generate_experiment_csv.py  # Generate all session folders with 10 variants each
+    python generate_experiment_csv.py --session-type sensorimotor_mismatch --output-path /path/to/file.csv --seed 12345
 
 This generates 6 session folders, each with 10 variants:
 1. Visual Mismatch (Standard oddball)
@@ -25,6 +26,8 @@ import random
 import numpy as np
 import math
 import os
+import argparse
+import sys
 
 # Standard column order for all CSV files
 STANDARD_FIELDNAMES = [
@@ -867,22 +870,247 @@ def generate_motor_block_trials(block_type, duration_minutes, oddball_config, va
     
     return trials
 
-if __name__ == "__main__":
-    print("="*80)
-    print("EXPERIMENTAL SESSION CSV GENERATOR")
-    print("="*80)
-    print()
-    print("This script generates separate CSV files for each experimental session")
-    print("matching the visual mismatch paradigm diagram:")
-    print("1. Visual Mismatch Session")
-    print("2. Sensory-Motor Mismatch Session")  
-    print("3. Sequence Mismatch Session")
-    print("4. Duration Mismatch Session")
-    print("5. Sequence No-Oddball Session (long blocks without oddballs)")
-    print("6. Sensory-Motor No-Oddball Session (long blocks without oddballs)")
-    print()
-    print("Each session has the same control block structure but different main blocks.")
-    print()
+def generate_single_session_csv(session_type, output_path, seed=None):
+    """
+    Generate a single session CSV file for the specified session type.
     
-    # Generate separate session CSV files
-    main_single_csv()
+    Args:
+        session_type (str): Type of session ('visual_mismatch', 'sensorimotor_mismatch', etc.)
+        output_path (str): Path where the CSV file should be saved
+        seed (int, optional): Random seed for reproducibility
+        
+    Returns:
+        bool: True if successful, False otherwise
+    """
+    if seed is not None:
+        random.seed(seed)
+        np.random.seed(seed)
+        print(f"Using random seed: {seed}")
+    
+    # Session configurations matching the existing structure
+    session_configs = {
+        'visual_mismatch': {
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'standard_oddball', 'duration_minutes': 26, 'label': 'Standard mismatch block', 
+                 'oddball_config': {'orientation_45': 1.35, 'orientation_90': 1.35, 'halt': 1.35, 'omission': 1.35}},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
+                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+            ]
+        },
+        'sensorimotor_mismatch': {
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'motor_oddball', 'duration_minutes': 26, 'label': 'Sensory-motor mismatch block',
+                 'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
+                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+            ]
+        },
+        'sequence_mismatch': {
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'sequential_oddball', 'duration_minutes': 26, 'label': 'Sequence mismatch block',
+                 'oddball_config': {'orientation_45': 1.35, 'orientation_90': 1.35, 'halt': 1.35, 'omission': 1.35}},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
+                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+            ]
+        },
+        'duration_mismatch': {
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'jitter_oddball', 'duration_minutes': 26, 'label': 'Duration mismatch block',
+                 'oddball_config': {'jitter_150': 1.35, 'jitter_350': 1.35}},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
+                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+            ]
+        },
+        'sequence_mismatch_no_oddball': {
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'sequential_long', 'duration_minutes': 26, 'label': 'Sequence long block (no oddball)'},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
+                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+            ]
+        },
+        'sensorimotor_mismatch_no_oddball': {
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'motor_long', 'duration_minutes': 26, 'label': 'Sensory-motor long block (no oddball)'},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
+                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+            ]
+        }
+    }
+    
+    if session_type not in session_configs:
+        print(f"Error: Unknown session type '{session_type}'")
+        print(f"Available session types: {', '.join(session_configs.keys())}")
+        return False
+    
+    session_config = session_configs[session_type]
+    
+    print(f"Generating {session_type} session CSV...")
+    
+    # Standard fieldnames
+    fieldnames = [
+        'Block_Number', 'Block_Label', 'Block_Duration_Minutes',
+        'Trial_Number', 'Sequence_Number', 'Trial_In_Sequence',
+    ] + STANDARD_FIELDNAMES
+    
+    all_trials = []
+    trial_counter = 0
+    
+    # Generate each block in the session
+    for block_number, block_config in enumerate(session_config['blocks'], 1):
+        block_type = block_config['type']
+        duration_minutes = block_config['duration_minutes']
+        block_label = block_config['label']
+        oddball_config = block_config.get('oddball_config', None)
+        
+        print(f"  Block {block_number}: {block_label} ({duration_minutes} min)")
+        
+        # Generate trials for this block
+        block_trials = generate_block_trials(
+            block_type=block_type,
+            duration_minutes=duration_minutes,
+            oddball_config=oddball_config,
+            variant=0  # Single variant for launcher mode
+        )
+        
+        # Add block metadata to each trial
+        sequence_counter = 0
+        current_sequence_trial = 0
+        
+        for i, trial in enumerate(block_trials):
+            trial_counter += 1
+            
+            # Handle sequence numbering for sequential blocks
+            if block_type in ['sequential_oddball', 'open_loop_prerecorded']:
+                if current_sequence_trial == 0:
+                    sequence_counter += 1
+                current_sequence_trial = (current_sequence_trial + 1) % 5
+                trial_in_sequence = current_sequence_trial if current_sequence_trial > 0 else 5
+            else:
+                sequence_counter = 0
+                trial_in_sequence = 0
+            
+            # Add metadata
+            enriched_trial = {
+                'Block_Number': block_number,
+                'Block_Label': block_label,
+                'Block_Duration_Minutes': duration_minutes,
+                'Trial_Number': trial_counter,
+                'Sequence_Number': sequence_counter,
+                'Trial_In_Sequence': trial_in_sequence,
+                **trial  # Add all the stimulus parameters
+            }
+            
+            all_trials.append(enriched_trial)
+    
+    # Save the CSV file
+    try:
+        output_dir = os.path.dirname(output_path)
+        if output_dir and not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
+        with open(output_path, 'w', newline='') as csvfile:
+            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+            writer.writeheader()
+            writer.writerows(all_trials)
+        
+        print(f"Successfully generated {len(all_trials)} trials")
+        print(f"Saved to: {output_path}")
+        return True
+        
+    except Exception as e:
+        print(f"Error saving CSV file: {e}")
+        return False
+
+if __name__ == "__main__":
+    parser = argparse.ArgumentParser(
+        description="Generate experimental session CSV files for visual mismatch paradigms",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="""
+Examples:
+  # Generate all session folders with 10 variants each (original mode)
+  python generate_experiment_csv.py
+  
+  # Generate single session file for launcher (new mode)
+  python generate_experiment_csv.py --session-type sensorimotor_mismatch --output-path /path/to/file.csv --seed 12345
+  
+Available session types:
+  - visual_mismatch
+  - sensorimotor_mismatch  
+  - sequence_mismatch
+  - duration_mismatch
+  - sequence_mismatch_no_oddball
+  - sensorimotor_mismatch_no_oddball
+        """
+    )
+    
+    parser.add_argument(
+        '--session-type', 
+        help='Type of session to generate (for single file mode)'
+    )
+    parser.add_argument(
+        '--output-path',
+        help='Output path for the CSV file (for single file mode)'
+    )
+    parser.add_argument(
+        '--seed',
+        type=int,
+        help='Random seed for reproducibility (for single file mode)'
+    )
+    
+    args = parser.parse_args()
+    
+    if args.session_type and args.output_path:
+        # Single session mode (for launcher integration)
+        print("="*80)
+        print("SINGLE SESSION CSV GENERATOR")
+        print("="*80)
+        success = generate_single_session_csv(
+            session_type=args.session_type,
+            output_path=args.output_path,
+            seed=args.seed
+        )
+        sys.exit(0 if success else 1)
+    else:
+        # Original batch mode (generate all folders with variants)
+        print("="*80)
+        print("EXPERIMENTAL SESSION CSV GENERATOR")
+        print("="*80)
+        print()
+        print("This script generates separate CSV files for each experimental session")
+        print("matching the visual mismatch paradigm diagram:")
+        print("1. Visual Mismatch Session")
+        print("2. Sensory-Motor Mismatch Session")  
+        print("3. Sequence Mismatch Session")
+        print("4. Duration Mismatch Session")
+        print("5. Sequence No-Oddball Session (long blocks without oddballs)")
+        print("6. Sensory-Motor No-Oddball Session (long blocks without oddballs)")
+        print()
+        print("Each session has the same control block structure but different main blocks.")
+        print()
+        
+        # Generate separate session CSV files
+        main_single_csv()
