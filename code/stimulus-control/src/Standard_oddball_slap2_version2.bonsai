@@ -1691,7 +1691,7 @@ double.Parse(it[2]) as Y)</scr:Expression>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:GateInterval">
-          <rx:Interval>PT20S</rx:Interval>
+          <rx:Interval>PT30S</rx:Interval>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
