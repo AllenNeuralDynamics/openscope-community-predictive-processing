@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Generic Oddball Protocol represents a unified framework for running multiple experimental sensory contexts using a single Bonsai script. Unlike previous context-specific scripts, this system uses CSV files to define stimulus parameters, making it highly flexible and allowing for complex experimental designs with precise control over trial sequences, timing, and stimulus properties.
+The Generic Oddball Protocol represents a unified framework for running multiple experimental sensory contexts using a single Bonsai script. The system uses dynamically generated CSV files to define stimulus parameters, providing precise control over trial sequences, timing, and stimulus properties with unique stimulus presentations for each experimental session.
 
 ## Architecture
 
@@ -12,11 +12,11 @@ The Generic Oddball system consists of two main components:
 2. **`generic_oddball.bonsai`**: Bonsai workflow that reads CSV files and presents stimuli according to the specified parameters
 
 This separation allows for:
-- **Reproducible experiments**: Exact stimulus sequences can be saved and repeated
+- **Reproducible experiments**: Exact stimulus sequences can be reproduced using logged random seeds
+- **Unique sessions**: Each session generates a unique stimulus sequence to avoid habituation effects
 - **Flexible parameter control**: All stimulus properties can be precisely specified
 - **Complex experimental designs**: Multiple sensory contexts can be run with the same underlying infrastructure
-- **Easy variant generation**: Multiple shuffled versions of experiments can be created
-- **Custom experiment loading**: Previously saved CSV files can be loaded and reused for exact replication of experimental conditions
+- **Integrated workflow**: The experimental launcher automatically generates stimulus tables on-the-fly
 
 ## Script Locations
 
@@ -51,109 +51,128 @@ Each CSV file contains the following standardized columns:
 
 ## Sensory Contexts
 
-### 1. Standard Oddball Variants
+The system supports six main experimental session types, each designed to probe different aspects of predictive processing:
 
-**Purpose**: Classic mismatch sensory context with occasional stimulus deviants
+### 1. Visual Mismatch (`visual_mismatch`)
+**Purpose**: Classic oddball paradigm with orientation deviants to probe sensory prediction error responses
+**Blocks**: Control blocks interspersed with oddball blocks containing orientation deviants (45°, 90°), halts, and omissions
 
-**Generated Files**: `blocks/standard/standard_oddball_variant_01.csv` through `blocks/standard/standard_oddball_variant_10.csv`
+### 2. Sensorimotor Mismatch (`sensorimotor_mismatch`) 
+**Purpose**: Closed-loop paradigm where visual stimulus phase is coupled to wheel movement, with occasional mismatches
+**Blocks**: Control blocks plus sensorimotor mismatch blocks with motor coupling violations
 
-### 2. Jitter Variants
+### 3. Sequence Mismatch (`sequence_mismatch`)
+**Purpose**: Tests sequence learning and prediction with ordered stimulus presentations and violations
+**Blocks**: Control blocks plus sequential blocks with predictable patterns and violations
 
-**Purpose**: Temporal prediction sensory context with duration-based deviants
+### 4. Duration Mismatch (`duration_mismatch`)
+**Purpose**: Temporal prediction paradigm with duration-based deviants
+**Blocks**: Control blocks plus duration oddball blocks with shorter/longer duration deviants
 
-**Generated Files**: `blocks/jitter/jitter_variant_01.csv` through `blocks/jitter/jitter_variant_10.csv`
+### 5. Sequence No-Oddball (`sequence_no_oddball`)
+**Purpose**: Long blocks of sequential stimuli without oddball trials for baseline sequence processing
+**Blocks**: Extended control and sequential blocks without mismatch trials
 
-### 3. Sequential Variants
+### 6. Sensorimotor No-Oddball (`sensorimotor_no_oddball`)
+**Purpose**: Long blocks of sensorimotor coupling without mismatch for baseline motor-visual coupling
+**Blocks**: Extended control and motor coupling blocks without mismatch trials
 
-**Purpose**: Sequence learning with pattern violations
-
-**Generated Files**: `blocks/sequentials/sequential_variant_01.csv` through `blocks/sequentials/sequential_variant_10.csv`
-
-### 4. Motor Sensory Contexts
-
-**Purpose**: Sensorimotor closed-loop with wheel-controlled phase
-
-**Generated Files**: 
-- `blocks/motor/motor_oddball_variant_01.csv` through `blocks/motor/motor_oddball_variant_10.csv`
-- `blocks/motor/motor_control_variant_01.csv` through `blocks/motor/motor_control_variant_10.csv`
+Each session type includes:
+- **RF Mapping**: 9x9 grid of positions for receptive field characterization
+- **Control Blocks**: Standard stimulus presentations for baseline comparisons  
+- **Session-Specific Randomization**: Unique random seed ensures different stimulus sequences per session
 
 ## Usage Instructions
 
-### Step 1: CSV Files
+### Integrated Workflow (Recommended)
 
-**Option A: Generate New CSV Files**
+The recommended approach is to use the experimental launcher, which automatically handles stimulus table generation:
 
-Run the Python script to generate all experimental sensory contexts:
+1. **Create Parameter File**: Specify the desired session type in the launcher parameter JSON:
+```json
+{
+    "repository_url": "https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing.git",
+    "commit_hash": "main",
+    "local_repository_path": "C:/BonsaiDataPredictiveProcessingTest", 
+    "bonsai_path": "code/stimulus-control/src/Mindscope/generic_oddball.bonsai",
+    "session_type": "sensorimotor_mismatch",
+    "mouse_id": "subject_123",
+    "user_id": "experimenter"
+}
+```
 
+2. **Run Launcher**: Execute the launcher with your parameter file:
+```bash
+python bonsai_experiment_launcher.py your_params.json
+```
+
+3. **Automatic Processing**: The launcher will:
+   - Generate a unique stimulus table for the specified session type
+   - Place the CSV file in the session output folder
+   - Launch Bonsai with the correct stimulus table path
+   - Log all generation details for traceability
+
+### Manual Generation (Advanced Users)
+
+For direct control over stimulus generation, you can use the generator script directly:
+
+**Generate a Single Session CSV:**
 ```bash
 cd code/stimulus-control/src/Mindscope/
-python generate_experiment_csv.py
+python generate_experiment_csv.py --session-type sensorimotor_mismatch --output-path my_session.csv --seed 12345
 ```
 
-This creates a complete directory structure:
+**Available Session Types:**
+- `visual_mismatch`
+- `sensorimotor_mismatch` 
+- `sequence_mismatch`
+- `duration_mismatch`
+- `sequence_no_oddball`
+- `sensorimotor_no_oddball`
+
+### Session Folder Structure
+
+When using the integrated workflow, each session creates an organized folder structure:
 ```
-blocks/
-├── standard/
-│   ├── standard_oddball_variant_01.csv ... 10.csv
-│   └── standard_control_variant_01.csv ... 10.csv
-├── jitter/
-│   ├── jitter_variant_01.csv ... 10.csv
-│   └── jitter_control_variant_01.csv ... 10.csv
-├── sequentials/
-│   ├── sequential_variant_01.csv ... 10.csv
-│   └── sequential_control_variant_01.csv ... 10.csv
-├── motor/
-│   ├── motor_oddball_variant_01.csv ... 10.csv
-│   └── motor_control_variant_01.csv ... 10.csv
-└── test/
-    └── [1-minute test versions of all sensory contexts]
+session_timestamp_mouseID_bonsai/
+├── session_timestamp.pkl              # Session data
+├── stimulus_table_sensorimotor_mismatch.csv  # Generated stimulus table
+├── orientations_logger.csv            # Bonsai timing logs
+├── orientations_orientations.csv      # Bonsai parameter logs
+└── [other session files...]
 ```
 
-### Randomization and Variants
+### Bonsai Workflow Configuration
 
-The system supports multiple randomized variants of each sensory context:
+The Bonsai workflow (`generic_oddball.bonsai`) automatically reads the stimulus table from the path provided by the launcher. Key features:
 
-- Each variant uses a different random seed for shuffling
-- 10 variants are generated by default for each sensory context type
-- This enables counterbalancing across subjects and sessions
+- **Single CSV Input**: The workflow reads one stimulus table per session
+- **Dynamic Parameter Loading**: All stimulus parameters are loaded from the CSV file
+- **Hardware Integration**: Supports encoder/wheel input for motor coupling experiments
+- **Synchronization**: Provides digital outputs for recording equipment sync
+- **Real-time Logging**: Generates detailed logs during stimulus presentation
 
-### Test Variants
+The launcher automatically passes the correct CSV file path to Bonsai via the `stimulus_table_path` parameter.
 
-Short 1-minute test versions are automatically generated for rapid validation:
+## Reproducibility and Session Uniqueness
 
-- Located in `blocks/test/` directory
-- Same structure as full experiments but with reduced trial counts
-- Ideal for system testing and workflow validation
+### Unique Sessions
+- Each experimental session generates a unique stimulus sequence using a session-specific random seed
+- The seed is derived from session UUID, session type, and timestamp, ensuring no two sessions are identical
+- This prevents habituation effects while maintaining experimental rigor
 
-**Option B: Use Previously Saved CSV Files**
+### Reproducibility
+- All random seeds are logged with session metadata
+- Sessions can be exactly reproduced by using the same seed value
+- Complete audit trail from stimulus generation through data collection
 
-The system can load any previously generated CSV files, enabling exact replication of experimental conditions:
-
-- **Reuse existing variants**: Load any of the pre-generated variants from the `blocks/` directory
-- **Exact replication**: Ensure identical stimulus sequences across subjects or sessions by using the same CSV file
-
-
-### Step 2: Configure Bonsai Workflow
-
-1. Open `generic_oddball.bonsai` in Bonsai
-2. **Configure CSV file sources**: Locate the "Enumerate Files" nodes in the workflow - these determine which experimental blocks will be loaded:
-   - Each "Enumerate Files" node points to a specific folder (e.g., `blocks\standard\`, `blocks\jitter\`, etc.)
-   - Update the folder paths to point to your desired experimental sensory contexts
-   - You can enable/disable different sensory contexts by including/excluding their corresponding "Enumerate Files" nodes
-3. **Set block execution order**: The "Concat" main loop determines the sequence in which different experimental blocks are presented:
-   - The order of inputs to the Concat node controls the presentation sequence
-   - Modify this order to change how sensory contexts are sequenced during the experiment
-4. Configure any hardware-specific settings (encoder ports, digital outputs, etc.)
-
-### Step 3: Run Experiment
-
-1. Start the Bonsai workflow
-2. The workflow will automatically:
-
-   - Read stimulus parameters from the CSV file
-   - Present stimuli according to the specified timing
-   - Log experimental data and timestamps
-   - Handle synchronization with recording equipment
+### Session Metadata
+Each session maintains complete metadata including:
+- Session UUID and timestamp
+- Random seed used for stimulus generation
+- Session type and parameter configuration
+- Experiment launcher version and checksums
+- Hardware configuration details
 
 ## Data Collection
 
