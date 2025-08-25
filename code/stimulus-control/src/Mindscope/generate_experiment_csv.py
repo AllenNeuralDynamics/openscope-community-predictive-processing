@@ -22,7 +22,6 @@ Each session includes appropriate control blocks and RF mapping.
 """
 
 import csv
-from pathlib import Path
 import random
 import numpy as np
 import math
@@ -306,13 +305,14 @@ def generate_separate_session_csvs(n_variants=10):
             
             # Save this session's CSV in the appropriate folder with variant naming
             session_folder = session_config['folder']
-            folder_path = Path(session_folder)
-            folder_path.mkdir(exist_ok=True)
+            folder_path = session_folder
+            if not os.path.exists(folder_path):
+                os.makedirs(folder_path)
             
             variant_filename = "variant_%02d.csv" % (session_variant + 1)
-            filepath = folder_path / variant_filename
+            filepath = os.path.join(folder_path, variant_filename)
             
-            with open(filepath, 'w', newline='') as csvfile:
+            with open(filepath, 'w') as csvfile:
                 writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
                 writer.writeheader()
                 writer.writerows(all_trials)
@@ -342,7 +342,7 @@ def generate_separate_session_csvs(n_variants=10):
         folder_name = session_configs[session_type]['folder']
         print("  %s/  (%d variants)" % (folder_name, len(filepaths)))
         for filepath in sorted(filepaths):
-            variant_name = Path(filepath).name
+            variant_name = os.path.basename(filepath)
             print("    %s" % variant_name)
     
     print()
@@ -1041,7 +1041,7 @@ def generate_single_session_csv(session_type, output_path, seed=None):
         if output_dir and not os.path.exists(output_dir):
             os.makedirs(output_dir)
         
-        with open(output_path, 'w', newline='') as csvfile:
+        with open(output_path, 'w') as csvfile:
             writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(all_trials)
