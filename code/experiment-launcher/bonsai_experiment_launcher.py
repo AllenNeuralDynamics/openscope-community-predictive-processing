@@ -1491,16 +1491,19 @@ class BonsaiExperiment(object):
             
             logging.info("Running stimulus generator: %s" % ' '.join(python_cmd))
             
-            # Execute the generator script
-            result = subprocess.run(
+            # Execute the generator script (Python 2.7 compatible)
+            process = subprocess.Popen(
                 python_cmd,
-                capture_output=True,
-                text=True,
-                cwd=os.path.dirname(generator_script_path),
-                timeout=60  # 60 second timeout for CSV generation
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                cwd=os.path.dirname(generator_script_path)
             )
             
-            if result.returncode == 0:
+            # Wait for process to complete (Python 2.7 doesn't have timeout in communicate)
+            stdout, stderr = process.communicate()
+            return_code = process.returncode
+            
+            if return_code == 0:
                 # Check if output file was created
                 if os.path.exists(output_csv_path):
                     # Count lines in the generated CSV (excluding header)
@@ -1509,25 +1512,23 @@ class BonsaiExperiment(object):
                     
                     logging.info("Stimulus CSV generated successfully: %s" % output_csv_path)
                     logging.info("Generated %d stimulus trials" % line_count)
-                    logging.info("Generator output: %s" % result.stdout.strip() if result.stdout.strip() else "No output")
+                    if stdout.strip():
+                        logging.info("Generator output: %s" % stdout.strip())
                     
                     return output_csv_path
                 else:
                     logging.error("Generator completed but output file not found: %s" % output_csv_path)
-                    if result.stderr:
-                        logging.error("Generator stderr: %s" % result.stderr)
+                    if stderr:
+                        logging.error("Generator stderr: %s" % stderr)
                     return None
             else:
-                logging.error("Stimulus generator failed with return code: %d" % result.returncode)
-                if result.stdout:
-                    logging.error("Generator stdout: %s" % result.stdout)
-                if result.stderr:
-                    logging.error("Generator stderr: %s" % result.stderr)
+                logging.error("Stimulus generator failed with return code: %d" % return_code)
+                if stdout:
+                    logging.error("Generator stdout: %s" % stdout)
+                if stderr:
+                    logging.error("Generator stderr: %s" % stderr)
                 return None
                 
-        except subprocess.TimeoutExpired:
-            logging.error("Stimulus generator timed out after 60 seconds")
-            return None
         except Exception as e:
             logging.error("Failed to run stimulus generator: %s" % e)
             return None
