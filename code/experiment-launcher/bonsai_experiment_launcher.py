@@ -746,6 +746,391 @@ class BonsaiExperiment(object):
         """Clean up resources when the script exits"""
         logging.info("Cleaning up resources...")
         self.stop()
+    
+    def _find_bonsai_csv_files(self):
+        """
+        Find Bonsai-generated CSV files in the session folder.
+        
+        Returns:
+            tuple: (orientations_file_path, logger_file_path, all_csv_files)
+                   Returns (None, None, []) if files not found
+        """
+        # Use the session folder where Bonsai was configured to save CSV files
+        if self.session_folder:
+            output_dir = self.session_folder
+        else:
+            output_dir = os.getcwd()
+        
+        logging.info("Searching for Bonsai CSV files in: %s" % output_dir)
+        
+        orientations_file = None
+        logger_file = None
+        all_csv_files = []
+        
+        # Search for the CSV files in the output directory and subdirectories
+        for root, dirs, files in os.walk(output_dir):
+            for file in files:
+                file_path = os.path.join(root, file)
+                
+                if file.startswith('orientations_orientations') and file.endswith('.csv'):
+                    orientations_file = file_path
+                    all_csv_files.append(file_path)
+                    logging.info("Found orientations file: %s" % orientations_file)
+                elif file.startswith('orientations_logger') and file.endswith('.csv'):
+                    logger_file = file_path
+                    all_csv_files.append(file_path)
+                    logging.info("Found logger file: %s" % logger_file)
+        
+        return orientations_file, logger_file, all_csv_files
+    
+    def _read_csv_file(self, file_path):
+        """
+        Read a CSV file using built-in csv module, returning a list of dictionaries.
+        
+        Args:
+            file_path (str): Path to the CSV file
+            
+        Returns:
+            list: List of dictionaries, one per row
+        """
+        data = []
+        try:
+            with open(file_path, 'r') as f:
+                reader = csv.DictReader(f)
+                for row in reader:
+                    data.append(row)
+            logging.debug("Read %d rows from %s" % (len(data), file_path))
+        except Exception as e:
+            logging.error("Error reading CSV file %s: %s" % (file_path, e))
+        
+        return data
+    
+    def _load_bonsai_csv_data(self, orientations_file, logger_file):
+        """
+        Load data from Bonsai CSV files.
+        
+        Args:
+            orientations_file (str): Path to orientations CSV file
+            logger_file (str): Path to logger CSV file
+            
+        Returns:
+            tuple: (orientations_data, logger_data) or (None, None) if error
+        """
+        try:
+            logging.info("Loading stimulus data from %s" % orientations_file)
+            orientations_data = self._read_csv_file(orientations_file)
+            
+            logging.info("Loading timing data from %s" % logger_file)
+            logger_data = self._read_csv_file(logger_file)
+            
+            return orientations_data, logger_data
+            
+        except Exception as e:
+            logging.error("Error loading Bonsai CSV files: %s" % e)
+            return None, None
+
+    def _create_timing_map(self, logger_data):
+        """
+        Create a mapping of stimulus IDs to frame/timestamp information from logger CSV.
+        
+        Args:
+            logger_data (list): List of logger dictionaries with timing information
+            
+        Returns:
+            dict: Mapping from stimulus ID to timing info
+        """
+        timing_map = {}
+        
+        try:
+            for row in logger_data:
+                value = row.get('Value', '')
+                frame = row.get('Frame', '0')
+                timestamp = row.get('Timestamp', '0.0')
+                
+                if value.startswith('StimStart-'):
+                    stim_id = value.replace('StimStart-', '')
+                    timing_map[stim_id] = {
+                        'start_frame': int(frame),
+                        'start_timestamp': float(timestamp)
+                    }
+                elif value.startswith('StimEnd-'):
+                    stim_id = value.replace('StimEnd-', '')
+                    if stim_id in timing_map:
+                        timing_map[stim_id]['end_frame'] = int(frame)
+                        timing_map[stim_id]['end_timestamp'] = float(timestamp)
+        except Exception as e:
+            logging.warning("Could not create timing map from logger: %s" % e)
+            
+        return timing_map
+    
+    def _group_by_block_type(self, orientations_data):
+        """
+        Group orientation data by BlockType without using pandas.
+        
+        Args:
+            orientations_data (list): List of orientation dictionaries
+            
+        Returns:
+            dict: Dictionary with BlockType as keys and lists of rows as values
+        """
+        grouped = {}
+        for row in orientations_data:
+            block_type = row.get('BlockType')
+            if not block_type:  # Handle None, empty string, etc.
+                block_type = 'unknown_block_type'
+            if block_type not in grouped:
+                grouped[block_type] = []
+            grouped[block_type].append(row)
+        
+        return grouped
+
+    
+    def _create_stimulus_object_from_block(self, block_data, block_type, timing_map):
+        """
+        Create a CAMSTIM-compatible stimulus object from a block of presentations.
+        
+        Args:
+            block_data (list): List of presentation dictionaries in this block
+            block_type (str): Type of the block (e.g., 'motor_oddball')
+            timing_map (dict): Mapping from stimulus IDs to timing info
+            
+        Returns:
+            dict: CAMSTIM-compatible stimulus object
+        """
+        # Extract unique parameter names (dimnames)
+        param_columns = ['Orientation', 'SpatialFrequency', 'TemporalFrequency', 
+                        'Contrast', 'Phase', 'Diameter', 'X', 'Y', 'Duration', 'Delay']
+        dimnames = []
+        
+        # Check which parameters are present in the data
+        if block_data:
+            for col in param_columns:
+                if col in block_data[0]:
+                    dimnames.append(col)
+        
+        # Create sweep_frames and sweep_table
+        sweep_frames = []
+        sweep_table = []
+        sweep_order = []
+        
+        for idx, row in enumerate(block_data):
+            stim_id = row.get('Id', '')
+            
+            # Get timing info from timing_map
+            if stim_id in timing_map:
+                timing_info = timing_map[stim_id]
+                start_frame = timing_info.get('start_frame')
+                end_frame = timing_info.get('end_frame')
+                
+                # Only use timing if both start and end are available
+                if start_frame is not None and end_frame is not None:
+                    sweep_frames.append([start_frame, end_frame])
+                else:
+                    # Use None to indicate missing timing data
+                    sweep_frames.append([None, None])
+            else:
+                # No timing data available for this stimulus
+                sweep_frames.append([None, None])
+            
+            # Create parameter tuple for this sweep
+            param_values = []
+            for dimname in dimnames:
+                value = row.get(dimname)
+                if value is None or value == '':
+                    # No default values - use None to indicate missing data
+                    param_values.append(None)
+                else:
+                    try:
+                        # Try to convert to number
+                        if '.' in str(value):
+                            param_values.append(float(value))
+                        else:
+                            param_values.append(int(value))
+                    except (ValueError, TypeError):
+                        # If conversion fails, keep the original string value
+                        param_values.append(value)
+            sweep_table.append(tuple(param_values))
+            
+            sweep_order.append(idx)
+        
+        # Create display_sequence using actual timestamps from logger data
+        if sweep_frames:
+            # Find the actual start and end timestamps from timing_map
+            start_timestamps = []
+            end_timestamps = []
+            
+            for idx, row in enumerate(block_data):
+                stim_id = row.get('Id', '')
+                if stim_id in timing_map:
+                    timing_info = timing_map[stim_id]
+                    start_time = timing_info.get('start_timestamp')
+                    end_time = timing_info.get('end_timestamp')
+                    
+                    if start_time is not None:
+                        start_timestamps.append(start_time)
+                    if end_time is not None:
+                        end_timestamps.append(end_time)
+            
+            if start_timestamps and end_timestamps:
+                # Use the earliest start time and latest end time for the display sequence
+                display_start_sec = min(start_timestamps)
+                display_end_sec = max(end_timestamps)
+                # Create as numpy array like in CAMSTIM
+                display_sequence = np.array([[display_start_sec, display_end_sec]])
+            else:
+                # No valid timing data available
+                display_sequence = np.array([[None, None]])
+        else:
+            display_sequence = np.array([[None, None]])
+        
+        # Convert sweep_frames to tuples like in CAMSTIM (not lists)
+        sweep_frames_tuples = []
+        for frame_pair in sweep_frames:
+            if isinstance(frame_pair, list) and len(frame_pair) >= 2:
+                sweep_frames_tuples.append((frame_pair[0], frame_pair[1]))
+            else:
+                sweep_frames_tuples.append(frame_pair)
+        
+        # Get the Bonsai workflow path for stim_path
+        workflow_path = self.params.get('bonsai_path', 'unknown_workflow')
+        
+        # Create stimulus object matching CAMSTIM format
+        # Remove 'block_type' and 'num_sweeps' as they don't exist in reference
+        stimulus_obj = {
+            'stim_path': workflow_path,
+            'stim': block_type,
+            'sweep_frames': sweep_frames_tuples,  # Use tuples like CAMSTIM
+            'sweep_order': sweep_order,
+            'display_sequence': display_sequence,  # As numpy array in seconds
+            'dimnames': dimnames,
+            'sweep_table': sweep_table
+        }
+        
+        return stimulus_obj
+    
+    def _load_and_process_bonsai_data(self):
+        """
+        Load and process Bonsai CSV data, returning both processed stimuli and raw data.
+        
+        This unified method loads the CSV files once and returns both:
+        1. Processed stimulus objects compatible with CAMSTIM
+        2. Raw CSV data for traceability
+        
+        Returns:
+            tuple: (stimuli_data, raw_data) where:
+                - stimuli_data is a list of stimulus objects
+                - raw_data is a dict containing raw CSV data
+        """
+        # Initialize empty returns
+        stimuli_data = []
+        raw_data = {
+            'orientations': [],
+            'logger': [],
+            'files_found': []
+        }
+        
+        # Find CSV files (shared by both processing paths)
+        orientations_file, logger_file, all_csv_files = self._find_bonsai_csv_files()
+        
+        if not orientations_file or not logger_file:
+            logging.warning("Could not find required Bonsai CSV files")
+            return stimuli_data, raw_data
+        
+        # Load CSV data (shared by both processing paths)
+        orientations_data, logger_data = self._load_bonsai_csv_data(orientations_file, logger_file)
+        
+        if orientations_data is None or logger_data is None:
+            logging.error("Failed to load CSV data")
+            return stimuli_data, raw_data
+        
+        # Process for stimulus objects (CAMSTIM compatibility)
+        try:
+            # Create timing map from logger data
+            timing_map = self._create_timing_map(logger_data)
+            
+            # Group presentations by block type to create stimulus objects
+            grouped_data = self._group_by_block_type(orientations_data)
+            
+            for block_type, block_data in grouped_data.items():
+                stimulus_obj = self._create_stimulus_object_from_block(
+                    block_data, block_type, timing_map
+                )
+                stimuli_data.append(stimulus_obj)
+            
+            logging.info("Successfully processed %d stimulus blocks with %d total presentations" % (
+                len(stimuli_data), len(orientations_data)
+            ))
+            
+        except Exception as e:
+            logging.error("Error processing Bonsai CSV files for stimulus objects: %s" % e)
+            logging.error("No fallback stimulus structure will be created. Returning empty stimuli list.")
+        
+        # Prepare raw data for traceability
+        raw_data['orientations'] = orientations_data
+        raw_data['logger'] = logger_data
+        raw_data['files_found'] = all_csv_files
+        
+        # Add metadata about the raw data
+        raw_data['metadata'] = {
+            'session_folder': self.session_folder,
+            'load_time': datetime.datetime.now().isoformat(),
+            'total_files_found': len(raw_data['files_found'])
+        }
+        
+        logging.info("Unified Bonsai data loading complete: %d stimulus blocks, %d orientation rows, %d logger rows from %d files" % (
+            len(stimuli_data), len(raw_data['orientations']), len(raw_data['logger']), len(raw_data['files_found'])
+        ))
+        
+        return stimuli_data, raw_data
+    
+    def _get_total_frames_from_logger(self):
+        """
+        Get the total number of frames by reading the last frame from the logger CSV file.
+        
+        Returns:
+            int: Total number of frames in the experiment
+        """
+        # Look for logger file in the session folder
+        logger_file = None
+        
+        if self.session_folder:
+            output_dir = self.session_folder
+        else:
+            output_dir = os.getcwd()
+        
+        # Search for the logger CSV file in the session folder
+        for root, dirs, files in os.walk(output_dir):
+            for file in files:
+                if file.startswith('orientations_logger') and file.endswith('.csv'):
+                    logger_file = os.path.join(root, file)
+                    break
+            if logger_file:
+                break
+        
+        if not logger_file:
+            logging.warning("Could not find logger file to determine total_frames")
+            return 0
+        
+        try:
+            # Read the logger CSV file
+            logger_data = self._read_csv_file(logger_file)
+            
+            # Find the highest frame number in the logger data
+            max_frame = 0
+            for row in logger_data:
+                try:
+                    frame = int(row.get('Frame', '0'))
+                    if frame > max_frame:
+                        max_frame = frame
+                except ValueError:
+                    continue
+                    
+            logging.info("Total frames from logger: %d" % max_frame)
+            return max_frame
+            
+        except Exception as e:
+            logging.warning("Could not read logger file to determine total_frames: %s" % e)
+            return 0
         
     def save_output(self):
         """
@@ -1532,7 +1917,69 @@ class BonsaiExperiment(object):
         except Exception as e:
             logging.error("Failed to run stimulus generator: %s" % e)
             return None
-    
+        
+    def _calculate_intervalsms(self):
+        """
+        Calculate frame intervals in milliseconds from the logger data.
+        
+        This matches what CAMSTIM's agent.py expects in data['items']['foraging']['intervalsms']
+        or data['items']['behavior']['intervalsms'].
+        
+        The logger CSV contains multiple entries per frame (Frame events, StimStart/StimEnd events).
+        We only use the 'Frame' events to calculate true frame intervals.
+        
+        Returns:
+            numpy.array: Array of frame intervals in milliseconds, or empty array if no data
+        """
+        try:
+            # Find logger file to get frame timing data
+            _, logger_file, _ = self._find_bonsai_csv_files()
+            
+            if not logger_file:
+                logging.warning("No logger file found for intervalsms calculation")
+                return np.array([])
+            
+            # Load logger data
+            logger_data = self._read_csv_file(logger_file)
+            
+            if not logger_data:
+                logging.warning("No logger data found for intervalsms calculation")
+                return np.array([])
+            
+            # Extract timestamps only from 'Frame' events (ignore StimStart/StimEnd events)
+            frame_timestamps = []
+            for row in logger_data:
+                value = row.get('Value', '')
+                if value == 'Frame':  # Only process Frame events
+                    try:
+                        timestamp = float(row.get('Timestamp', '0.0'))
+                        frame_timestamps.append(timestamp)
+                    except (ValueError, TypeError):
+                        continue
+            
+            if len(frame_timestamps) < 2:
+                logging.warning("Not enough frame timestamps for intervalsms calculation")
+                return np.array([])
+            
+            # Convert to numpy array for efficient calculation
+            frame_timestamps = np.array(frame_timestamps)
+            
+            # Calculate intervals between successive frame timestamps (in seconds)
+            intervals_sec = np.diff(frame_timestamps)
+            
+            # Convert to milliseconds
+            intervals_ms = intervals_sec * 1000.0
+            
+            logging.info("Calculated %d frame intervals from Frame events (mean: %.2f ms, std: %.2f ms)" % (
+                len(intervals_ms), np.mean(intervals_ms), np.std(intervals_ms)
+            ))
+            
+            return intervals_ms
+            
+        except Exception as e:
+            logging.error("Error calculating intervalsms: %s" % e)
+            return np.array([])
+        
 if __name__ == "__main__":
     
     """Parse command-line arguments"""
