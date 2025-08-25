@@ -1367,11 +1367,11 @@ class BonsaiExperiment(object):
             logging.debug("Added Bonsai property: RootFolder=%s" % self.session_folder)
 
         # Extract hardware parameters from config and forward to Bonsai
-        # 1. AcqLine - from config['Sync']['frame_pulse']
+        # 1. AcqLine - from config['Sync']['acq_on_pulse']
         acq_line = "None"
         if 'Sync' in self.config and 'acq_on_pulse' in self.config['Sync']:
             acq_on_pulse = self.config['Sync']['acq_on_pulse']
-            if isinstance(acq_on_pulse, (list, tuple)) and len(frame_pulse) >= 3:
+            if isinstance(acq_on_pulse, (list, tuple)) and len(acq_on_pulse) >= 3:
                 # format: ('Dev1', 1, 4) -> Dev1/port1/line4
                 device, port, line = acq_on_pulse[0], acq_on_pulse[1], acq_on_pulse[2]
                 acq_line = "%s/port%s/line%s" % (device, port, line)
@@ -1531,8 +1531,6 @@ class BonsaiExperiment(object):
         except Exception as e:
             logging.error("Failed to run stimulus generator: %s" % e)
             return None
-
-    # ...existing code...
     
 if __name__ == "__main__":
     
