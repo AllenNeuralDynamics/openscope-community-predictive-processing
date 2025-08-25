@@ -298,8 +298,9 @@ def generate_separate_session_csvs(n_variants=10):
                         'Trial_Number': trial_counter,
                         'Sequence_Number': sequence_counter,
                         'Trial_In_Sequence': trial_in_sequence,
-                        **trial  # Add all the stimulus parameters
                     }
+                    # Add all the stimulus parameters (Python 2.7 compatible)
+                    enriched_trial.update(trial)
                     
                     all_trials.append(enriched_trial)
             
@@ -962,6 +963,12 @@ def generate_single_session_csv(session_type, output_path, seed=None):
         }
     }
     
+    # Add shorter aliases for convenience
+    if session_type == 'sensorimotor_no_oddball':
+        session_type = 'sensorimotor_mismatch_no_oddball'
+    elif session_type == 'sequence_no_oddball':
+        session_type = 'sequence_mismatch_no_oddball'
+    
     if session_type not in session_configs:
         print("Error: Unknown session type '%s'" % session_type)
         print("Available session types: %s" % ', '.join(session_configs.keys()))
@@ -1022,8 +1029,9 @@ def generate_single_session_csv(session_type, output_path, seed=None):
                 'Trial_Number': trial_counter,
                 'Sequence_Number': sequence_counter,
                 'Trial_In_Sequence': trial_in_sequence,
-                **trial  # Add all the stimulus parameters
             }
+            # Add all the stimulus parameters (Python 2.7 compatible)
+            enriched_trial.update(trial)
             
             all_trials.append(enriched_trial)
     
