@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# -*- coding: utf-8 -*-
 """
 Experimental Session CSV Generator for Visual Mismatch Paradigms
 
