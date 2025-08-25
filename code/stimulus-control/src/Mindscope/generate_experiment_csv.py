@@ -109,7 +109,7 @@ def main_single_csv():
     # Generate 10 variants for each session type in separate folders
     session_files = generate_separate_session_csvs(n_variants=10)
     
-    print(f"\nSuccess! Generated session folders with variants:")
+    print("\nSuccess! Generated session folders with variants:")
     print("\nEach session type has its own folder with 10 variants:")
     print("- visual_mismatch/")
     print("- sensorimotor_mismatch/") 
@@ -248,10 +248,10 @@ def generate_separate_session_csvs(n_variants=10):
     
     # Generate each session separately
     for session_variant in range(n_variants):
-        print(f"Generating session variant {session_variant + 1}/{n_variants}")
+        print("Generating session variant %d/%d" % (session_variant + 1, n_variants))
         
         for session_type, session_config in session_configs.items():
-            print(f"  Processing {session_type} session...")
+            print("  Processing %s session..." % session_type)
             
             all_trials = []
             trial_counter = 0
@@ -263,7 +263,7 @@ def generate_separate_session_csvs(n_variants=10):
                 block_label = block_config['label']
                 oddball_config = block_config.get('oddball_config', None)
                 
-                print(f"    Block {block_number}: {block_label} ({duration_minutes} min)")
+                print("    Block %d: %s (%.1f min)" % (block_number, block_label, duration_minutes))
                 
                 # Generate trials for this block
                 block_trials = generate_block_trials(
@@ -308,7 +308,7 @@ def generate_separate_session_csvs(n_variants=10):
             folder_path = Path(session_folder)
             folder_path.mkdir(exist_ok=True)
             
-            variant_filename = f"variant_{session_variant+1:02d}.csv"
+            variant_filename = "variant_%02d.csv" % (session_variant + 1)
             filepath = folder_path / variant_filename
             
             with open(filepath, 'w', newline='') as csvfile:
@@ -316,10 +316,10 @@ def generate_separate_session_csvs(n_variants=10):
                 writer.writeheader()
                 writer.writerows(all_trials)
             
-            session_files[f"{session_type}_variant_{session_variant+1:02d}"] = str(filepath)
+            session_files["%s_variant_%02d" % (session_type, session_variant + 1)] = str(filepath)
             
             # Print session summary
-            print(f"    Generated {len(all_trials)} trials -> {filepath}")
+            print("    Generated %d trials -> %s" % (len(all_trials), filepath))
     
     # Print overall summary
     print()
@@ -339,10 +339,10 @@ def generate_separate_session_csvs(n_variants=10):
     
     for session_type, filepaths in session_folders.items():
         folder_name = session_configs[session_type]['folder']
-        print(f"  {folder_name}/  ({len(filepaths)} variants)")
+        print("  %s/  (%d variants)" % (folder_name, len(filepaths)))
         for filepath in sorted(filepaths):
             variant_name = Path(filepath).name
-            print(f"    {variant_name}")
+            print("    %s" % variant_name)
     
     print()
     print("Each CSV file contains one complete experimental session:")
@@ -886,7 +886,7 @@ def generate_single_session_csv(session_type, output_path, seed=None):
     if seed is not None:
         random.seed(seed)
         np.random.seed(seed)
-        print(f"Using random seed: {seed}")
+        print("Using random seed: %d" % seed)
     
     # Session configurations matching the existing structure
     session_configs = {
@@ -963,13 +963,13 @@ def generate_single_session_csv(session_type, output_path, seed=None):
     }
     
     if session_type not in session_configs:
-        print(f"Error: Unknown session type '{session_type}'")
-        print(f"Available session types: {', '.join(session_configs.keys())}")
+        print("Error: Unknown session type '%s'" % session_type)
+        print("Available session types: %s" % ', '.join(session_configs.keys()))
         return False
     
     session_config = session_configs[session_type]
     
-    print(f"Generating {session_type} session CSV...")
+    print("Generating %s session CSV..." % session_type)
     
     # Standard fieldnames
     fieldnames = [
@@ -987,7 +987,7 @@ def generate_single_session_csv(session_type, output_path, seed=None):
         block_label = block_config['label']
         oddball_config = block_config.get('oddball_config', None)
         
-        print(f"  Block {block_number}: {block_label} ({duration_minutes} min)")
+        print("  Block %d: %s (%.1f min)" % (block_number, block_label, duration_minutes))
         
         # Generate trials for this block
         block_trials = generate_block_trials(
@@ -1038,12 +1038,12 @@ def generate_single_session_csv(session_type, output_path, seed=None):
             writer.writeheader()
             writer.writerows(all_trials)
         
-        print(f"Successfully generated {len(all_trials)} trials")
-        print(f"Saved to: {output_path}")
+        print("Successfully generated %d trials" % len(all_trials))
+        print("Saved to: %s" % output_path)
         return True
         
     except Exception as e:
-        print(f"Error saving CSV file: {e}")
+        print("Error saving CSV file: %s" % e)
         return False
 
 if __name__ == "__main__":
