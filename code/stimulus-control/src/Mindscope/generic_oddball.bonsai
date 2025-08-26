@@ -16,7 +16,7 @@
         <Combinator xsi:type="gl:CreateWindow">
           <gl:Width>560</gl:Width>
           <gl:Height>480</gl:Height>
-          <gl:VSync>On</gl:VSync>
+          <gl:VSync>Off</gl:VSync>
           <gl:SwapSync>false</gl:SwapSync>
           <gl:ClearColor>Transparent</gl:ClearColor>
           <gl:ClearMask>DepthBufferBit ColorBufferBit</gl:ClearMask>
@@ -26,7 +26,7 @@
           <gl:WindowState>Fullscreen</gl:WindowState>
           <gl:DisplayDevice>Primary</gl:DisplayDevice>
           <gl:TargetRenderFrequency>60</gl:TargetRenderFrequency>
-          <gl:TargetUpdateFrequency xsi:nil="true" />
+          <gl:TargetUpdateFrequency>120</gl:TargetUpdateFrequency>
           <gl:RenderState />
           <gl:GraphicsMode>
             <gl:ColorFormat>
