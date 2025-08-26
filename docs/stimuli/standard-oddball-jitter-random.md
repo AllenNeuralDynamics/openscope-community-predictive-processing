@@ -6,23 +6,20 @@ The Standard Oddball Stimulus with Jittered Intervals is an enhanced version of 
 
 ## Stimulus Structure
 
-![Standard Oddball with Jittered Intervals Protocol](../img/stimuli/standard-oddball-jitter-random.png)
+![Duration Mismatch Analysis](../img/stimuli/duration_mismatch_structure_analysis.png)
 
-The figure above illustrates the three main components of the standard oddball jitter random protocol:
+The figure above shows a comprehensive analysis of the jittered intervals protocol:
 
-1. **Orientation Tuning Component**: 16 different orientations (0°-337.5° in 22.5° steps) presented with 4 different inter-stimulus intervals (0.343s, 1s, 1.5s, 2s). The sequence is randomized to prevent predictability.
+1. **Block Structure Timeline**: Displays the temporal organization including:
+   - **Jitter Oddball Blocks**: Periods with variable inter-stimulus intervals
+   - **Jitter Control Blocks**: Control periods for comparison
+   - **RF Mapping Blocks**: Spatial tuning phases
 
-2. **Standard-Oddball Component**: 
-   - Regular presentations of the standard stimulus (0° orientation)
-   - Occasional presentations of deviant stimuli:
-     - Orientation deviants (45° and 90°)
-     - Temporal frequency deviant (0 Hz, stationary)
-     - Contrast deviant (blank screen)
-   - All with variable intervals between stimuli
+2. **Grating Orientations Over Time**: Shows the sequence of stimulus orientations with temporal jitter
 
-3. **Receptive Field Mapping**: Small, localized gratings presented at positions defined in the receptive field CSV file.
+3. **Oddball Events Distribution**: Highlights when timing violations occur, demonstrating the jittered presentation schedule
 
-The jittered intervals between stimuli help distinguish neural responses to stimulus features from responses to predictable timing.
+This analysis reveals how temporal unpredictability is introduced while maintaining the core oddball paradigm structure.
 
 ## Script Location
 

@@ -534,9 +534,9 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
                 trial['Diameter'] = DEFAULT_STIMULUS_SIZE
                 trial['Block_Type'] = 'sequential_long'
                 
-                if trial_in_seq == 4:  # Last trial is omission
+                if trial_in_seq == 4:  # Last trial is sequence omission (not oddball)
                     trial['Contrast'] = 0
-                    trial['Trial_Type'] = 'omission'
+                    trial['Trial_Type'] = 'sequence_omission'
                 else:
                     trial['Orientation'] = standard_sequence[trial_in_seq]
                     trial['Trial_Type'] = 'standard'
@@ -719,7 +719,7 @@ def generate_oddball_block_trials(block_type, duration_minutes, oddball_config, 
             is_oddball = seq_type != 'normal'
             
             # Generate 5 trials per sequence
-            for orientation in sequence:
+            for trial_pos, orientation in enumerate(sequence):
                 trial = SEQUENTIAL_PARAMS.copy()
                 trial['Diameter'] = DEFAULT_STIMULUS_SIZE
                 trial['Block_Type'] = 'sequential_oddball'
@@ -734,14 +734,23 @@ def generate_oddball_block_trials(block_type, duration_minutes, oddball_config, 
                     trial['Trial_Type'] = 'omission'
                 else:
                     trial['Orientation'] = orientation
-                    trial['Trial_Type'] = 'standard'
+                    # Check if this is the oddball trial (position 2, which is 3rd trial)
+                    if is_oddball and trial_pos == 2:  # 0-indexed, so position 2 = 3rd trial
+                        if seq_type == 'oddball_45':
+                            trial['Trial_Type'] = 'orientation_45'
+                        elif seq_type == 'oddball_90':
+                            trial['Trial_Type'] = 'orientation_90'
+                        else:
+                            trial['Trial_Type'] = 'standard'
+                    else:
+                        trial['Trial_Type'] = 'standard'
                 
                 trials.append(trial)
             
-            # Add sequence-ending omission
+            # Add sequence-ending omission (not counted as oddball)
             omission_trial = SEQUENTIAL_PARAMS.copy()
             omission_trial['Contrast'] = 0
-            omission_trial['Trial_Type'] = 'omission'
+            omission_trial['Trial_Type'] = 'sequence_omission'  # Different from oddball omission
             omission_trial['Block_Type'] = 'sequential_oddball'
             omission_trial['Diameter'] = DEFAULT_STIMULUS_SIZE
             trials.append(omission_trial)
@@ -1054,6 +1063,92 @@ def generate_single_session_csv(session_type, output_path, seed=None):
         print("Error saving CSV file: %s" % e)
         return False
 
+def generate_example_stimulus_tables():
+    """
+    Generate example stimulus tables for each session type.
+    These match exactly what the launcher generates on-the-fly, 
+    providing full examples for documentation and understanding.
+    """
+    
+    print("="*80)
+    print("EXAMPLE STIMULUS TABLE GENERATOR")
+    print("="*80)
+    print("Generating example stimulus tables that match launcher output...")
+    print()
+    
+    # Create examples folder under Mindscope
+    examples_folder = os.path.join(os.path.dirname(__file__), "examples")
+    if not os.path.exists(examples_folder):
+        os.makedirs(examples_folder)
+        print("Created examples folder: %s" % examples_folder)
+    
+    # All available session types from the launcher
+    session_types = [
+        'visual_mismatch',
+        'sensorimotor_mismatch',
+        'sequence_mismatch', 
+        'duration_mismatch',
+        'sequence_mismatch_no_oddball',
+        'sensorimotor_mismatch_no_oddball'
+    ]
+    
+    generated_files = []
+    
+    # Generate each example using the same logic as the launcher
+    for session_type in session_types:
+        print("Generating example for session type: %s" % session_type)
+        
+        # Use a fixed seed for reproducible examples (like launcher would with session UUID)
+        example_seed = 12345 + hash(session_type) % 10000  # Deterministic but unique per session
+        
+        # Output filename matching session type
+        output_filename = "%s_example.csv" % session_type
+        output_path = os.path.join(examples_folder, output_filename)
+        
+        # Generate the CSV using the same function the launcher calls
+        success = generate_single_session_csv(
+            session_type=session_type,
+            output_path=output_path,
+            seed=example_seed
+        )
+        
+        if success:
+            # Count trials in generated file
+            with open(output_path, 'r') as f:
+                trial_count = sum(1 for _ in f) - 1  # Subtract header
+            
+            print("  → Generated %s (%d trials)" % (output_filename, trial_count))
+            generated_files.append(output_path)
+        else:
+            print("  → Failed to generate %s" % output_filename)
+    
+    print()
+    print("="*80)
+    print("EXAMPLE GENERATION COMPLETE")
+    print("="*80)
+    print()
+    print("Generated %d example stimulus tables in:" % len(generated_files))
+    print("  %s" % examples_folder)
+    print()
+    
+    print("Example files:")
+    for filepath in generated_files:
+        filename = os.path.basename(filepath)
+        print("  %s" % filename)
+    
+    print()
+    print("Each example shows the complete stimulus structure that would be")
+    print("generated by the launcher for that session type, including:")
+    print("- All 7 experimental blocks in sequence")
+    print("- Proper trial timing and parameters") 
+    print("- Oddball distributions and controls")
+    print("- RF mapping grid")
+    print("- Block metadata for analysis")
+    print()
+    print("These examples can be committed to the repository for documentation.")
+    
+    return generated_files
+
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(
         description="Generate experimental session CSV files for visual mismatch paradigms",
@@ -1063,7 +1158,10 @@ Examples:
   # Generate all session folders with 10 variants each (original mode)
   python generate_experiment_csv.py
   
-  # Generate single session file for launcher (new mode)
+  # Generate example stimulus tables for documentation (new mode)
+  python generate_experiment_csv.py --examples
+  
+  # Generate single session file for launcher (launcher mode)
   python generate_experiment_csv.py --session-type sensorimotor_mismatch --output-path /path/to/file.csv --seed 12345
   
 Available session types:
@@ -1076,6 +1174,11 @@ Available session types:
         """
     )
     
+    parser.add_argument(
+        '--examples',
+        action='store_true',
+        help='Generate example stimulus tables for each session type (for documentation)'
+    )
     parser.add_argument(
         '--session-type', 
         help='Type of session to generate (for single file mode)'
@@ -1092,7 +1195,11 @@ Available session types:
     
     args = parser.parse_args()
     
-    if args.session_type and args.output_path:
+    if args.examples:
+        # Generate example tables
+        generate_example_stimulus_tables()
+        sys.exit(0)
+    elif args.session_type and args.output_path:
         # Single session mode (for launcher integration)
         print("="*80)
         print("SINGLE SESSION CSV GENERATOR")

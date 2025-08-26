@@ -1,0 +1,88 @@
+STIMULUS TABLE ANALYSIS SUMMARY
+==================================================
+Session Type: Sensorimotor Mismatch
+Total Trials: 119034
+Total Blocks: 7
+
+Total Session Duration: 66.3 minutes (1.1 hours)
+
+BLOCK BREAKDOWN:
+------------------------------
+Block 1: Control block 1.1
+  Type: standard_control
+  Duration: 6.4 minutes
+  Trials: 544
+  Trial Types:
+    single: 476 (87.5%)
+    omission: 34 (6.2%)
+    halt: 34 (6.2%)
+
+Block 2: Sensory-motor mismatch block
+  Type: motor_oddball
+  Duration: 26.0 minutes
+  Trials: 90800
+  Trial Types:
+    standard: 90660 (99.8%)
+    orientation_90: 35 (0.0%)
+    halt: 35 (0.0%)
+    orientation_45: 35 (0.0%)
+    omission: 35 (0.0%)
+
+Block 3: Control block 1.2
+  Type: standard_control
+  Duration: 6.4 minutes
+  Trials: 544
+  Trial Types:
+    single: 476 (87.5%)
+    omission: 34 (6.2%)
+    halt: 34 (6.2%)
+
+Block 4: Control block 2
+  Type: sequential_control_block
+  Duration: 4.7 minutes
+  Trials: 1120
+  Trial Types:
+    single: 980 (87.5%)
+    halt: 70 (6.2%)
+    omission: 70 (6.2%)
+
+Block 5: Control block 3
+  Type: jitter_control
+  Duration: 6.4 minutes
+  Trials: 556
+  Trial Types:
+    single: 556 (100.0%)
+
+Block 6: Control block 4
+  Type: open_loop_prerecorded
+  Duration: 6.4 minutes
+  Trials: 23040
+  Trial Types:
+    prerecorded: 23040 (100.0%)
+
+Block 7: RF mapping
+  Type: rf_mapping
+  Duration: 10.0 minutes
+  Trials: 2430
+  Trial Types:
+    rf_mapping: 2430 (100.0%)
+
+OVERALL TRIAL TYPE STATISTICS:
+-----------------------------------
+standard: 90660 trials (76.2%)
+prerecorded: 23040 trials (19.4%)
+single: 2488 trials (2.1%)
+rf_mapping: 2430 trials (2.0%)
+omission: 173 trials (0.1%)
+halt: 173 trials (0.1%)
+orientation_90: 35 trials (0.0%)
+orientation_45: 35 trials (0.0%)
+
+ODDBALL ANALYSIS:
+--------------------
+Total Oddball Events: 416
+orientation_45: 35 events (0.0% of all trials)
+orientation_90: 35 events (0.0% of all trials)
+halt: 173 events (0.1% of all trials)
+omission: 173 events (0.1% of all trials)
+Oddball Rate: 6.3 events per minute

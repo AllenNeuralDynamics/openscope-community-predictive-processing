@@ -6,22 +6,20 @@ The Sensory-Motor Closed-Loop stimulus provides a visual environment where the m
 
 ## Stimulus Structure
 
-![Sensory-Motor Closed-Loop Protocol](../img/stimuli/sensory-motor-closed-loop.png)
+![Sensory-Motor Mismatch Analysis](../img/stimuli/sensorimotor_mismatch_structure_analysis.png)
 
-The figure above illustrates the three key aspects of the sensory-motor closed-loop protocol:
+The figure above shows a comprehensive analysis of the sensory-motor mismatch stimulus structure:
 
-1. **Open-Loop Condition**: Shows how standard oddball stimuli and animal running behavior are independent in traditional paradigms.
+1. **Block Structure Timeline**: Displays the temporal organization including:
+   - **Motor Oddball Blocks**: Main experimental periods where sensory-motor coupling is established and violated
+   - **Motor Control Blocks**: Baseline periods with standard sensory-motor relationships
+   - **RF Mapping Blocks**: Spatial tuning phases
 
-2. **Closed-Loop Condition**: Demonstrates how the animal's running behavior directly determines the stimulus type:
-   - Running triggers orientation deviant stimuli
-   - Non-running periods trigger standard stimuli
+2. **Grating Orientations Over Time**: Shows how visual stimuli change throughout the session, including both coupled and decoupled phases
 
-3. **Predictive Relationships**: Illustrates the three critical conditions for studying predictive processing:
-   - Expected: Running followed by orientation deviant (predicted relationship maintained)
-   - Violation: Non-running followed by orientation deviant (unexpected stimulus)
-   - Mismatch: Running followed by standard stimulus (expected stimulus omitted)
+3. **Oddball Events Distribution**: Highlights sensory-motor mismatch events where the expected relationship between wheel movement and visual feedback is violated
 
-The sensory-motor closed-loop creates a predictable relationship that can be violated to study prediction error signals.
+This analysis demonstrates how the protocol creates predictable sensory-motor relationships and systematically violates them to study prediction error signals in the context of self-generated sensory feedback.
 
 ## Script Location
 

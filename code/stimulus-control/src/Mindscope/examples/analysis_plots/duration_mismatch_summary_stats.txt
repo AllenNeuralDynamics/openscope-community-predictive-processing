@@ -1,0 +1,83 @@
+STIMULUS TABLE ANALYSIS SUMMARY
+==================================================
+Session Type: Duration Mismatch
+Total Trials: 30508
+Total Blocks: 7
+
+Total Session Duration: 66.3 minutes (1.1 hours)
+
+BLOCK BREAKDOWN:
+------------------------------
+Block 1: Control block 1.1
+  Type: standard_control
+  Duration: 6.4 minutes
+  Trials: 544
+  Trial Types:
+    single: 476 (87.5%)
+    omission: 34 (6.2%)
+    halt: 34 (6.2%)
+
+Block 2: Duration mismatch block
+  Type: jitter_oddball
+  Duration: 26.0 minutes
+  Trials: 2274
+  Trial Types:
+    standard: 2204 (96.9%)
+    jitter: 70 (3.1%)
+
+Block 3: Control block 1.2
+  Type: standard_control
+  Duration: 6.4 minutes
+  Trials: 544
+  Trial Types:
+    single: 476 (87.5%)
+    omission: 34 (6.2%)
+    halt: 34 (6.2%)
+
+Block 4: Control block 2
+  Type: sequential_control_block
+  Duration: 4.7 minutes
+  Trials: 1120
+  Trial Types:
+    single: 980 (87.5%)
+    halt: 70 (6.2%)
+    omission: 70 (6.2%)
+
+Block 5: Control block 3
+  Type: jitter_control
+  Duration: 6.4 minutes
+  Trials: 556
+  Trial Types:
+    single: 556 (100.0%)
+
+Block 6: Control block 4
+  Type: open_loop_prerecorded
+  Duration: 6.4 minutes
+  Trials: 23040
+  Trial Types:
+    prerecorded: 23040 (100.0%)
+
+Block 7: RF mapping
+  Type: rf_mapping
+  Duration: 10.0 minutes
+  Trials: 2430
+  Trial Types:
+    rf_mapping: 2430 (100.0%)
+
+OVERALL TRIAL TYPE STATISTICS:
+-----------------------------------
+prerecorded: 23040 trials (75.5%)
+single: 2488 trials (8.2%)
+rf_mapping: 2430 trials (8.0%)
+standard: 2204 trials (7.2%)
+omission: 138 trials (0.5%)
+halt: 138 trials (0.5%)
+jitter: 70 trials (0.2%)
+
+ODDBALL ANALYSIS:
+--------------------
+Total Oddball Events: 346
+halt: 138 events (0.5% of all trials)
+omission: 138 events (0.5% of all trials)
+jitter: 70 events (0.2% of all trials)
+Oddball Rate: 5.2 events per minute

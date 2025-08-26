@@ -54,8 +54,19 @@ The resulting datasets are shared via the OpenScope program and from collaborati
 ### Key Resources
 
 - [Hardware Overview](hardware-overview.md): Recording platforms (SLAP2, Neuropixels, Mesoscope)
-- [Stimuli Documentation](stimuli/bonsai_instructions.md): Experimental stimuli implementation
+- [Stimuli Documentation](stimuli/list_scripts.md): Experimental protocols with comprehensive analysis visualizations
 - [Project Tracking](project-tracking.md): Current status of all ongoing experiments and analyses
+
+### 🎯 Stimulus Protocols
+
+Our experiments utilize four main mismatch paradigms, each designed to probe different aspects of predictive processing:
+
+- **[Visual Mismatch](stimuli/standard-oddball.md)**: Orientation-based prediction violations
+- **[Sequence Mismatch](stimuli/sequence-mismatch.md)**: Pattern learning and sequence violations  
+- **[Sensory-Motor Mismatch](stimuli/sensory-motor-closed-loop.md)**: Motor-visual coupling violations
+- **[Duration Mismatch](stimuli/duration-mismatch.md)**: Temporal prediction violations
+
+Each protocol includes detailed analysis visualizations showing block structure, stimulus progression, and oddball event distribution.
 
 ---
 

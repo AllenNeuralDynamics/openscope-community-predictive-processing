@@ -6,21 +6,18 @@ The Standard Oddball stimulus is designed to investigate predictive coding and s
 
 ## Stimulus Structure
 
-![Standard Oddball Protocol](../img/stimuli/standard-oddball.png)
+![Visual Mismatch (Standard Oddball) Analysis](../img/stimuli/visual_mismatch_structure_analysis.png)
 
-The figure above illustrates the three main components of the standard oddball protocol:
+The figure above shows a comprehensive analysis of the visual mismatch (standard oddball) stimulus structure, including:
 
-1. **Orientation Tuning Component**: 16 different orientations (0°-337.5° in 22.5° steps) presented with regular 1-second intervals between stimuli.
+1. **Block Structure Timeline**: Shows the temporal organization of different experimental blocks including control, oddball, and RF mapping phases
+2. **Grating Orientations Over Time**: Displays the sequence of grating orientations presented throughout the session, with different colors representing different orientation values (0°, 45°, 90°)
+3. **Oddball Events Distribution**: Highlights the timing and distribution of oddball events (orientation_45, orientation_90, halt, omission, jitter) across the experimental timeline
 
-2. **Standard-Oddball Component**: 
-   - Regular presentations of the standard stimulus (0° orientation)
-   - Occasional presentations of deviant stimuli:
-     - Orientation deviants (45° and 90°)
-     - Temporal frequency deviant (0 Hz, stationary)
-     - Contrast deviant (blank screen)
-   - All with fixed, regular intervals between stimuli (creating a predictable rhythmic presentation)
-
-3. **Receptive Field Mapping**: Small, localized gratings presented at positions defined in the receptive field CSV file.
+The analysis demonstrates the structured presentation of:
+- **Standard Control Blocks**: Baseline periods with standard stimuli
+- **Visual Mismatch Blocks**: Periods with orientation oddball events (45° and 90° deviants)
+- **RF Mapping Blocks**: Spatial tuning phases with localized stimuli
 
 ## Script Location
 

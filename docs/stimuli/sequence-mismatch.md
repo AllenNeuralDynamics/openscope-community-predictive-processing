@@ -6,14 +6,22 @@ The Sequence Mismatch Protocol investigates how the brain detects violations in 
 
 ## Stimulus Structure
 
-1. **Habituation Phase**: Animals are exposed to repeating sequences of 4 stimuli to establish learning.
+![Sequence Mismatch Analysis](../img/stimuli/sequence_mismatch_structure_analysis.png)
 
-2. **Testing Phase**: 
-   - Standard sequences continue the learned pattern
-   - Deviant sequences introduce unexpected stimuli at the third position
-   - Omission trials occasionally remove an expected stimulus from the sequence
+The figure above shows a detailed analysis of the sequence mismatch protocol structure:
 
-3. **Control Conditions**: Control sequences with matched stimulus properties but without established sequence expectations.
+1. **Block Structure Timeline**: Illustrates the temporal organization of different blocks including:
+   - **Sequential Oddball Blocks**: Main experimental blocks where sequences are established and violations introduced
+   - **Sequential Control Blocks**: Control periods with shuffled or randomized sequences
+   - **RF Mapping Blocks**: Spatial tuning phases
+
+2. **Grating Orientations Over Time**: Shows the sequence of orientations used in the protocol, demonstrating the structured patterns and their violations
+
+3. **Oddball Events Distribution**: Displays when sequence violations occur, including:
+   - **Orientation Oddballs**: Unexpected orientations at specific sequence positions
+   - **Omission Events**: Missing stimuli in learned sequences
+
+The analysis reveals how the protocol establishes predictable sequences and then systematically violates expectations to probe predictive processing mechanisms.
 
 ## Hardware Requirements
 
