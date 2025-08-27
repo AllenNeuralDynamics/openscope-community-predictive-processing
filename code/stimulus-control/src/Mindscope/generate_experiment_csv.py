@@ -433,10 +433,12 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
         # Simulates a pre-recorded sensory-motor sequence where visual stimuli change 
         # independently of wheel input, representing playback of a recorded session
         
-        # Frame rate for temporal sampling
+        # Frame rate for temporal sampling (60Hz timing, but gratings update at 30Hz)
         frame_rate = 60
+        grating_update_rate = 30  # Grating changes at 30Hz (every 2 frames)
         total_frames = int(duration_seconds * frame_rate)
-        frame_duration = 1.0 / frame_rate
+        frame_duration = 1.0 / frame_rate  # 16.67ms per frame
+        grating_duration = 1.0 / grating_update_rate  # 33.33ms per grating update
         
         # Create a simulated pre-recorded sensory-motor sequence pattern
         # In sensory-motor paradigms, orientation stays constant (vertical)
@@ -460,11 +462,12 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
             micro_motion = 10 * math.sin(time_seconds * 25)  # Fine-scale motion
             simulated_phase = (base_phase + fine_motion + micro_motion) % 360
             
+            # Create trial with grating duration (33.33ms) for 30Hz grating updates
             trial = {
                 'Contrast': 1,
                 'Delay': 0,
                 'Diameter': DEFAULT_STIMULUS_SIZE,
-                'Duration': frame_duration,
+                'Duration': grating_duration,  # 33.33ms for 30Hz grating updates
                 'Orientation': int(final_orientation),
                 'Spatial_Frequency': 0.04,
                 'Temporal_Frequency': 0,  # Static, phase controlled by prerecorded data
@@ -474,7 +477,10 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
                 'Trial_Type': 'prerecorded',
                 'Block_Type': 'open_loop_prerecorded'
             }
-            trials.append(trial)
+            
+            # Skip every other frame to achieve 30Hz grating updates at 60Hz frame rate
+            if frame % 2 == 0:  # Only add trials every 2 frames (30Hz grating rate)
+                trials.append(trial)
     
     elif block_type == 'sequential_control_block':
         # Control block 2: Sequential-like stimuli but shuffled (not in sequences)
@@ -545,27 +551,32 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
     
     elif block_type == 'motor_long':
         # Long motor block without oddballs - just continuous closed-loop control
+        # Use 60Hz timing but limit grating updates to 30Hz for better Bonsai performance
         frame_rate = 60
+        grating_update_rate = 30  # Grating changes at 30Hz (every 2 frames)
         total_frames = int(duration_seconds * frame_rate)
-        frame_duration = 1.0 / frame_rate
+        frame_duration = 1.0 / frame_rate  # 16.67ms per frame
+        grating_duration = 1.0 / grating_update_rate  # 33.33ms per grating update
         
         # Generate frame-by-frame trials with wheel-controlled phase
         for frame in range(total_frames):
-            trial = {
-                'Contrast': 1,
-                'Delay': 0,
-                'Diameter': DEFAULT_STIMULUS_SIZE,
-                'Duration': frame_duration,
-                'Orientation': 0,
-                'Spatial_Frequency': 0.04,
-                'Temporal_Frequency': 0,  # Wheel-controlled
-                'X': 0,
-                'Y': 0,
-                'Phase': 'wheel',  # Phase controlled by wheel
-                'Trial_Type': 'standard',
-                'Block_Type': 'motor_long'
-            }
-            trials.append(trial)
+            # Skip every other frame to achieve 30Hz grating updates at 60Hz frame rate
+            if frame % 2 == 0:  # Only add trials every 2 frames (30Hz grating rate)
+                trial = {
+                    'Contrast': 1,
+                    'Delay': 0,
+                    'Diameter': DEFAULT_STIMULUS_SIZE,
+                    'Duration': grating_duration,  # 33.33ms for 30Hz grating updates
+                    'Orientation': 0,
+                    'Spatial_Frequency': 0.04,
+                    'Temporal_Frequency': 0,  # Wheel-controlled
+                    'X': 0,
+                    'Y': 0,
+                    'Phase': 'wheel',  # Phase controlled by wheel
+                    'Trial_Type': 'standard',
+                    'Block_Type': 'motor_long'
+                }
+                trials.append(trial)
     
     elif block_type == 'rf_mapping':
         # RF mapping with parameters matching create_receptive_field_mapping()
@@ -761,10 +772,13 @@ def generate_motor_block_trials(block_type, duration_minutes, oddball_config, va
     """Generate frame-by-frame trials for motor blocks."""
     random.seed(variant * 789 + hash(block_type))
     
+    # Use 60Hz timing but limit grating updates to 30Hz for better Bonsai performance
     frame_rate = 60
+    grating_update_rate = 30  # Grating changes at 30Hz (every 2 frames)
     duration_seconds = duration_minutes * 60
     total_frames = int(duration_seconds * frame_rate)
-    frame_duration = 1.0 / frame_rate
+    frame_duration = 1.0 / frame_rate  # 16.67ms per frame
+    grating_duration = 1.0 / grating_update_rate  # 33.33ms per grating update
     
     trials = []
     
@@ -775,8 +789,8 @@ def generate_motor_block_trials(block_type, duration_minutes, oddball_config, va
         velocity = 0.0
         
         for frame in range(total_frames):
-            # Simple mouse wheel simulation
-            if frame % 60 == 0:  # Update behavior every second
+            # Simple mouse wheel simulation - update behavior every second (60 frames at 60Hz)
+            if frame % 60 == 0:  # Update behavior every second (60 frames at 60Hz)
                 velocity += random.gauss(0, 0.05)
                 velocity *= 0.95  # friction
                 velocity = max(-0.3, min(0.3, velocity))
@@ -786,26 +800,28 @@ def generate_motor_block_trials(block_type, duration_minutes, oddball_config, va
             phase_values.append(current_phase)
         
         for frame in range(total_frames):
-            trial = {
-                'Contrast': 1,
-                'Delay': 0,
-                'Diameter': DEFAULT_STIMULUS_SIZE,
-                'Duration': frame_duration,
-                'Orientation': 0,
-                'Spatial_Frequency': 0.04,
-                'Temporal_Frequency': 0,  # Wheel-controlled
-                'X': 0,
-                'Y': 0,
-                'Phase': phase_values[frame],
-                'Trial_Type': 'standard',
-                'Block_Type': 'motor_control'
-            }
-            trials.append(trial)
+            # Skip every other frame to achieve 30Hz grating updates at 60Hz frame rate
+            if frame % 2 == 0:  # Only add trials every 2 frames (30Hz grating rate)
+                trial = {
+                    'Contrast': 1,
+                    'Delay': 0,
+                    'Diameter': DEFAULT_STIMULUS_SIZE,
+                    'Duration': grating_duration,  # 33.33ms for 30Hz grating updates
+                    'Orientation': 0,
+                    'Spatial_Frequency': 0.04,
+                    'Temporal_Frequency': 0,  # Wheel-controlled
+                    'X': 0,
+                    'Y': 0,
+                    'Phase': phase_values[frame],
+                    'Trial_Type': 'standard',
+                    'Block_Type': 'motor_control'
+                }
+                trials.append(trial)
     
     elif block_type == 'motor_oddball':
         # Motor oddball with discrete oddball events
-        min_interval_frames = 120  # 2 seconds minimum
-        oddball_duration_frames = 21  # ~0.35 seconds
+        min_interval_frames = 120  # 2 seconds minimum at 60Hz
+        oddball_duration_frames = 21  # ~0.35 seconds at 60Hz
         
         # Calculate oddball positions
         total_oddball_rate = sum(oddball_config.values()) if oddball_config else 8.0
@@ -861,22 +877,23 @@ def generate_motor_block_trials(block_type, duration_minutes, oddball_config, va
                 frame += oddball_duration_frames
                 oddball_index += 1
             else:
-                # Normal frame
-                trial = {
-                    'Contrast': 1,
-                    'Delay': 0,
-                    'Diameter': DEFAULT_STIMULUS_SIZE,
-                    'Duration': frame_duration,
-                    'Orientation': 0,
-                    'Spatial_Frequency': 0.04,
-                    'Temporal_Frequency': 0,
-                    'X': 0,
-                    'Y': 0,
-                    'Phase': 'wheel',
-                    'Trial_Type': 'standard',
-                    'Block_Type': 'motor_oddball'
-                }
-                trials.append(trial)
+                # Normal frame - use 30Hz grating updates (every 2 frames)
+                if frame % 2 == 0:  # Only add trials every 2 frames (30Hz grating rate)
+                    trial = {
+                        'Contrast': 1,
+                        'Delay': 0,
+                        'Diameter': DEFAULT_STIMULUS_SIZE,
+                        'Duration': grating_duration,  # 33.33ms for 30Hz grating updates
+                        'Orientation': 0,
+                        'Spatial_Frequency': 0.04,
+                        'Temporal_Frequency': 0,
+                        'X': 0,
+                        'Y': 0,
+                        'Phase': 'wheel',
+                        'Trial_Type': 'standard',
+                        'Block_Type': 'motor_oddball'
+                    }
+                    trials.append(trial)
                 frame += 1
     
     return trials

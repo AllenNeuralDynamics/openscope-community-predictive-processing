@@ -1,7 +1,7 @@
 STIMULUS TABLE ANALYSIS SUMMARY
 ==================================================
 Session Type: Sequence Mismatch No Oddball
-Total Trials: 34474
+Total Trials: 22954
 Total Blocks: 7
 
 Total Session Duration: 66.3 minutes (1.1 hours)
@@ -53,9 +53,9 @@ Block 5: Control block 3
 Block 6: Control block 4
   Type: open_loop_prerecorded
   Duration: 6.4 minutes
-  Trials: 23040
+  Trials: 11520
   Trial Types:
-    prerecorded: 23040 (100.0%)
+    prerecorded: 11520 (100.0%)
 
 Block 7: RF mapping
   Type: rf_mapping
@@ -66,17 +66,17 @@ Block 7: RF mapping
 
 OVERALL TRIAL TYPE STATISTICS:
 -----------------------------------
-prerecorded: 23040 trials (66.8%)
-standard: 4992 trials (14.5%)
-single: 2488 trials (7.2%)
-rf_mapping: 2430 trials (7.0%)
-sequence_omission: 1248 trials (3.6%)
-omission: 138 trials (0.4%)
-halt: 138 trials (0.4%)
+prerecorded: 11520 trials (50.2%)
+standard: 4992 trials (21.7%)
+single: 2488 trials (10.8%)
+rf_mapping: 2430 trials (10.6%)
+sequence_omission: 1248 trials (5.4%)
+omission: 138 trials (0.6%)
+halt: 138 trials (0.6%)
 
 ODDBALL ANALYSIS:
 --------------------
 Total Oddball Events: 276
-halt: 138 events (0.4% of all trials)
-omission: 138 events (0.4% of all trials)
+halt: 138 events (0.6% of all trials)
+omission: 138 events (0.6% of all trials)
 Oddball Rate: 4.2 events per minute
