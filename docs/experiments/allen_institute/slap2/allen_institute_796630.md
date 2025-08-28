@@ -1,0 +1,36 @@
+# Experiment Session Notes
+
+- **Mouse ID:** 796630
+- **Date:** 2025-08-28
+- **Experimenter:** @amshelton @jeromelecoq 
+- **Rig / Setup ID:** SLAP2
+- **Stimulus version:** https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/blob/d17241b1abd9c3f187c6edaac62491f724ace96e/code/stimulus-control/src/Standard_oddball_slap2_version2.bonsai
+- - **Protocol followed:** Glutamate (Green fluorophore) imaging, 65 min experiment
+- **Notes & Issues:**
+    - Same experiment as last time. We record behavior videos (body, eye, face) with HARP timestamps aligned with the other events.
+    - SLAP2 was ran with SLAP trials to avoid analysis pipeline issues (30 seconds each, longer than before). 
+    - Screen is Gamma calibrated.
+    - This design : https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/discussions/98
+    - Orientation 1  : 60 trials
+    - Oddball block 1 : Standard 0deg (1443 trials), 45 and 90 oddballs, omission (30 trials) shuffled, Oddball occurs on average every  11s
+    - Orientation 2  : 33 trials
+    - Oddball block 2 : Standard 0deg (1443 trials), 0 and 45 oddballs, omission (30 trials) shuffled, Oddball occurs on average every  11s
+    - Orientation 3  : 33 trials
+    - Nb Receptive fields : 10
+      
+    Mouse head fixed at 1:30PM
+  
+    Total Expected duration = 65 min
+
+    Male mouse is labelled with 4E12 ExP32222-hSyn-Flex-iGluSnFR4.v9601.NGR + 2E12 pAAV.CAG.Flex.RCAMP3.WPRE.SV40 + 6E8 AAV9-CamKII0.4-Cre-SV40
+    injected on 4/1/2025 in V1, DOB 01/21/2025
+    We will image GluSNF4 with two photon. 
+
+    Maedeh circled few proximal dendrites and apical dendrites. 
+  
+    DMD 1 is superficial  - XXum . DMD2 is deeper - XXXum
+  
+    Experiment started at X:XXPM. We had a few false starts due to behavior cameras.
+  
+    Stimulus ended on time at around X:XX. Mice was removed from head fixation right away. No signs of stress. All 3 cameras flow recorded properly.
+    
