@@ -61,8 +61,8 @@
                 <cv:FourCC>FMP4</cv:FourCC>
                 <cv:FrameRate>30</cv:FrameRate>
                 <cv:FrameSize>
-                  <cv:Width>512</cv:Width>
-                  <cv:Height>512</cv:Height>
+                  <cv:Width>544</cv:Width>
+                  <cv:Height>728</cv:Height>
                 </cv:FrameSize>
                 <cv:ResizeInterpolation>NearestNeighbor</cv:ResizeInterpolation>
               </Combinator>
