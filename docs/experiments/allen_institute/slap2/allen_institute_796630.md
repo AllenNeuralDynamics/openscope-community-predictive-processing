@@ -33,4 +33,15 @@
     Experiment started at X:XXPM. We had a few false starts due to behavior cameras.
   
     Stimulus ended on time at around X:XX. Mice was removed from head fixation right away. No signs of stress. All 3 cameras flow recorded properly.
-    
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20experiments/allen_institute/slap2/allen_institute_796630" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
