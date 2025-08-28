@@ -1345,12 +1345,6 @@ double.Parse(it[2]) as Y)</scr:Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Concat" />
       </Expression>
-      <Expression xsi:type="SubscribeSubject">
-        <Name>StartSession</Name>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:SubscribeWhen" />
-      </Expression>
       <Expression xsi:type="GroupWorkflow">
         <Name>ColoredGratingSequence</Name>
         <Workflow>
@@ -1859,50 +1853,48 @@ double.Parse(it[2]) as Y)</scr:Expression>
       <Edge From="110" To="111" Label="Source2" />
       <Edge From="111" To="112" Label="Source1" />
       <Edge From="112" To="113" Label="Source6" />
-      <Edge From="113" To="115" Label="Source1" />
-      <Edge From="114" To="115" Label="Source2" />
-      <Edge From="115" To="116" Label="Source1" />
+      <Edge From="113" To="114" Label="Source1" />
+      <Edge From="113" To="116" Label="Source1" />
+      <Edge From="114" To="115" Label="Source1" />
       <Edge From="115" To="118" Label="Source1" />
       <Edge From="116" To="117" Label="Source1" />
-      <Edge From="117" To="120" Label="Source1" />
+      <Edge From="117" To="118" Label="Source2" />
       <Edge From="118" To="119" Label="Source1" />
-      <Edge From="119" To="120" Label="Source2" />
-      <Edge From="120" To="121" Label="Source1" />
-      <Edge From="121" To="123" Label="Source1" />
-      <Edge From="122" To="123" Label="Source2" />
-      <Edge From="123" To="124" Label="Source1" />
-      <Edge From="124" To="125" Label="Source1" />
-      <Edge From="126" To="130" Label="Source1" />
-      <Edge From="127" To="128" Label="Source1" />
+      <Edge From="119" To="121" Label="Source1" />
+      <Edge From="120" To="121" Label="Source2" />
+      <Edge From="121" To="122" Label="Source1" />
+      <Edge From="122" To="123" Label="Source1" />
+      <Edge From="124" To="128" Label="Source1" />
+      <Edge From="125" To="126" Label="Source1" />
+      <Edge From="126" To="127" Label="Source1" />
+      <Edge From="127" To="128" Label="Source2" />
       <Edge From="128" To="129" Label="Source1" />
-      <Edge From="129" To="130" Label="Source2" />
+      <Edge From="129" To="132" Label="Source1" />
       <Edge From="130" To="131" Label="Source1" />
-      <Edge From="131" To="134" Label="Source1" />
-      <Edge From="132" To="133" Label="Source1" />
-      <Edge From="133" To="134" Label="Source2" />
-      <Edge From="135" To="140" Label="Source1" />
-      <Edge From="136" To="137" Label="Source1" />
-      <Edge From="137" To="138" Label="Source1" />
-      <Edge From="138" To="140" Label="Source2" />
-      <Edge From="139" To="140" Label="Source3" />
-      <Edge From="141" To="143" Label="Source1" />
-      <Edge From="142" To="143" Label="Source2" />
+      <Edge From="131" To="132" Label="Source2" />
+      <Edge From="133" To="138" Label="Source1" />
+      <Edge From="134" To="135" Label="Source1" />
+      <Edge From="135" To="136" Label="Source1" />
+      <Edge From="136" To="138" Label="Source2" />
+      <Edge From="137" To="138" Label="Source3" />
+      <Edge From="139" To="141" Label="Source1" />
+      <Edge From="140" To="141" Label="Source2" />
+      <Edge From="141" To="142" Label="Source1" />
+      <Edge From="142" To="143" Label="Source1" />
       <Edge From="143" To="144" Label="Source1" />
       <Edge From="144" To="145" Label="Source1" />
       <Edge From="145" To="146" Label="Source1" />
-      <Edge From="146" To="147" Label="Source1" />
-      <Edge From="147" To="148" Label="Source1" />
+      <Edge From="150" To="152" Label="Source1" />
+      <Edge From="151" To="152" Label="Source2" />
       <Edge From="152" To="154" Label="Source1" />
       <Edge From="153" To="154" Label="Source2" />
-      <Edge From="154" To="156" Label="Source1" />
-      <Edge From="155" To="156" Label="Source2" />
+      <Edge From="154" To="155" Label="Source1" />
+      <Edge From="155" To="156" Label="Source1" />
       <Edge From="156" To="157" Label="Source1" />
       <Edge From="157" To="158" Label="Source1" />
       <Edge From="158" To="159" Label="Source1" />
       <Edge From="159" To="160" Label="Source1" />
-      <Edge From="160" To="161" Label="Source1" />
       <Edge From="161" To="162" Label="Source1" />
-      <Edge From="163" To="164" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
