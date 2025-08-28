@@ -22,7 +22,6 @@ import subprocess
 import yaml  
 import uuid
 import cPickle as pickle
-import ConfigParser
 import io
 import hashlib
 import atexit
@@ -30,118 +29,25 @@ import psutil
 import threading
 import shutil  # Added for directory operations
 import argparse
-try:
-    import mpeconfig
-except ImportError:
-    mpeconfig = None
-    logging.warning("mpeconfig not available. Using default configuration.")
+import mpeconfig
 import json
 import stat
 import csv
 import numpy as np
 
-# Import Windows-specific modules for process management
-try:
-    import win32job
-    import win32api
-    import win32con
-    WINDOWS_MODULES_AVAILABLE = True
-except ImportError:
-    WINDOWS_MODULES_AVAILABLE = False
-    logging.warning("Windows modules (win32job, win32api, win32con) not available. Process management will be limited.")
+import win32job
+import win32api
+import win32con
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-# Default configuration for CamStim-like behavior
-if "Windows" in platform.system():
-    CAMSTIM_DIR = "C:/ProgramData/AIBS_MPE/camstim/"
-else:
-    CAMSTIM_DIR = os.path.expanduser('~/.camstim/')
-
-# if mpeconfig is available, use its configuration
-if mpeconfig:
-    CAMSTIM_CONFIG = mpeconfig.source_configuration('camstim', send_start_log=False)
-    CAMSTIM_DIR = CAMSTIM_CONFIG['root_datapath']
-
+CAMSTIM_DIR = "C:/ProgramData/AIBS_MPE/camstim/"
+CAMSTIM_CONFIG = mpeconfig.source_configuration('camstim', send_start_log=False)
+CAMSTIM_DIR = CAMSTIM_CONFIG['root_datapath']
 OUTPUT_DIR = os.path.join(CAMSTIM_DIR, "data")
 KILL_THRESHOLD = float(os.getenv('CAMSTIM_VMEM_THRESHOLD', 90))
-
-DEFAULTCONFIG = """
-[Behavior]
-nidevice = Dev1
-volume_limit = 1.5
-sync_sqr = True
-sync_sqr_loc = (-300,-300)
-sync_pulse = True
-pulseOnRisingEdge = True
-pulsedigitalport = 1
-pulsedigitalline = 0
-sync_nidevice = Dev1
-display_time = True
-mouse_id = test_mouse
-user_id = test_user
-
-[Encoder]
-nidevice = Dev1
-encodervinchannel = 0
-encodervsigchannel = 1
-
-[Reward]
-reward_volume = 0.007
-nidevice = Dev1
-reward_lines = [(0,0)]
-invert_logic = False
-
-[Licksensing]
-nidevice = Dev1
-lick_lines = [(0,1)]
-
-[Sync]
-sync_sqr = True
-sync_sqr_loc = (-300,-300)
-
-[Stim]
-showmouse = False
-miniwindow = False
-fps = 60.000
-monitor_brightness = 30
-monitor_contrast = 50
-
-[LIMS]
-lims_upload = False
-lims_dummy = True
-
-[SweepStim]
-backupdir = None
-mouseid = 'test'
-userid = 'user'
-bgcolor = (0,0,0)
-controlstream = True
-trigger = None
-triggerdiport = 0
-triggerdiline = 0
-trigger_delay_sec = 0.0
-savesweeptable = True
-eyetracker = False
-
-[Display]
-monitor = 'testMonitor'
-screen = 1
-projectorType = 'Projector.Normal'
-warp = 'Warp.Disabled'
-warpfile = None
-flipHorizontal = False
-flipVertical = False
-eyepoint = (0.5,0.5)
-
-[Datastream]
-data_export = False
-data_export_port = 5000
-data_export_rep_port = 5001
-"""
-
 
 class BonsaiExperiment(object):
     """
@@ -158,7 +64,7 @@ class BonsaiExperiment(object):
         self.start_time = None
         self.stop_time = None
         self.config = {}
-        self.config_path = os.path.join(CAMSTIM_DIR, "config/stim.cfg")
+        self.config_path = os.path.join(CAMSTIM_DIR, "config/camstim.yml")
         
         # Initialize session tracking variables similar to camstim's agent
         self.mouse_id = ""
@@ -184,18 +90,14 @@ class BonsaiExperiment(object):
         self.stderr_data = []
         self._output_threads = []
         
-        # Create Windows job object for process management
-        if WINDOWS_MODULES_AVAILABLE:
-            try:
-                self.hJob = win32job.CreateJobObject(None, "BonsaiJobObject")
-                extended_info = win32job.QueryInformationJobObject(self.hJob, win32job.JobObjectExtendedLimitInformation)
-                extended_info['BasicLimitInformation']['LimitFlags'] = win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
-                win32job.SetInformationJobObject(self.hJob, win32job.JobObjectExtendedLimitInformation, extended_info)
-                logging.info("Windows job object created for process management")
-            except Exception as e:
-                logging.warning("Failed to create Windows job object: %s" % e)
-                self.hJob = None
-        else:
+        try:
+            self.hJob = win32job.CreateJobObject(None, "BonsaiJobObject")
+            extended_info = win32job.QueryInformationJobObject(self.hJob, win32job.JobObjectExtendedLimitInformation)
+            extended_info['BasicLimitInformation']['LimitFlags'] = win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            win32job.SetInformationJobObject(self.hJob, win32job.JobObjectExtendedLimitInformation, extended_info)
+            logging.info("Windows job object created for process management")
+        except Exception as e:
+            logging.warning("Failed to create Windows job object: %s" % e)
             self.hJob = None
         
         # Register exit handlers
@@ -287,22 +189,12 @@ class BonsaiExperiment(object):
         """
         # Check if config directory exists, create if not
         config_dir = os.path.dirname(self.config_path)
-        if not os.path.isdir(config_dir):
-            os.makedirs(config_dir)
-            
-        # Check if config file exists, create if not
-        if not os.path.isfile(self.config_path):
-            logging.info("Config file not found, creating default at %s" % self.config_path)
-            with open(self.config_path, 'w') as f:
-                f.write(DEFAULTCONFIG)
-                
+
         # Load configuration from file
         logging.info("Loading configuration from %s" % self.config_path)
         
         try:
-            config = ConfigParser.RawConfigParser()
-            config.readfp(io.BytesIO(DEFAULTCONFIG))
-            config.read(self.config_path)
+            config = CAMSTIM_CONFIG
             
             # Load all standard sections that are used in camstim
             self.load_config_section("Behavior", config)
@@ -323,28 +215,12 @@ class BonsaiExperiment(object):
             logging.warning("Error reading config file: %s" % e)
     
     def load_config_section(self, section, config):
-        """
-        Load a section from the config file
-        
-        Args:
-            section (str): Section name
-            config (ConfigParser): ConfigParser object
-        """
         try:
-            if section not in self.config:
-                self.config[section] = {}
-                
-            if config.has_section(section):
-                for key, value in config.items(section):
-                    try:
-                        # Convert string to Python object
-                        self.config[section][key] = eval(value)
-                    except (SyntaxError, NameError):
-                        # If eval fails, keep as string
-                        self.config[section][key] = value
-                        
+            if section in config:
+                self.config[section] = config[section]
+            elif section in config['shared']:
+                self.config[section] = config['shared'][section]
             logging.debug("Loaded config section: %s" % section)
-            
         except Exception as e:
             logging.warning("Failed to load config section %s: %s" % (section, e))
     
@@ -560,7 +436,7 @@ class BonsaiExperiment(object):
             self._start_output_readers()
             
             # If Windows modules are available, assign process to job object
-            if WINDOWS_MODULES_AVAILABLE and self.hJob:
+            if self.hJob:
                 try:
                     perms = win32con.PROCESS_TERMINATE | win32con.PROCESS_SET_QUOTA
                     hProcess = win32api.OpenProcess(perms, False, self.bonsai_process.pid)
@@ -690,11 +566,10 @@ class BonsaiExperiment(object):
                 self.bonsai_process.kill()
                 
                 # Also kill child processes
-                if WINDOWS_MODULES_AVAILABLE:
-                    try:
-                        subprocess.call(['taskkill', '/F', '/T', '/PID', str(self.bonsai_process.pid)])
-                    except Exception as e:
-                        logging.warning("Could not kill child processes: %s" % e)
+                try:
+                    subprocess.call(['taskkill', '/F', '/T', '/PID', str(self.bonsai_process.pid)])
+                except Exception as e:
+                    logging.warning("Could not kill child processes: %s" % e)
             except Exception as e:
                 logging.error("Error killing Bonsai process: %s" % e)
     
@@ -733,11 +608,10 @@ class BonsaiExperiment(object):
                         logging.info("Bonsai process killed")
                 
                 # Try to kill any child processes that might have been spawned by Bonsai
-                if WINDOWS_MODULES_AVAILABLE:
-                    try:
-                        subprocess.call(['taskkill', '/F', '/T', '/PID', str(self.bonsai_process.pid)])
-                    except Exception as e:
-                        logging.warning("Could not kill child processes: %s" % e)
+                try:
+                    subprocess.call(['taskkill', '/F', '/T', '/PID', str(self.bonsai_process.pid)])
+                except Exception as e:
+                    logging.warning("Could not kill child processes: %s" % e)
                     
             except Exception as e:
                 logging.error("Error stopping Bonsai process: %s" % e)
