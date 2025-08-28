@@ -54,94 +54,11 @@ except ImportError:
 logging.basicConfig(level=logging.INFO,
                     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 
-# Default configuration for CamStim-like behavior
-if "Windows" in platform.system():
-    CAMSTIM_DIR = "C:/ProgramData/AIBS_MPE/camstim/"
-else:
-    CAMSTIM_DIR = os.path.expanduser('~/.camstim/')
-
-# if mpeconfig is available, use its configuration
-if mpeconfig:
-    CAMSTIM_CONFIG = mpeconfig.source_configuration('camstim', send_start_log=False)
-    CAMSTIM_DIR = CAMSTIM_CONFIG['root_datapath']
-
+CAMSTIM_DIR = "C:/ProgramData/AIBS_MPE/camstim/"
+CAMSTIM_CONFIG = mpeconfig.source_configuration('camstim', send_start_log=False)
+CAMSTIM_DIR = CAMSTIM_CONFIG['root_datapath']
 OUTPUT_DIR = os.path.join(CAMSTIM_DIR, "data")
 KILL_THRESHOLD = float(os.getenv('CAMSTIM_VMEM_THRESHOLD', 90))
-
-DEFAULTCONFIG = """
-[Behavior]
-nidevice = Dev1
-volume_limit = 1.5
-sync_sqr = True
-sync_sqr_loc = (-300,-300)
-sync_pulse = True
-pulseOnRisingEdge = True
-pulsedigitalport = 1
-pulsedigitalline = 0
-sync_nidevice = Dev1
-display_time = True
-mouse_id = test_mouse
-user_id = test_user
-
-[Encoder]
-nidevice = Dev1
-encodervinchannel = 0
-encodervsigchannel = 1
-
-[Reward]
-reward_volume = 0.007
-nidevice = Dev1
-reward_lines = [(0,0)]
-invert_logic = False
-
-[Licksensing]
-nidevice = Dev1
-lick_lines = [(0,1)]
-
-[Sync]
-sync_sqr = True
-sync_sqr_loc = (-300,-300)
-
-[Stim]
-showmouse = False
-miniwindow = False
-fps = 60.000
-monitor_brightness = 30
-monitor_contrast = 50
-
-[LIMS]
-lims_upload = False
-lims_dummy = True
-
-[SweepStim]
-backupdir = None
-mouseid = 'test'
-userid = 'user'
-bgcolor = (0,0,0)
-controlstream = True
-trigger = None
-triggerdiport = 0
-triggerdiline = 0
-trigger_delay_sec = 0.0
-savesweeptable = True
-eyetracker = False
-
-[Display]
-monitor = 'testMonitor'
-screen = 1
-projectorType = 'Projector.Normal'
-warp = 'Warp.Disabled'
-warpfile = None
-flipHorizontal = False
-flipVertical = False
-eyepoint = (0.5,0.5)
-
-[Datastream]
-data_export = False
-data_export_port = 5000
-data_export_rep_port = 5001
-"""
-
 
 class BonsaiExperiment(object):
     """
@@ -158,7 +75,7 @@ class BonsaiExperiment(object):
         self.start_time = None
         self.stop_time = None
         self.config = {}
-        self.config_path = os.path.join(CAMSTIM_DIR, "config/stim.cfg")
+        self.config_path = os.path.join(CAMSTIM_DIR, "config/camstim.yml")
         
         # Initialize session tracking variables similar to camstim's agent
         self.mouse_id = ""
@@ -287,22 +204,12 @@ class BonsaiExperiment(object):
         """
         # Check if config directory exists, create if not
         config_dir = os.path.dirname(self.config_path)
-        if not os.path.isdir(config_dir):
-            os.makedirs(config_dir)
-            
-        # Check if config file exists, create if not
-        if not os.path.isfile(self.config_path):
-            logging.info("Config file not found, creating default at %s" % self.config_path)
-            with open(self.config_path, 'w') as f:
-                f.write(DEFAULTCONFIG)
-                
+
         # Load configuration from file
         logging.info("Loading configuration from %s" % self.config_path)
         
         try:
-            config = ConfigParser.RawConfigParser()
-            config.readfp(io.BytesIO(DEFAULTCONFIG))
-            config.read(self.config_path)
+            config = CAMSTIM_CONFIG
             
             # Load all standard sections that are used in camstim
             self.load_config_section("Behavior", config)
