@@ -22,7 +22,6 @@ import subprocess
 import yaml  
 import uuid
 import cPickle as pickle
-import ConfigParser
 import io
 import hashlib
 import atexit
@@ -30,25 +29,15 @@ import psutil
 import threading
 import shutil  # Added for directory operations
 import argparse
-try:
-    import mpeconfig
-except ImportError:
-    mpeconfig = None
-    logging.warning("mpeconfig not available. Using default configuration.")
+import mpeconfig
 import json
 import stat
 import csv
 import numpy as np
 
-# Import Windows-specific modules for process management
-try:
-    import win32job
-    import win32api
-    import win32con
-    WINDOWS_MODULES_AVAILABLE = True
-except ImportError:
-    WINDOWS_MODULES_AVAILABLE = False
-    logging.warning("Windows modules (win32job, win32api, win32con) not available. Process management will be limited.")
+import win32job
+import win32api
+import win32con
 
 # Configure logging
 logging.basicConfig(level=logging.INFO,
@@ -101,18 +90,14 @@ class BonsaiExperiment(object):
         self.stderr_data = []
         self._output_threads = []
         
-        # Create Windows job object for process management
-        if WINDOWS_MODULES_AVAILABLE:
-            try:
-                self.hJob = win32job.CreateJobObject(None, "BonsaiJobObject")
-                extended_info = win32job.QueryInformationJobObject(self.hJob, win32job.JobObjectExtendedLimitInformation)
-                extended_info['BasicLimitInformation']['LimitFlags'] = win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
-                win32job.SetInformationJobObject(self.hJob, win32job.JobObjectExtendedLimitInformation, extended_info)
-                logging.info("Windows job object created for process management")
-            except Exception as e:
-                logging.warning("Failed to create Windows job object: %s" % e)
-                self.hJob = None
-        else:
+        try:
+            self.hJob = win32job.CreateJobObject(None, "BonsaiJobObject")
+            extended_info = win32job.QueryInformationJobObject(self.hJob, win32job.JobObjectExtendedLimitInformation)
+            extended_info['BasicLimitInformation']['LimitFlags'] = win32job.JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE
+            win32job.SetInformationJobObject(self.hJob, win32job.JobObjectExtendedLimitInformation, extended_info)
+            logging.info("Windows job object created for process management")
+        except Exception as e:
+            logging.warning("Failed to create Windows job object: %s" % e)
             self.hJob = None
         
         # Register exit handlers
@@ -230,28 +215,12 @@ class BonsaiExperiment(object):
             logging.warning("Error reading config file: %s" % e)
     
     def load_config_section(self, section, config):
-        """
-        Load a section from the config file
-        
-        Args:
-            section (str): Section name
-            config (ConfigParser): ConfigParser object
-        """
         try:
-            if section not in self.config:
-                self.config[section] = {}
-                
-            if config.has_section(section):
-                for key, value in config.items(section):
-                    try:
-                        # Convert string to Python object
-                        self.config[section][key] = eval(value)
-                    except (SyntaxError, NameError):
-                        # If eval fails, keep as string
-                        self.config[section][key] = value
-                        
+            if section in config:
+                self.config[section] = config[section]
+            elif section in config['shared']:
+                self.config[section] = config['shared'][section]
             logging.debug("Loaded config section: %s" % section)
-            
         except Exception as e:
             logging.warning("Failed to load config section %s: %s" % (section, e))
     
@@ -467,7 +436,7 @@ class BonsaiExperiment(object):
             self._start_output_readers()
             
             # If Windows modules are available, assign process to job object
-            if WINDOWS_MODULES_AVAILABLE and self.hJob:
+            if self.hJob:
                 try:
                     perms = win32con.PROCESS_TERMINATE | win32con.PROCESS_SET_QUOTA
                     hProcess = win32api.OpenProcess(perms, False, self.bonsai_process.pid)
@@ -597,11 +566,10 @@ class BonsaiExperiment(object):
                 self.bonsai_process.kill()
                 
                 # Also kill child processes
-                if WINDOWS_MODULES_AVAILABLE:
-                    try:
-                        subprocess.call(['taskkill', '/F', '/T', '/PID', str(self.bonsai_process.pid)])
-                    except Exception as e:
-                        logging.warning("Could not kill child processes: %s" % e)
+                try:
+                    subprocess.call(['taskkill', '/F', '/T', '/PID', str(self.bonsai_process.pid)])
+                except Exception as e:
+                    logging.warning("Could not kill child processes: %s" % e)
             except Exception as e:
                 logging.error("Error killing Bonsai process: %s" % e)
     
@@ -640,11 +608,10 @@ class BonsaiExperiment(object):
                         logging.info("Bonsai process killed")
                 
                 # Try to kill any child processes that might have been spawned by Bonsai
-                if WINDOWS_MODULES_AVAILABLE:
-                    try:
-                        subprocess.call(['taskkill', '/F', '/T', '/PID', str(self.bonsai_process.pid)])
-                    except Exception as e:
-                        logging.warning("Could not kill child processes: %s" % e)
+                try:
+                    subprocess.call(['taskkill', '/F', '/T', '/PID', str(self.bonsai_process.pid)])
+                except Exception as e:
+                    logging.warning("Could not kill child processes: %s" % e)
                     
             except Exception as e:
                 logging.error("Error stopping Bonsai process: %s" % e)
