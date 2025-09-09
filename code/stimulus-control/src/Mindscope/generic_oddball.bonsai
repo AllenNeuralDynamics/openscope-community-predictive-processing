@@ -16,11 +16,11 @@
         <Combinator xsi:type="gl:CreateWindow">
           <gl:Width>560</gl:Width>
           <gl:Height>480</gl:Height>
-          <gl:VSync>Off</gl:VSync>
-          <gl:SwapSync>false</gl:SwapSync>
+          <gl:VSync>On</gl:VSync>
+          <gl:SwapSync>true</gl:SwapSync>
           <gl:ClearColor>Transparent</gl:ClearColor>
           <gl:ClearMask>DepthBufferBit ColorBufferBit</gl:ClearMask>
-          <gl:CursorVisible>true</gl:CursorVisible>
+          <gl:CursorVisible>false</gl:CursorVisible>
           <gl:Location xsi:nil="true" />
           <gl:WindowBorder>Fixed</gl:WindowBorder>
           <gl:WindowState>Fullscreen</gl:WindowState>
@@ -52,32 +52,7 @@
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.BonVisionResources.bonsai" />
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="gl:ShaderResources">
-          <gl:Shaders>
-            <gl:ShaderConfiguration xsi:type="gl:Material">
-              <gl:Name>ColoredGratings</gl:Name>
-              <gl:RenderState />
-              <gl:ShaderUniforms />
-              <gl:BufferBindings />
-              <gl:FramebufferAttachments />
-              <gl:VertexShader>BonVision:Shaders.Gratings.vert</gl:VertexShader>
-              <gl:FragmentShader>..\..\bonsai\Shaders\GeneralColoredGratings.frag</gl:FragmentShader>
-            </gl:ShaderConfiguration>
-            <gl:ShaderConfiguration xsi:type="gl:Material">
-              <gl:Name>ColorBalance</gl:Name>
-              <gl:RenderState />
-              <gl:ShaderUniforms />
-              <gl:BufferBindings>
-                <gl:BufferBinding xsi:type="gl:TextureBinding">
-                  <gl:Name>tex</gl:Name>
-                  <gl:TextureSlot>Texture0</gl:TextureSlot>
-                  <gl:TextureTarget>Texture2D</gl:TextureTarget>
-                </gl:BufferBinding>
-              </gl:BufferBindings>
-              <gl:FramebufferAttachments />
-              <gl:VertexShader>BonVision:Shaders.Quad.vert</gl:VertexShader>
-              <gl:FragmentShader>..\..\bonsai\Shaders\ColorBalance.frag</gl:FragmentShader>
-            </gl:ShaderConfiguration>
-          </gl:Shaders>
+          <gl:Shaders />
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -192,9 +167,9 @@
               <LocationY>28</LocationY>
               <Layer>2</Layer>
               <Angle>0</Angle>
-              <ColorR>1</ColorR>
-              <ColorG>1</ColorG>
-              <ColorB>1</ColorB>
+              <ColorR>0</ColorR>
+              <ColorG>0</ColorG>
+              <ColorB>0</ColorB>
               <ColorA>1</ColorA>
             </Expression>
             <Expression xsi:type="MemberSelector">
@@ -329,30 +304,6 @@
           <Z>-15.1</Z>
         </Translation>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="gl:UpdateViewportState">
-          <gl:X>0</gl:X>
-          <gl:Y>0</gl:Y>
-          <gl:Width>1</gl:Width>
-          <gl:Height>1</gl:Height>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="ExternalizedMapping">
-        <Property Name="B" DisplayName="norm_screen_bluecolor" />
-        <Property Name="G" DisplayName="norm_screen_greencolor" />
-        <Property Name="R" DisplayName="norm_screen_redcolor" />
-      </Expression>
-      <Expression xsi:type="IncludeWorkflow" Path="Extensions\ColorBalance.bonsai">
-        <ExtentX>1</ExtentX>
-        <ExtentY>1</ExtentY>
-        <LocationX>0</LocationX>
-        <LocationY>0</LocationY>
-        <Layer>1</Layer>
-        <Angle>0</Angle>
-        <R>1</R>
-        <G>1</G>
-        <B>1</B>
-      </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.GammaCorrection.bonsai">
         <ClearColor>Gray</ClearColor>
         <GammaLut>..\..\..\Gamma\Rigs\2025-07-03-NP1-gammalut.bmp</GammaLut>
@@ -433,15 +384,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="gl:Delay">
-          <gl:DueTime>PT10S</gl:DueTime>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="ExternalizedMapping">
-        <Property Name="DueTime" DisplayName="GrayScreenDelay" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="gl:Delay">
-          <gl:DueTime>PT10S</gl:DueTime>
+          <gl:DueTime>PT15S</gl:DueTime>
         </Combinator>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
@@ -469,7 +412,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Delay">
-          <rx:DueTime>PT15S</rx:DueTime>
+          <rx:DueTime>PT1M45S</rx:DueTime>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -485,6 +428,9 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       </Expression>
       <Expression xsi:type="rx:PublishSubject">
         <Name>EndExpt</Name>
+      </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>ListGratings</Name>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Take">
@@ -589,7 +535,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
         <Append>false</Append>
         <Overwrite>true</Overwrite>
         <Suffix>None</Suffix>
-        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250903T175641/orientations_logger.csv</FileName>
+        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250909T163931/orientations_logger.csv</FileName>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
         <Format>Frame</Format>
@@ -627,7 +573,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
         <Text><![CDATA[]]></Text>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250903T175641/orientations_orientations.csv</io:FileName>
+        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250909T163931/orientations_orientations.csv</io:FileName>
         <io:Append>true</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>FileCount</io:Suffix>
@@ -878,70 +824,65 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       <Edge From="25" To="26" Label="Source1" />
       <Edge From="26" To="27" Label="Source1" />
       <Edge From="27" To="28" Label="Source1" />
-      <Edge From="28" To="30" Label="Source1" />
-      <Edge From="29" To="30" Label="Source2" />
-      <Edge From="30" To="31" Label="Source1" />
-      <Edge From="32" To="33" Label="Source1" />
-      <Edge From="33" To="36" Label="Source1" />
+      <Edge From="29" To="30" Label="Source1" />
+      <Edge From="30" To="33" Label="Source1" />
+      <Edge From="31" To="32" Label="Source1" />
+      <Edge From="32" To="33" Label="Source2" />
+      <Edge From="33" To="34" Label="Source1" />
       <Edge From="34" To="35" Label="Source1" />
-      <Edge From="35" To="36" Label="Source2" />
-      <Edge From="36" To="37" Label="Source1" />
-      <Edge From="37" To="38" Label="Source1" />
-      <Edge From="38" To="39" Label="Source1" />
-      <Edge From="39" To="41" Label="Source1" />
-      <Edge From="40" To="41" Label="Source2" />
-      <Edge From="41" To="43" Label="Source1" />
-      <Edge From="41" To="54" Label="Source1" />
-      <Edge From="42" To="43" Label="Source2" />
-      <Edge From="43" To="46" Label="Source1" />
-      <Edge From="44" To="45" Label="Source1" />
-      <Edge From="45" To="46" Label="Source3" />
+      <Edge From="35" To="36" Label="Source1" />
+      <Edge From="36" To="38" Label="Source1" />
+      <Edge From="37" To="38" Label="Source2" />
+      <Edge From="38" To="41" Label="Source1" />
+      <Edge From="39" To="40" Label="Source1" />
+      <Edge From="40" To="41" Label="Source3" />
+      <Edge From="41" To="42" Label="Source1" />
+      <Edge From="41" To="45" Label="Source1" />
+      <Edge From="42" To="44" Label="Source1" />
+      <Edge From="43" To="44" Label="Source2" />
+      <Edge From="44" To="45" Label="Source2" />
+      <Edge From="45" To="46" Label="Source1" />
       <Edge From="46" To="47" Label="Source1" />
-      <Edge From="46" To="50" Label="Source1" />
-      <Edge From="47" To="49" Label="Source1" />
-      <Edge From="48" To="49" Label="Source2" />
-      <Edge From="49" To="50" Label="Source2" />
+      <Edge From="47" To="48" Label="Source1" />
+      <Edge From="49" To="50" Label="Source1" />
       <Edge From="50" To="51" Label="Source1" />
       <Edge From="51" To="52" Label="Source1" />
-      <Edge From="52" To="53" Label="Source1" />
-      <Edge From="54" To="55" Label="Source1" />
-      <Edge From="55" To="56" Label="Source1" />
+      <Edge From="53" To="54" Label="Source1" />
+      <Edge From="54" To="56" Label="Source1" />
+      <Edge From="55" To="56" Label="Source2" />
+      <Edge From="56" To="57" Label="Source1" />
       <Edge From="57" To="58" Label="Source1" />
-      <Edge From="58" To="60" Label="Source1" />
-      <Edge From="59" To="60" Label="Source2" />
-      <Edge From="60" To="61" Label="Source1" />
-      <Edge From="61" To="62" Label="Source1" />
+      <Edge From="58" To="59" Label="Source1" />
+      <Edge From="59" To="61" Label="Source1" />
+      <Edge From="60" To="61" Label="Source2" />
+      <Edge From="61" To="66" Label="Source1" />
       <Edge From="62" To="63" Label="Source1" />
-      <Edge From="63" To="65" Label="Source1" />
-      <Edge From="64" To="65" Label="Source2" />
-      <Edge From="65" To="70" Label="Source1" />
+      <Edge From="63" To="66" Label="Source2" />
+      <Edge From="64" To="65" Label="Source1" />
+      <Edge From="65" To="66" Label="Source3" />
       <Edge From="66" To="67" Label="Source1" />
-      <Edge From="67" To="70" Label="Source2" />
+      <Edge From="67" To="68" Label="Source1" />
       <Edge From="68" To="69" Label="Source1" />
-      <Edge From="69" To="70" Label="Source3" />
-      <Edge From="70" To="71" Label="Source1" />
-      <Edge From="71" To="72" Label="Source1" />
+      <Edge From="69" To="70" Label="Source1" />
+      <Edge From="71" To="75" Label="Source1" />
       <Edge From="72" To="73" Label="Source1" />
       <Edge From="73" To="74" Label="Source1" />
-      <Edge From="75" To="79" Label="Source1" />
-      <Edge From="76" To="77" Label="Source1" />
+      <Edge From="74" To="75" Label="Source2" />
+      <Edge From="75" To="76" Label="Source1" />
+      <Edge From="76" To="79" Label="Source1" />
       <Edge From="77" To="78" Label="Source1" />
       <Edge From="78" To="79" Label="Source2" />
-      <Edge From="79" To="80" Label="Source1" />
-      <Edge From="80" To="83" Label="Source1" />
+      <Edge From="80" To="85" Label="Source1" />
       <Edge From="81" To="82" Label="Source1" />
-      <Edge From="82" To="83" Label="Source2" />
-      <Edge From="84" To="89" Label="Source1" />
-      <Edge From="85" To="86" Label="Source1" />
+      <Edge From="82" To="83" Label="Source1" />
+      <Edge From="83" To="85" Label="Source2" />
+      <Edge From="84" To="85" Label="Source3" />
       <Edge From="86" To="87" Label="Source1" />
-      <Edge From="87" To="89" Label="Source2" />
-      <Edge From="88" To="89" Label="Source3" />
+      <Edge From="87" To="88" Label="Source1" />
+      <Edge From="88" To="89" Label="Source1" />
       <Edge From="90" To="91" Label="Source1" />
       <Edge From="91" To="92" Label="Source1" />
       <Edge From="92" To="93" Label="Source1" />
-      <Edge From="94" To="95" Label="Source1" />
-      <Edge From="95" To="96" Label="Source1" />
-      <Edge From="96" To="97" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
