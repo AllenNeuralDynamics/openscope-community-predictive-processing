@@ -1613,9 +1613,6 @@ class BonsaiExperiment(object):
             'Photodiode_ExtentY', 
             'Photodiode_LocationX',
             'Photodiode_LocationY',
-            'norm_screen_bluecolor',
-            'norm_screen_greencolor',
-            'norm_screen_redcolor',
             'WheelRadiusOverScreenRatio',
             'MotorCouplingCPD',
         ]
