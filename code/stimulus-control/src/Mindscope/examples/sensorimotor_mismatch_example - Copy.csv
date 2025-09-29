@@ -1,0 +1,8 @@
+Block_Number,Block_Label,Block_Duration_Minutes,Trial_Number,Sequence_Number,Trial_In_Sequence,Contrast,Delay,DiameterX,DiameterY,Duration,Orientation,Spatial_Frequency,Temporal_Frequency,X,Y,Phase,Trial_Type,Block_Type
+0,natural_movie_TOE_1_1,6.4,1,0,0,1,0,120,95,2,0,0,2,0,0,0,single,movie
+1,Control block 1.1,6.4,1,0,0,1,0.343,360,360,0.343,45,0.04,2,0,0,0,single,standard_control
+0,natural_movie_TOE_1_1,6.4,2,0,0,1,0,120,95,4,0,0,2,0,0,0,single,movie
+1,Control block 1.1,6.4,2,0,0,1,0.343,360,360,0.343,45,0.04,2,0,0,0,single,standard_control
+1,Control block 1.1,6.4,3,0,0,1,0.343,360,360,0.343,247.5,0.04,2,0,0,0,single,standard_control
+1,Control block 1.1,6.4,4,0,0,1,0.343,360,360,0.343,90,0.04,2,0,0,0,single,standard_control
+1,Control block 1.1,6.4,5,0,0,1,0.343,360,360,0.343,45,0.04,2,0,0,0,single,standard_control
