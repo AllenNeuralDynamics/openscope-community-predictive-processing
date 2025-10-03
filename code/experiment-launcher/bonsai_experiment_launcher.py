@@ -771,9 +771,9 @@ class BonsaiExperiment(object):
         Returns:
             dict: CAMSTIM-compatible stimulus object
         """
-        # Extract unique parameter names (dimnames)
-        param_columns = ['Orientation', 'SpatialFrequency', 'TemporalFrequency', 
-                        'Contrast', 'Phase', 'Diameter', 'X', 'Y', 'Duration', 'Delay']
+        # Extract unique parameter names (dimnames) - migrated to explicit X/Y diameters only
+        param_columns = ['Orientation', 'SpatialFrequency', 'TemporalFrequency',
+                         'Contrast', 'Phase', 'DiameterX', 'DiameterY', 'X', 'Y', 'Duration', 'Delay']
         dimnames = []
         
         # Check which parameters are present in the data
