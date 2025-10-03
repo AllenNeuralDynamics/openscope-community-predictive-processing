@@ -31,7 +31,7 @@ import sys
 
 # Standard column order for all CSV files
 STANDARD_FIELDNAMES = [
-    'Contrast', 'Delay', 'Diameter', 'Duration', 'Orientation', 
+    'Contrast', 'Delay', 'DiameterX', 'DiameterY', 'Duration', 'Orientation', 
     'Spatial_Frequency', 'Temporal_Frequency', 'X', 'Y', 
     'Phase', 'Trial_Type', 'Block_Type'
 ]
@@ -43,7 +43,8 @@ DEFAULT_STIMULUS_SIZE = 360  # degrees (full field)
 DEFAULT_PARAMS = {
     'Contrast': 1,
     'Delay': 0.343,
-    'Diameter': DEFAULT_STIMULUS_SIZE,  # Full field stimulus
+    'DiameterX': DEFAULT_STIMULUS_SIZE,  # Full field horizontal extent
+    'DiameterY': DEFAULT_STIMULUS_SIZE,  # Full field vertical extent
     'Duration': 0.343,
     'Orientation': 0,  # degrees
     'Spatial_Frequency': 0.04,
@@ -59,7 +60,8 @@ DEFAULT_PARAMS = {
 SEQUENTIAL_PARAMS = {
     'Contrast': 1,
     'Delay': 0,  # 0 delay for sequential
-    'Diameter': DEFAULT_STIMULUS_SIZE,  # Full field stimulus
+    'DiameterX': DEFAULT_STIMULUS_SIZE,  # Full field horizontal extent
+    'DiameterY': DEFAULT_STIMULUS_SIZE,  # Full field vertical extent
     'Duration': 0.250,  # 250ms duration
     'Orientation': 0,  # will be overridden
     'Spatial_Frequency': 0.04,
@@ -389,7 +391,8 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
                 trial['Orientation'] = orientation
                 trial['Trial_Type'] = 'single'
                 trial['Block_Type'] = 'standard_control'
-                trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+                trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
                 all_trials_pool.append(trial)
         
         # Add omission trials (same number of repeats)
@@ -398,7 +401,8 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
             trial['Contrast'] = 0
             trial['Trial_Type'] = 'omission'
             trial['Block_Type'] = 'standard_control'
-            trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
             all_trials_pool.append(trial)
         
         # Add halt trials (same number of repeats)
@@ -407,7 +411,8 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
             trial['Temporal_Frequency'] = 0
             trial['Trial_Type'] = 'halt'
             trial['Block_Type'] = 'standard_control'
-            trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
             all_trials_pool.append(trial)
         
         # Shuffle all trials
@@ -423,7 +428,8 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
             for _ in range(n_repeats):
                 trial = DEFAULT_PARAMS.copy()
                 trial['Duration'] = duration
-                trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+                trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
                 trial['Trial_Type'] = 'single'
                 trial['Block_Type'] = 'jitter_control'
                 trials.append(trial)
@@ -466,7 +472,8 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
             trial = {
                 'Contrast': 1,
                 'Delay': 0,
-                'Diameter': DEFAULT_STIMULUS_SIZE,
+                'DiameterX': DEFAULT_STIMULUS_SIZE,
+                'DiameterY': DEFAULT_STIMULUS_SIZE,
                 'Duration': grating_duration,  # 33.33ms for 30Hz grating updates
                 'Orientation': int(final_orientation),
                 'Spatial_Frequency': 0.04,
@@ -500,7 +507,8 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
                 trial['Orientation'] = orientation
                 trial['Trial_Type'] = 'single'
                 trial['Block_Type'] = 'sequential_control_block'
-                trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+                trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
                 all_trials_pool.append(trial)
         
         # Add omission trials (70 repeats)
@@ -509,7 +517,8 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
             trial['Contrast'] = 0
             trial['Trial_Type'] = 'omission'
             trial['Block_Type'] = 'sequential_control_block'
-            trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
             all_trials_pool.append(trial)
         
         # Add halt trials (70 repeats)
@@ -518,7 +527,8 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
             trial['Temporal_Frequency'] = 0
             trial['Trial_Type'] = 'halt'
             trial['Block_Type'] = 'sequential_control_block'
-            trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
             all_trials_pool.append(trial)
         
         # Shuffle all trials
@@ -537,7 +547,8 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
             # Generate 5 trials per sequence (4 gratings + 1 omission)
             for trial_in_seq in range(5):
                 trial = SEQUENTIAL_PARAMS.copy()
-                trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+                trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
                 trial['Block_Type'] = 'sequential_long'
                 
                 if trial_in_seq == 4:  # Last trial is sequence omission (not oddball)
@@ -565,7 +576,8 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
                 trial = {
                     'Contrast': 1,
                     'Delay': 0,
-                    'Diameter': DEFAULT_STIMULUS_SIZE,
+                    'DiameterX': DEFAULT_STIMULUS_SIZE,
+                    'DiameterY': DEFAULT_STIMULUS_SIZE,
                     'Duration': grating_duration,  # 33.33ms for 30Hz grating updates
                     'Orientation': 0,
                     'Spatial_Frequency': 0.04,
@@ -597,7 +609,8 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
                     trial = {
                         'Contrast': contrast,
                         'Delay': 0.0,  # No ISI (blank_length=0.0)
-                        'Diameter': size,
+                        'DiameterX': size,
+                        'DiameterY': size,
                         'Duration': sweep_length,
                         'Orientation': orientation,
                         'Spatial_Frequency': spatial_frequency,
@@ -643,7 +656,8 @@ def generate_oddball_block_trials(block_type, duration_minutes, oddball_config, 
         # Add standard trials
         for _ in range(n_standards):
             trial = DEFAULT_PARAMS.copy()
-            trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
             trial['Trial_Type'] = 'standard'
             trial['Block_Type'] = 'standard_oddball'
             trials.append(trial)
@@ -657,7 +671,8 @@ def generate_oddball_block_trials(block_type, duration_minutes, oddball_config, 
                 for _ in range(n_oddballs):
                     trial = DEFAULT_PARAMS.copy()
                     trial.update(oddball_params)
-                    trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                    trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+                    trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
                     trial['Block_Type'] = 'standard_oddball'
                     trials.append(trial)
     
@@ -673,7 +688,8 @@ def generate_oddball_block_trials(block_type, duration_minutes, oddball_config, 
         # Add standard trials (using jitter context)
         for _ in range(n_standards):
             trial = DEFAULT_PARAMS.copy()
-            trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
             trial['Trial_Type'] = 'standard'
             trial['Block_Type'] = 'jitter_oddball'
             trials.append(trial)
@@ -687,7 +703,8 @@ def generate_oddball_block_trials(block_type, duration_minutes, oddball_config, 
                 for _ in range(n_oddballs):
                     trial = DEFAULT_PARAMS.copy()
                     trial.update(oddball_params)
-                    trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                    trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+                    trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
                     trial['Block_Type'] = 'jitter_oddball'
                     trials.append(trial)
     
@@ -732,7 +749,8 @@ def generate_oddball_block_trials(block_type, duration_minutes, oddball_config, 
             # Generate 5 trials per sequence
             for trial_pos, orientation in enumerate(sequence):
                 trial = SEQUENTIAL_PARAMS.copy()
-                trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+                trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+                trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
                 trial['Block_Type'] = 'sequential_oddball'
                 
                 if orientation == -1:  # halt
@@ -763,7 +781,8 @@ def generate_oddball_block_trials(block_type, duration_minutes, oddball_config, 
             omission_trial['Contrast'] = 0
             omission_trial['Trial_Type'] = 'sequence_omission'  # Different from oddball omission
             omission_trial['Block_Type'] = 'sequential_oddball'
-            omission_trial['Diameter'] = DEFAULT_STIMULUS_SIZE
+            omission_trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+            omission_trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
             trials.append(omission_trial)
     
     return trials
@@ -805,7 +824,8 @@ def generate_motor_block_trials(block_type, duration_minutes, oddball_config, va
                 trial = {
                     'Contrast': 1,
                     'Delay': 0,
-                    'Diameter': DEFAULT_STIMULUS_SIZE,
+                    'DiameterX': DEFAULT_STIMULUS_SIZE,
+                    'DiameterY': DEFAULT_STIMULUS_SIZE,
                     'Duration': grating_duration,  # 33.33ms for 30Hz grating updates
                     'Orientation': 0,
                     'Spatial_Frequency': 0.04,
@@ -861,7 +881,8 @@ def generate_motor_block_trials(block_type, duration_minutes, oddball_config, va
                 trial = {
                     'Contrast': oddball_params.get('Contrast', 1),
                     'Delay': 0,
-                    'Diameter': DEFAULT_STIMULUS_SIZE,
+                    'DiameterX': DEFAULT_STIMULUS_SIZE,
+                    'DiameterY': DEFAULT_STIMULUS_SIZE,
                     'Duration': 0.343,  # Oddball duration
                     'Orientation': oddball_params.get('Orientation', 0),
                     'Spatial_Frequency': 0.04,
@@ -882,7 +903,8 @@ def generate_motor_block_trials(block_type, duration_minutes, oddball_config, va
                     trial = {
                         'Contrast': 1,
                         'Delay': 0,
-                        'Diameter': DEFAULT_STIMULUS_SIZE,
+                        'DiameterX': DEFAULT_STIMULUS_SIZE,
+                        'DiameterY': DEFAULT_STIMULUS_SIZE,
                         'Duration': grating_duration,  # 33.33ms for 30Hz grating updates
                         'Orientation': 0,
                         'Spatial_Frequency': 0.04,
