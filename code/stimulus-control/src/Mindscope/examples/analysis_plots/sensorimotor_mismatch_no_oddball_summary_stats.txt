@@ -1,10 +1,10 @@
 STIMULUS TABLE ANALYSIS SUMMARY
 ==================================================
 Session Type: Sensorimotor Mismatch No Oddball
-Total Trials: 63514
-Total Blocks: 7
+Total Trials: 62302
+Total Blocks: 9
 
-Total Session Duration: 66.3 minutes (1.1 hours)
+Total Session Duration: 71.3 minutes (1.2 hours)
 
 BLOCK BREAKDOWN:
 ------------------------------
@@ -54,27 +54,49 @@ Block 6: Control block 4
   Duration: 6.4 minutes
   Trials: 11520
   Trial Types:
-    prerecorded: 11520 (100.0%)
+    prerecorded: 11488 (99.7%)
+    motor_omission: 8 (0.1%)
+    motor_halt: 8 (0.1%)
+    motor_orientation_45: 8 (0.1%)
+    motor_orientation_90: 8 (0.1%)
 
-Block 7: RF mapping
-  Type: rf_mapping
-  Duration: 10.0 minutes
-  Trials: 2430
+Block 7: Trippy
+  Type: movie
+  Duration: 5.0 minutes
+  Trials: 2
   Trial Types:
-    rf_mapping: 2430 (100.0%)
+    single: 2 (100.0%)
+
+Block 8: Zebra
+  Type: movie
+  Duration: 5.0 minutes
+  Trials: 1
+  Trial Types:
+    single: 1 (100.0%)
+
+Block 9: RF mapping
+  Type: rf_mapping
+  Duration: 5.0 minutes
+  Trials: 1215
+  Trial Types:
+    rf_mapping: 1215 (100.0%)
 
 OVERALL TRIAL TYPE STATISTICS:
 -----------------------------------
-standard: 46800 trials (73.7%)
-prerecorded: 11520 trials (18.1%)
-single: 2488 trials (3.9%)
-rf_mapping: 2430 trials (3.8%)
+standard: 46800 trials (75.1%)
+prerecorded: 11488 trials (18.4%)
+single: 2491 trials (4.0%)
+rf_mapping: 1215 trials (2.0%)
 omission: 138 trials (0.2%)
 halt: 138 trials (0.2%)
+motor_omission: 8 trials (0.0%)
+motor_halt: 8 trials (0.0%)
+motor_orientation_45: 8 trials (0.0%)
+motor_orientation_90: 8 trials (0.0%)
 
 ODDBALL ANALYSIS:
 --------------------
 Total Oddball Events: 276
 halt: 138 events (0.2% of all trials)
 omission: 138 events (0.2% of all trials)
-Oddball Rate: 4.2 events per minute
+Oddball Rate: 3.9 events per minute

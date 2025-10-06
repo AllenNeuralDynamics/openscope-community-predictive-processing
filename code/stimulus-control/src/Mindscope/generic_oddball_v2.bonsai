@@ -54,7 +54,7 @@
         <Combinator xsi:type="gl:TextureResources">
           <gl:Textures>
             <gl:TextureConfiguration xsi:type="gl:VideoTexture">
-              <gl:Name>natural_movie_TOE_1_1</gl:Name>
+              <gl:Name>zebra</gl:Name>
               <gl:Width xsi:nil="true" />
               <gl:Height xsi:nil="true" />
               <gl:InternalFormat>Rgba</gl:InternalFormat>
@@ -62,7 +62,7 @@
               <gl:WrapT>Repeat</gl:WrapT>
               <gl:MinFilter>Linear</gl:MinFilter>
               <gl:MagFilter>Linear</gl:MagFilter>
-              <gl:FileName>movies\natural_movie_TOE_1_1.mp4</gl:FileName>
+              <gl:FileName>movies\zebra_allen_screen_tscale_30_scale_10.mp4</gl:FileName>
               <gl:FlipMode>Vertical</gl:FlipMode>
               <gl:FrameCount xsi:nil="true" />
               <gl:StartPosition>0</gl:StartPosition>
@@ -334,7 +334,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>C:\BonsaiDataPredictiveProcessingTest\openscope-community-predictive-processing\code\stimulus-control\src\Mindscope\examples\sensorimotor_mismatch_example - Copy.csv</Value>
+          <Value>C:\BonsaiDataPredictiveProcessingTest\openscope-community-predictive-processing\tmp\test_short.csv</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -365,7 +365,7 @@
               </PropertyMappings>
             </Expression>
             <Expression xsi:type="io:CsvReader">
-              <io:FileName>C:\BonsaiDataPredictiveProcessingTest\openscope-community-predictive-processing\code\stimulus-control\src\Mindscope\examples\sensorimotor_mismatch_example - Copy.csv</io:FileName>
+              <io:FileName>C:\BonsaiDataPredictiveProcessingTest\openscope-community-predictive-processing\tmp\test_short.csv</io:FileName>
               <io:ListSeparator>,</io:ListSeparator>
               <io:SkipRows>1</io:SkipRows>
             </Expression>
@@ -483,8 +483,8 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
                           </PropertyMappings>
                         </Expression>
                         <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawVideo.bonsai">
-                          <TextureName>natural_movie_TOE_1_1</TextureName>
-                          <PlaybackRate>60</PlaybackRate>
+                          <TextureName>zebra</TextureName>
+                          <PlaybackRate>30</PlaybackRate>
                           <Loop>false</Loop>
                           <Angle>0</Angle>
                           <ExtentX>120</ExtentX>
@@ -515,7 +515,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
                         </Expression>
                         <Expression xsi:type="Combinator">
                           <Combinator xsi:type="gl:Timer">
-                            <gl:DueTime>PT4S</gl:DueTime>
+                            <gl:DueTime>PT15S</gl:DueTime>
                           </Combinator>
                         </Expression>
                         <Expression xsi:type="Combinator">
@@ -732,17 +732,17 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
                           </PropertyMappings>
                         </Expression>
                         <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawGratings.bonsai">
-                          <LocationX>0</LocationX>
-                          <LocationY>0</LocationY>
+                          <LocationX>-40</LocationX>
+                          <LocationY>20</LocationY>
                           <Layer>0</Layer>
-                          <ExtentX>360</ExtentX>
-                          <ExtentY>360</ExtentY>
-                          <SpatialFrequency>0.04</SpatialFrequency>
-                          <TemporalFrequency>2</TemporalFrequency>
+                          <ExtentX>20</ExtentX>
+                          <ExtentY>20</ExtentY>
+                          <SpatialFrequency>0.08</SpatialFrequency>
+                          <TemporalFrequency>4</TemporalFrequency>
                           <Phase>0</Phase>
-                          <Angle>45</Angle>
+                          <Angle>90</Angle>
                           <SquareWave>false</SquareWave>
-                          <Contrast>1</Contrast>
+                          <Contrast>0.8</Contrast>
                           <DutyCycle xsi:nil="true" />
                           <Radius>1</Radius>
                           <Aperture>0</Aperture>
@@ -761,7 +761,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
                         </Expression>
                         <Expression xsi:type="Combinator">
                           <Combinator xsi:type="gl:Timer">
-                            <gl:DueTime>PT0.343S</gl:DueTime>
+                            <gl:DueTime>PT0.25S</gl:DueTime>
                           </Combinator>
                         </Expression>
                         <Expression xsi:type="Combinator">
@@ -794,7 +794,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
                         </Expression>
                         <Expression xsi:type="Combinator">
                           <Combinator xsi:type="gl:Timer">
-                            <gl:DueTime>PT0.343S</gl:DueTime>
+                            <gl:DueTime>PT0S</gl:DueTime>
                           </Combinator>
                         </Expression>
                         <Expression xsi:type="SubscribeSubject">
@@ -960,7 +960,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Delay">
-          <rx:DueTime>PT1M45S</rx:DueTime>
+          <rx:DueTime>PT10M45S</rx:DueTime>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -1083,7 +1083,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
         <Append>false</Append>
         <Overwrite>true</Overwrite>
         <Suffix>None</Suffix>
-        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250925T172738/orientations_logger.csv</FileName>
+        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251005T204244/orientations_logger.csv</FileName>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
         <Format>Frame</Format>
@@ -1121,7 +1121,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
         <Text><![CDATA[]]></Text>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250925T172738/orientations_orientations.csv</io:FileName>
+        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251005T204244/orientations_orientations.csv</io:FileName>
         <io:Append>true</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>FileCount</io:Suffix>

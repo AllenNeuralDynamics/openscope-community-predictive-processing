@@ -31,9 +31,194 @@ import shutil  # Added for directory operations
 import argparse
 import mpeconfig
 import json
+from copy import deepcopy  # for opto params mirroring reference.py usage
+import numpy as np  # needed for inlined reference opto-tagging code
+import pickle as pkl  # alias required by reference optotagging() implementation
+import re
+
+# Inlined opto-tagging helpers (previously from opto_tagging.py) to avoid external file dependency on rigs
+# These provide optional end-of-session optogenetic stimulation when run_opto_tagging param is true.
+# All code is Python 2.7 compatible; hardware modules are imported lazily.
+
+def run_optotagging(levels, conditions, waveforms, isis, sampleRate = 10000.):
+
+    from toolbox.IO.nidaq import AnalogOutput
+    from toolbox.IO.nidaq import DigitalOutput
+
+    sweep_on = np.array([0,0,1,0,0,0,0,0], dtype=np.uint8)
+    stim_on = np.array([0,0,1,1,0,0,0,0], dtype=np.uint8)
+    stim_off = np.array([0,0,1,0,0,0,0,0], dtype=np.uint8)
+    sweep_off = np.array([0,0,0,0,0,0,0,0], dtype=np.uint8)
+
+    ao = AnalogOutput('Dev1', channels=[1])
+    ao.cfg_sample_clock(sampleRate)
+
+    do = DigitalOutput('Dev1', 2)
+
+    do.start()
+    ao.start()
+
+    do.write(sweep_on)
+    time.sleep(5)
+
+    for i, level in enumerate(levels):
+
+        print(level)
+
+        data = waveforms[conditions[i]]
+
+        do.write(stim_on)
+        ao.write(data * level)
+        do.write(stim_off)
+        time.sleep(isis[i])
+
+    do.write(sweep_off)
+    do.clear()
+    ao.clear()
+
+def generatePulseTrain(pulseWidth, pulseInterval, numRepeats, riseTime, sampleRate = 10000.):
+
+    data = np.zeros((int(sampleRate),), dtype=np.float64)
+   # rise_samples =
+
+    rise_and_fall = (((1 - np.cos(np.arange(sampleRate*riseTime/1000., dtype=np.float64)*2*np.pi/10))+1)-1)/2
+    half_length = int(rise_and_fall.size / 2)
+    rise = rise_and_fall[:half_length]
+    fall = rise_and_fall[half_length:]
+
+    peak_samples = int(sampleRate*(pulseWidth-riseTime*2)/1000)
+    peak = np.ones((peak_samples,))
+
+    pulse = np.concatenate((rise, \
+                           peak, \
+                           fall))
+
+    interval = int(pulseInterval*sampleRate/1000.)
+
+    for i in range(0, numRepeats):
+        data[i*interval:i*interval+pulse.size] = pulse
+
+    return data
+
+def optotagging(mouse_id, operation_mode='experiment', level_list = [1.15, 1.28, 1.345], output_dir = 'C:/ProgramData/camstim/output/'):
+
+    sampleRate = 10000
+
+    # 1 s cosine ramp:
+    data_cosine = (((1 - np.cos(np.arange(sampleRate, dtype=np.float64)
+                                * 2*np.pi/sampleRate)) + 1) - 1)/2  # create raised cosine waveform
+
+    # 1 ms cosine ramp:
+    rise_and_fall = (
+        ((1 - np.cos(np.arange(sampleRate*0.001, dtype=np.float64)*2*np.pi/10))+1)-1)/2
+    half_length = int(rise_and_fall.size / 2)
+
+    # pulses with cosine ramp:
+    pulse_2ms = np.concatenate((rise_and_fall[:half_length], np.ones(
+        (int(sampleRate*0.001),)), rise_and_fall[half_length:]))
+    pulse_5ms = np.concatenate((rise_and_fall[:half_length], np.ones(
+        (int(sampleRate*0.004),)), rise_and_fall[half_length:]))
+    pulse_10ms = np.concatenate((rise_and_fall[:half_length], np.ones(
+        (int(sampleRate*0.009),)), rise_and_fall[half_length:]))
+
+    data_2ms_10Hz = np.zeros((sampleRate,), dtype=np.float64)
+
+    for i in range(0, 10):
+        interval = int(sampleRate / 10)
+        data_2ms_10Hz[i*interval:i*interval+pulse_2ms.size] = pulse_2ms
+
+    data_5ms = np.zeros((sampleRate,), dtype=np.float64)
+    data_5ms[:pulse_5ms.size] = pulse_5ms
+
+    data_10ms = np.zeros((sampleRate,), dtype=np.float64)
+    data_10ms[:pulse_10ms.size] = pulse_10ms
+
+    data_10s = np.zeros((sampleRate*10,), dtype=np.float64)
+    data_10s[:-2] = 1
+
+    ##### THESE STIMULI ADDED FOR OPENSCOPE GLO PROJECT #####
+    data_10ms_5Hz = generatePulseTrain(10, 200, 5, 1) # 1 second of 5Hz pulse train. Each pulse is 10 ms wide
+    data_6ms_40Hz = generatePulseTrain(6, 25, 40, 1)  # 1 second of 40 Hz pulse train. Each pulse is 6 ms wide
+    #########################################################
+
+    # for experiment
+
+    isi = 1.5
+    isi_rand = 0.5
+    numRepeats = 50
+
+    condition_list = [3, 4, 5]
+    waveforms = [data_2ms_10Hz, data_5ms, data_10ms, data_cosine, data_10ms_5Hz, data_6ms_40Hz]
+
+    opto_levels = np.array(level_list*numRepeats*len(condition_list)) #     BLUE
+    opto_conditions = condition_list*numRepeats*len(level_list)
+    opto_conditions = np.sort(opto_conditions)
+    opto_isis = np.random.random(opto_levels.shape) * isi_rand + isi
+
+    p = np.random.permutation(len(opto_levels))
+
+    # implement shuffle?
+    opto_levels = opto_levels[p]
+    opto_conditions = opto_conditions[p]
+
+    # for testing
+
+    if operation_mode=='test_levels':
+        isi = 2.0
+        isi_rand = 0.0
+
+        numRepeats = 2
+
+        condition_list = [0]
+        waveforms = [data_10s, data_10s]
+
+        opto_levels = np.array(level_list*numRepeats*len(condition_list)) #     BLUE
+        opto_conditions = condition_list*numRepeats*len(level_list)
+        opto_conditions = np.sort(opto_conditions)
+        opto_isis = np.random.random(opto_levels.shape) * isi_rand + isi
+
+    elif operation_mode=='pretest':
+        numRepeats = 1
+
+        condition_list = [0]
+        data_2s = data_10s[-sampleRate*2:]
+        waveforms = [data_2s]
+
+        opto_levels = np.array(level_list*numRepeats*len(condition_list)) #     BLUE
+        opto_conditions = condition_list*numRepeats*len(level_list)
+        opto_conditions = np.sort(opto_conditions)
+        opto_isis = [1]*len(opto_conditions)
+    #
+
+    outputDirectory = output_dir
+    fileDate = str(datetime.datetime.now()).replace(':', '').replace(
+        '.', '').replace('-', '').replace(' ', '')[2:14]
+    fileName = os.path.join(outputDirectory, fileDate + '_'+mouse_id + '.opto.pkl')
+
+    print('saving info to: ' + fileName)
+    fl = open(fileName, 'wb')
+    output = {}
+
+    output['opto_levels'] = opto_levels
+    output['opto_conditions'] = opto_conditions
+    output['opto_ISIs'] = opto_isis
+    output['opto_waveforms'] = waveforms
+
+    pkl.dump(output, fl)
+    fl.close()
+    print('saved.')
+
+    #
+    run_optotagging(opto_levels, opto_conditions,
+                    waveforms, opto_isis, float(sampleRate))
+"""
+end of optotagging section
+"""
+
 import stat
 import csv
 import numpy as np
+import pickle  # used by inlined opto protocol writer
 
 import win32job
 import win32api
@@ -1005,6 +1190,150 @@ class BonsaiExperiment(object):
         except Exception as e:
             logging.warning("Could not read logger file to determine total_frames: %s" % e)
             return 0
+
+    # ---------------- Wheel / Digital Encoder Reconstruction (from Bonsai logger) ---------------- #
+    def _fallback_encoder(self, total_frames):
+        n = int(total_frames) if total_frames and total_frames > 0 else 0
+        dx = np.zeros(n, dtype=np.float32)
+        vin = np.full(n, 5.0, dtype=np.float32)
+        vsig = np.zeros(n, dtype=np.float32)
+        return [{
+            'dx': dx,
+            'gain': 1.0,
+            'items': {},
+            'unpickleable': [],
+            'value': 0.0,
+            'vin': vin,
+            'vsig': vsig,
+            'analog_encoder': False
+        }]
+
+    def _reconstruct_encoder_from_logger(self, logger_rows, total_frames):
+        """Reconstruct CAMSTIM-style encoder data from Bonsai logger rows.
+
+        Wheel event format example Value field:
+            'Wheel-Index-42793322-Count-4785-Deg-210.2783203125'
+
+        We parse per-frame events, derive per-frame dtheta (dx) using logic similar
+        to DigitalBehaviorEncoder, propagate last values for frames without events,
+        and compute derived vsig and optional distance.
+        """
+        if not logger_rows:
+            logging.warning("No logger rows provided for encoder reconstruction; using fallback.")
+            return self._fallback_encoder(total_frames)
+
+        wheel_pattern = re.compile(r'^Wheel-Index-(\d+)-Count-(\d+)-Deg-([0-9eE+\.-]+)$')
+        events_by_frame = {}
+        max_frame = 0
+        for row in logger_rows:
+            try:
+                frame = int(row.get('Frame', '0'))
+                if frame > max_frame:
+                    max_frame = frame
+                val = row.get('Value', '')
+                m = wheel_pattern.match(val)
+                if m:
+                    idx = int(m.group(1))
+                    count = int(m.group(2))
+                    deg = float(m.group(3))
+                    events_by_frame[frame] = {'index': idx, 'count': count, 'deg': deg}
+            except Exception:
+                continue
+
+        if not events_by_frame:
+            logging.warning("No wheel events found in logger; using fallback encoder structure.")
+            return self._fallback_encoder(total_frames)
+
+        # Determine number of frames to allocate
+        n_frames = int(max_frame) + 1
+        if total_frames and total_frames > n_frames:
+            n_frames = int(total_frames)
+
+        dx = np.zeros(n_frames, dtype=np.float32)
+        degrees = np.zeros(n_frames, dtype=np.float64)
+        counts = np.zeros(n_frames, dtype=np.float32)
+        timestamps = np.zeros(n_frames, dtype=np.float32)
+
+        last_deg = None
+        last_index = None
+        last_dtheta = 0.0
+
+        # For timestamps, build map first
+        frame_time = {}
+        for row in logger_rows:
+            try:
+                f = int(row.get('Frame', '0'))
+                if f not in frame_time:
+                    frame_time[f] = float(row.get('Timestamp', '0'))
+            except Exception:
+                pass
+
+        for f in range(n_frames):
+            evt = events_by_frame.get(f)
+            if evt:
+                idx = evt['index']
+                deg = evt['deg']
+                if last_deg is None or last_index is None:
+                    dtheta = 0.0
+                else:
+                    if idx == last_index:
+                        dtheta = last_dtheta  # reuse
+                    else:
+                        try:
+                            dtheta = (deg - last_deg) / (idx - last_index)
+                        except ZeroDivisionError:
+                            dtheta = 0.0
+                last_dtheta = dtheta
+                last_deg = deg
+                last_index = idx
+                degrees[f] = deg
+                dx[f] = dtheta
+                counts[f] = evt['count']
+            else:
+                # propagate degree by integrating last_dtheta
+                if f > 0:
+                    degrees[f] = degrees[f-1] + last_dtheta
+                    counts[f] = counts[f-1]
+                else:
+                    degrees[f] = 0.0
+                    counts[f] = 0.0
+                dx[f] = last_dtheta
+            timestamps[f] = frame_time.get(f, timestamps[f-1] if f > 0 else 0.0)
+
+        # If some degrees slots remain zero but we had last_deg set, retroactively fill preceding frames
+        # (Not strictly necessary; we already integrate above.)
+
+        # Compute vsig & vin
+        vsig = (degrees % 360.0) * (5.0 / 360.0)
+        vin = np.full(n_frames, 5.0, dtype=np.float32)
+
+        # Distance if radius available
+        radius = self.config.get('digital_encoder', {}).get('radius_cm') \
+            or self.config.get('encoder', {}).get('radius_cm')
+        if radius is not None:
+            try:
+                radius = float(radius)
+                distance = dx * (np.pi/180.0) * radius
+            except Exception:
+                distance = None
+        else:
+            distance = None
+
+        encoder_dict = {
+            'dx': dx.astype(np.float32),
+            'gain': 1.0,
+            'items': {},
+            'unpickleable': [],
+            'value': float(degrees[-1]) if len(degrees) else 0.0,
+            'vin': vin,
+            'vsig': vsig.astype(np.float32),
+            'analog_encoder': False,
+            'counts': counts.astype(np.float32),
+            'timestamp': timestamps.astype(np.float32)
+        }
+        if distance is not None:
+            encoder_dict['distance'] = distance.astype(np.float32)
+        return [encoder_dict]
         
     def save_output(self):
         """
@@ -1022,6 +1351,13 @@ class BonsaiExperiment(object):
         
         # Calculate total_frames from logger.csv data (last frame in the experiment)
         total_frames = self._get_total_frames_from_logger()
+
+        # Reconstruct encoder data from logger rows (must come before building output_data)
+        try:
+            encoder_data = self._reconstruct_encoder_from_logger(bonsai_raw_data.get('logger', []), total_frames)
+        except Exception as e:
+            logging.exception("Encoder reconstruction failed; using fallback: %s" % e)
+            encoder_data = self._fallback_encoder(total_frames)
         
         # Get full path to the Bonsai workflow for script field
         bonsai_path = self.params.get('bonsai_path', '')
@@ -1051,7 +1387,8 @@ class BonsaiExperiment(object):
             'params': self.params,
             'items': {
                 'foraging': {
-                    'intervalsms': self._calculate_intervalsms()
+                    'intervalsms': self._calculate_intervalsms(),
+                    'encoders': encoder_data
                 }
             },
             
@@ -1213,9 +1550,53 @@ class BonsaiExperiment(object):
                 # Save output even if there was an error
                 self.save_output()
                 return False
+
+            # Optional opto-tagging: mirror reference.py pattern using camstim get_config + agent
+            if self.params.get('run_opto_tagging'):
+                logging.info('Preparing opto-tagging (reference style)...')
+                try:
+                    from camstim.misc import get_config
+                    from camstim.zro import agent
+                except Exception as e:
+                    logging.warning('Opto-tagging skipped: camstim modules unavailable (%s)' % e)
+                else:
+                    # Build params similar to reference.py
+                    opto_params = deepcopy(self.params.get('opto_params', {}))
+                    # Source mouse id
+                    opto_params['mouse_id'] = self.params.get('mouse_id', 'unknown_mouse')
+                    # Operation mode: allow existing key or map from legacy param
+                    if 'operation_mode' not in opto_params:
+                        if 'opto_mode' in self.params:
+                            opto_params['operation_mode'] = self.params['opto_mode']
+                        else:
+                            opto_params['operation_mode'] = 'experiment'
+                    # Output dir from agent (rig-local) overriding JSON if present
+                    try:
+                        opto_params['output_dir'] = agent.OUTPUT_DIR
+                    except Exception:
+                        opto_params['output_dir'] = self.params.get('opto_output_dir', 'C:/ProgramData/camstim/output/')
+                    # Level list from rig config (zookeeper) with fallback
+                    try:
+                        cfg_levels = get_config('Optogenetics')['level_list']
+                        opto_params['level_list'] = cfg_levels
+                    except Exception as e_cfg:
+                        logging.warning('Failed to read Optogenetics level_list from config (%s); using provided levels', e_cfg)
+                        if 'level_list' not in opto_params:
+                            if 'opto_levels' in self.params:
+                                opto_params['level_list'] = self.params['opto_levels']
+                            else:
+                                opto_params['level_list'] = [1.15, 1.28, 1.345]
+                    # Log summary then execute
+                    logging.info('Opto-tagging params: mode=%s levels=%s out=%s' % (
+                        opto_params.get('operation_mode'), opto_params.get('level_list'), opto_params.get('output_dir')))
+                    try:
+                        optotagging(**opto_params)
+                        logging.info('Opto-tagging completed.')
+                    except Exception as e_run:
+                        logging.exception('Opto-tagging failed during execution: %s' % e_run)
             
             # Save experiment data
-            self.save_output()
+            self.save_output()            
             
             # Check if there were any warnings/errors even with successful return code
             if self.stderr_data:

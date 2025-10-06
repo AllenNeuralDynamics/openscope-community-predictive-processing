@@ -8,5 +8,9 @@
     "mouse_id": "test_mouse",
     "user_id": "test_user",
     "WheelRadiusOverScreenRatio": 0.36,
-    "MotorCouplingCPD": 0.04
+    "MotorCouplingCPD": 0.04,
+    "run_opto_tagging": false,
+    "opto_mode": "experiment",
+    "opto_levels": [1.15, 1.28, 1.345],
+    "opto_output_dir": "C:/ProgramData/camstim/output/"
 }

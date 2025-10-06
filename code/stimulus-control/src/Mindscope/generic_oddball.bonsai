@@ -51,6 +51,27 @@
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.BonVisionResources.bonsai" />
       <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:TextureResources">
+          <gl:Textures>
+            <gl:TextureConfiguration xsi:type="gl:VideoTexture">
+              <gl:Name>zebra</gl:Name>
+              <gl:Width xsi:nil="true" />
+              <gl:Height xsi:nil="true" />
+              <gl:InternalFormat>Rgba</gl:InternalFormat>
+              <gl:WrapS>Repeat</gl:WrapS>
+              <gl:WrapT>Repeat</gl:WrapT>
+              <gl:MinFilter>Linear</gl:MinFilter>
+              <gl:MagFilter>Linear</gl:MagFilter>
+              <gl:FileName>movies\zebra_allen_screen_tscale_30_scale_10.mp4</gl:FileName>
+              <gl:FlipMode>Vertical</gl:FlipMode>
+              <gl:FrameCount xsi:nil="true" />
+              <gl:StartPosition>0</gl:StartPosition>
+              <gl:BufferLength xsi:nil="true" />
+            </gl:TextureConfiguration>
+          </gl:Textures>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="Combinator">
         <Combinator xsi:type="gl:ShaderResources">
           <gl:Shaders />
         </Combinator>
@@ -313,7 +334,7 @@
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="StringProperty">
-          <Value>C:\BonsaiDataPredictiveProcessingTest\openscope-community-predictive-processing\code\stimulus-control\src\Mindscope\examples\sequence_mismatch_example.csv</Value>
+          <Value>C:\BonsaiDataPredictiveProcessingTest\openscope-community-predictive-processing\code\stimulus-control\src\Mindscope\examples\test_short.csv</Value>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -344,7 +365,7 @@
               </PropertyMappings>
             </Expression>
             <Expression xsi:type="io:CsvReader">
-              <io:FileName>C:\BonsaiDataPredictiveProcessingTest\openscope-community-predictive-processing\code\stimulus-control\src\Mindscope\examples\sequence_mismatch_example.csv</io:FileName>
+              <io:FileName>C:\BonsaiDataPredictiveProcessingTest\openscope-community-predictive-processing\code\stimulus-control\src\Mindscope\examples\test_short.csv</io:FileName>
               <io:ListSeparator>,</io:ListSeparator>
               <io:SkipRows>1</io:SkipRows>
             </Expression>
@@ -367,16 +388,17 @@ Int32.Parse(it[4]) as SequenceNumber,
 Int32.Parse(it[5]) as TrialInSequence,
 Double.Parse(it[6]) as Contrast,
 Double.Parse(it[7]) as Delay,
-Double.Parse(it[8]) as Diameter,
-Double.Parse(it[9]) as Duration,
-Double.Parse(it[10]) * Math.PI / 180 as Orientation,
-Double.Parse(it[11]) as SpatialFrequency,
-Double.Parse(it[12]) as TemporalFrequency,
-Double.Parse(it[13]) as X,
-Double.Parse(it[14]) as Y,
-it[15] as Phase,
-it[16] as TrialType,
-it[17] as BlockType,
+Double.Parse(it[8]) as DiameterX,
+Double.Parse(it[9]) as DiameterY,
+Double.Parse(it[10]) as Duration,
+Double.Parse(it[11]) * Math.PI / 180 as Orientation,
+Double.Parse(it[12]) as SpatialFrequency,
+Double.Parse(it[13]) as TemporalFrequency,
+Double.Parse(it[14]) as X,
+Double.Parse(it[15]) as Y,
+it[16] as Phase,
+it[17] as TrialType,
+it[18] as BlockType,
 Guid.NewGuid().ToString() as Id)</scr:Expression>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
@@ -384,7 +406,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="gl:Delay">
-          <gl:DueTime>PT15S</gl:DueTime>
+          <gl:DueTime>PT1S</gl:DueTime>
         </Combinator>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
@@ -395,12 +417,538 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
           <Property Name="Phase" />
         </PropertyMappings>
       </Expression>
-      <Expression xsi:type="IncludeWorkflow" Path="Extensions\FixedPhaseGratingSequence.bonsai">
-        <Phase>133</Phase>
-        <SquareWave>false</SquareWave>
-        <Radius>1</Radius>
-        <Aperture>0</Aperture>
-        <Opacity>1</Opacity>
+      <Expression xsi:type="GroupWorkflow">
+        <Name>GenericSequence</Name>
+        <Workflow>
+          <Nodes>
+            <Expression xsi:type="WorkflowInput">
+              <Name>Source1</Name>
+            </Expression>
+            <Expression xsi:type="ExternalizedMapping">
+              <Property Name="Phase" />
+            </Expression>
+            <Expression xsi:type="rx:CreateObservable">
+              <Workflow>
+                <Nodes>
+                  <Expression xsi:type="WorkflowInput">
+                    <Name>Source1</Name>
+                  </Expression>
+                  <Expression xsi:type="rx:Condition">
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="MemberSelector">
+                          <Selector>BlockType</Selector>
+                        </Expression>
+                        <Expression xsi:type="Equal">
+                          <Operand xsi:type="StringProperty">
+                            <Value>movie</Value>
+                          </Operand>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="1" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source1" />
+                        <Edge From="2" To="3" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="rx:CreateObservable">
+                    <Name>Movies</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="rx:AsyncSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Draw</Name>
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="PropertyMapping">
+                          <PropertyMappings>
+                            <Property Name="Angle" Selector="Orientation" />
+                            <Property Name="ExtentX" Selector="DiameterX" />
+                            <Property Name="ExtentY" Selector="DiameterY" />
+                            <Property Name="LocationX" Selector="X" />
+                            <Property Name="LocationY" Selector="Y" />
+                            <Property Name="TextureName" Selector="BlockLabel" />
+                          </PropertyMappings>
+                        </Expression>
+                        <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawVideo.bonsai">
+                          <TextureName>zebra</TextureName>
+                          <PlaybackRate>30</PlaybackRate>
+                          <Loop>false</Loop>
+                          <Angle>0</Angle>
+                          <ExtentX>120</ExtentX>
+                          <ExtentY>95</ExtentY>
+                          <LocationX>0</LocationX>
+                          <LocationY>0</LocationY>
+                          <ScaleX>1</ScaleX>
+                          <ScaleY>1</ScaleY>
+                          <ShiftX>0</ShiftX>
+                          <ShiftY>0</ShiftY>
+                          <Layer>0</Layer>
+                        </Expression>
+                        <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+                          <Format>MovieFrame-{0}</Format>
+                          <Selector>it</Selector>
+                          <Name>Allen.Log</Name>
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>TimeSpan.FromSeconds(Duration)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="PropertyMapping">
+                          <PropertyMappings>
+                            <Property Name="DueTime" />
+                          </PropertyMappings>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:Timer">
+                            <gl:DueTime>PT15S</gl:DueTime>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:SampleOnRenderFrame" />
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:Zip" />
+                        </Expression>
+                        <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+                          <Format>StimEnd-{0}</Format>
+                          <Selector>Item2.Id</Selector>
+                          <Name>Allen.Log</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:TakeUntil" />
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>TimeSpan.FromSeconds(Delay)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="PropertyMapping">
+                          <PropertyMappings>
+                            <Property Name="DueTime" />
+                          </PropertyMappings>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:Timer">
+                            <gl:DueTime>PT0S</gl:DueTime>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:Zip" />
+                        </Expression>
+                        <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+                          <Format>StimStart-{0}</Format>
+                          <Selector>Item2.Id</Selector>
+                          <Name>Allen.Log</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:SubscribeWhen" />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:TakeLast">
+                            <rx:Count>1</rx:Count>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>ActualParameters</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:WithLatestFrom" />
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>it.Item2</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>new(
+    it.Contrast as Contrast,
+    it.Delay as Delay,
+    it.DiameterX as DiameterX,
+    it.DiameterY as DiameterY,
+    it.Duration as Duration,
+    it.Orientation as Orientation,
+    it.SpatialFrequency as SpatialFrequency,
+    it.TemporalFrequency as TemporalFrequency,
+    it.X as X,
+    it.Y as Y,
+    Convert.ToDouble(0) as Phase,
+    it.TrialType as TrialType,           
+    it.BlockType as BlockType, 
+    it.Id as Id
+)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="rx:PublishSubject">
+                          <Name>ActualParameters</Name>
+                        </Expression>
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="1" Label="Source1" />
+                        <Edge From="2" To="5" Label="Source1" />
+                        <Edge From="3" To="4" Label="Source1" />
+                        <Edge From="4" To="5" Label="Source2" />
+                        <Edge From="5" To="6" Label="Source1" />
+                        <Edge From="6" To="15" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source1" />
+                        <Edge From="8" To="9" Label="Source1" />
+                        <Edge From="9" To="10" Label="Source1" />
+                        <Edge From="10" To="11" Label="Source1" />
+                        <Edge From="11" To="13" Label="Source1" />
+                        <Edge From="12" To="13" Label="Source2" />
+                        <Edge From="13" To="14" Label="Source1" />
+                        <Edge From="14" To="15" Label="Source2" />
+                        <Edge From="15" To="23" Label="Source1" />
+                        <Edge From="16" To="17" Label="Source1" />
+                        <Edge From="17" To="18" Label="Source1" />
+                        <Edge From="18" To="19" Label="Source1" />
+                        <Edge From="19" To="21" Label="Source1" />
+                        <Edge From="20" To="21" Label="Source2" />
+                        <Edge From="21" To="22" Label="Source1" />
+                        <Edge From="22" To="23" Label="Source2" />
+                        <Edge From="23" To="24" Label="Source1" />
+                        <Edge From="24" To="26" Label="Source1" />
+                        <Edge From="25" To="26" Label="Source2" />
+                        <Edge From="26" To="27" Label="Source1" />
+                        <Edge From="27" To="28" Label="Source1" />
+                        <Edge From="29" To="30" Label="Source1" />
+                        <Edge From="30" To="31" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="rx:Condition">
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="MemberSelector">
+                          <Selector>BlockType</Selector>
+                        </Expression>
+                        <Expression xsi:type="NotEqual">
+                          <Operand xsi:type="StringProperty">
+                            <Value>movie</Value>
+                          </Operand>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="1" Label="Source1" />
+                        <Edge From="1" To="2" Label="Source1" />
+                        <Edge From="2" To="3" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="ExternalizedMapping">
+                    <Property Name="Phase" />
+                  </Expression>
+                  <Expression xsi:type="rx:CreateObservable">
+                    <Name>DriftingGrating</Name>
+                    <Workflow>
+                      <Nodes>
+                        <Expression xsi:type="WorkflowInput">
+                          <Name>Source1</Name>
+                        </Expression>
+                        <Expression xsi:type="rx:AsyncSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Draw</Name>
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="PropertyMapping">
+                          <PropertyMappings>
+                            <Property Name="LocationX" Selector="X" />
+                            <Property Name="LocationY" Selector="Y" />
+                            <Property Name="Angle" Selector="Orientation" />
+                            <Property Name="SpatialFrequency" Selector="SpatialFrequency" />
+                            <Property Name="TemporalFrequency" Selector="TemporalFrequency" />
+                            <Property Name="Contrast" Selector="Contrast" />
+                            <Property Name="ExtentX" Selector="DiameterX" />
+                            <Property Name="ExtentY" Selector="DiameterY" />
+                          </PropertyMappings>
+                        </Expression>
+                        <Expression xsi:type="ExternalizedMapping">
+                          <Property Name="Value" DisplayName="Phase" />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="FloatProperty">
+                            <Value>133</Value>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:Sample" />
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>Phase == "wheel" || Phase == "halt" || Phase == "fixed" ? 1 : 0</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:Zip" />
+                        </Expression>
+                        <Expression xsi:type="Multiply" />
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>Phase == "wheel" || Phase == "halt" || Phase == "fixed" ? 0 : Convert.ToDouble(Phase)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:Zip" />
+                        </Expression>
+                        <Expression xsi:type="Add" />
+                        <Expression xsi:type="PropertyMapping">
+                          <PropertyMappings>
+                            <Property Name="Phase" />
+                          </PropertyMappings>
+                        </Expression>
+                        <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawGratings.bonsai">
+                          <LocationX>-40</LocationX>
+                          <LocationY>20</LocationY>
+                          <Layer>0</Layer>
+                          <ExtentX>20</ExtentX>
+                          <ExtentY>20</ExtentY>
+                          <SpatialFrequency>0.08</SpatialFrequency>
+                          <TemporalFrequency>4</TemporalFrequency>
+                          <Phase>0</Phase>
+                          <Angle>90</Angle>
+                          <SquareWave>false</SquareWave>
+                          <Contrast>0.8</Contrast>
+                          <DutyCycle xsi:nil="true" />
+                          <Radius>1</Radius>
+                          <Aperture>0</Aperture>
+                          <Opacity>1</Opacity>
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>TimeSpan.FromSeconds(Duration)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="PropertyMapping">
+                          <PropertyMappings>
+                            <Property Name="DueTime" />
+                          </PropertyMappings>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:Timer">
+                            <gl:DueTime>PT0.25S</gl:DueTime>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:SampleOnRenderFrame" />
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:Zip" />
+                        </Expression>
+                        <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+                          <Format>StimEnd-{0}</Format>
+                          <Selector>Item2.Id</Selector>
+                          <Name>Allen.Log</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:TakeUntil" />
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>TimeSpan.FromSeconds(Delay)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="PropertyMapping">
+                          <PropertyMappings>
+                            <Property Name="DueTime" />
+                          </PropertyMappings>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="gl:Timer">
+                            <gl:DueTime>PT0S</gl:DueTime>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:Zip" />
+                        </Expression>
+                        <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
+                          <Format>StimStart-{0}</Format>
+                          <Selector>Item2.Id</Selector>
+                          <Name>Allen.Log</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:SubscribeWhen" />
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:TakeLast">
+                            <rx:Count>1</rx:Count>
+                          </Combinator>
+                        </Expression>
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>ActualParameters</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:WithLatestFrom" />
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>it.Item2</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
+                        <Expression xsi:type="SubscribeSubject">
+                          <Name>Parameters</Name>
+                        </Expression>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:Zip" />
+                        </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>new(
+    it.Item1.Contrast as Contrast,
+    it.Item1.Delay as Delay,
+    it.Item1.DiameterX as DiameterX,
+    it.Item1.DiameterY as DiameterY,
+    it.Item1.Duration as Duration,
+    it.Item1.Orientation as Orientation,
+    it.Item1.SpatialFrequency as SpatialFrequency,
+    it.Item1.TemporalFrequency as TemporalFrequency,
+    it.Item1.X as X,
+    it.Item1.Y as Y,
+    it.Item2 as Phase,
+    it.Item1.TrialType as TrialType,           
+    it.Item1.BlockType as BlockType, 
+    it.Item1.Id as Id
+)</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="rx:PublishSubject">
+                          <Name>ActualParameters</Name>
+                        </Expression>
+                      </Nodes>
+                      <Edges>
+                        <Edge From="0" To="1" Label="Source1" />
+                        <Edge From="2" To="18" Label="Source1" />
+                        <Edge From="3" To="4" Label="Source1" />
+                        <Edge From="4" To="18" Label="Source2" />
+                        <Edge From="5" To="6" Label="Source1" />
+                        <Edge From="6" To="8" Label="Source1" />
+                        <Edge From="7" To="8" Label="Source2" />
+                        <Edge From="8" To="11" Label="Source1" />
+                        <Edge From="9" To="10" Label="Source1" />
+                        <Edge From="10" To="11" Label="Source2" />
+                        <Edge From="11" To="12" Label="Source1" />
+                        <Edge From="12" To="15" Label="Source1" />
+                        <Edge From="13" To="14" Label="Source1" />
+                        <Edge From="14" To="15" Label="Source2" />
+                        <Edge From="15" To="16" Label="Source1" />
+                        <Edge From="16" To="17" Label="Source1" />
+                        <Edge From="16" To="42" Label="Source2" />
+                        <Edge From="17" To="18" Label="Source3" />
+                        <Edge From="18" To="27" Label="Source1" />
+                        <Edge From="19" To="20" Label="Source1" />
+                        <Edge From="20" To="21" Label="Source1" />
+                        <Edge From="21" To="22" Label="Source1" />
+                        <Edge From="22" To="23" Label="Source1" />
+                        <Edge From="23" To="25" Label="Source1" />
+                        <Edge From="24" To="25" Label="Source2" />
+                        <Edge From="25" To="26" Label="Source1" />
+                        <Edge From="26" To="27" Label="Source2" />
+                        <Edge From="27" To="35" Label="Source1" />
+                        <Edge From="28" To="29" Label="Source1" />
+                        <Edge From="29" To="30" Label="Source1" />
+                        <Edge From="30" To="31" Label="Source1" />
+                        <Edge From="31" To="33" Label="Source1" />
+                        <Edge From="32" To="33" Label="Source2" />
+                        <Edge From="33" To="34" Label="Source1" />
+                        <Edge From="34" To="35" Label="Source2" />
+                        <Edge From="35" To="36" Label="Source1" />
+                        <Edge From="36" To="38" Label="Source1" />
+                        <Edge From="37" To="38" Label="Source2" />
+                        <Edge From="38" To="39" Label="Source1" />
+                        <Edge From="39" To="40" Label="Source1" />
+                        <Edge From="41" To="42" Label="Source1" />
+                        <Edge From="42" To="43" Label="Source1" />
+                        <Edge From="43" To="44" Label="Source1" />
+                      </Edges>
+                    </Workflow>
+                  </Expression>
+                  <Expression xsi:type="Combinator">
+                    <Combinator xsi:type="rx:Merge" />
+                  </Expression>
+                  <Expression xsi:type="WorkflowOutput" />
+                </Nodes>
+                <Edges>
+                  <Edge From="0" To="1" Label="Source1" />
+                  <Edge From="0" To="3" Label="Source1" />
+                  <Edge From="1" To="2" Label="Source1" />
+                  <Edge From="2" To="6" Label="Source1" />
+                  <Edge From="3" To="5" Label="Source1" />
+                  <Edge From="4" To="5" Label="Source2" />
+                  <Edge From="5" To="6" Label="Source2" />
+                  <Edge From="6" To="7" Label="Source1" />
+                </Edges>
+              </Workflow>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Merge" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:ToArray" />
+            </Expression>
+            <Expression xsi:type="rx:AsyncSubject">
+              <Name>ListStim</Name>
+            </Expression>
+            <Expression xsi:type="SubscribeSubject">
+              <Name>ListStim</Name>
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Merge" />
+            </Expression>
+            <Expression xsi:type="Combinator">
+              <Combinator xsi:type="rx:Concat" />
+            </Expression>
+            <Expression xsi:type="WorkflowOutput" />
+          </Nodes>
+          <Edges>
+            <Edge From="0" To="2" Label="Source1" />
+            <Edge From="1" To="2" Label="Source2" />
+            <Edge From="2" To="3" Label="Source1" />
+            <Edge From="3" To="4" Label="Source1" />
+            <Edge From="4" To="5" Label="Source1" />
+            <Edge From="6" To="7" Label="Source1" />
+            <Edge From="7" To="8" Label="Source1" />
+            <Edge From="8" To="9" Label="Source1" />
+          </Edges>
+        </Workflow>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Take">
@@ -412,7 +960,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Delay">
-          <rx:DueTime>PT1M45S</rx:DueTime>
+          <rx:DueTime>PT10M45S</rx:DueTime>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -430,7 +978,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
         <Name>EndExpt</Name>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
-        <Name>ListGratings</Name>
+        <Name>ListStim</Name>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Take">
@@ -473,14 +1021,6 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       </Expression>
       <Expression xsi:type="rx:PublishSubject">
         <Name>WheelDegrees</Name>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="FloatProperty">
-          <Value>0</Value>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:OnErrorResumeNext" />
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
         <Property Name="Value" DisplayName="WheelRadiusOverScreenRatio" />
@@ -535,7 +1075,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
         <Append>false</Append>
         <Overwrite>true</Overwrite>
         <Suffix>None</Suffix>
-        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250909T163931/orientations_logger.csv</FileName>
+        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251005T221205/orientations_logger.csv</FileName>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
         <Format>Frame</Format>
@@ -573,7 +1113,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
         <Text><![CDATA[]]></Text>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20250909T163931/orientations_orientations.csv</io:FileName>
+        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251005T221205/orientations_orientations.csv</io:FileName>
         <io:Append>true</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>FileCount</io:Suffix>
@@ -803,86 +1343,85 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       <Edge From="0" To="1" Label="Source1" />
       <Edge From="1" To="2" Label="Source1" />
       <Edge From="2" To="3" Label="Source1" />
-      <Edge From="4" To="5" Label="Source1" />
+      <Edge From="3" To="4" Label="Source1" />
       <Edge From="5" To="6" Label="Source1" />
-      <Edge From="6" To="8" Label="Source1" />
-      <Edge From="7" To="8" Label="Source2" />
-      <Edge From="9" To="10" Label="Source1" />
+      <Edge From="6" To="7" Label="Source1" />
+      <Edge From="7" To="9" Label="Source1" />
+      <Edge From="8" To="9" Label="Source2" />
       <Edge From="10" To="11" Label="Source1" />
-      <Edge From="11" To="15" Label="Source1" />
-      <Edge From="12" To="13" Label="Source1" />
+      <Edge From="11" To="12" Label="Source1" />
+      <Edge From="12" To="16" Label="Source1" />
       <Edge From="13" To="14" Label="Source1" />
-      <Edge From="14" To="15" Label="Source2" />
-      <Edge From="15" To="16" Label="Source1" />
+      <Edge From="14" To="15" Label="Source1" />
+      <Edge From="15" To="16" Label="Source2" />
       <Edge From="16" To="17" Label="Source1" />
       <Edge From="17" To="18" Label="Source1" />
       <Edge From="18" To="19" Label="Source1" />
       <Edge From="19" To="20" Label="Source1" />
-      <Edge From="21" To="22" Label="Source1" />
-      <Edge From="23" To="24" Label="Source1" />
+      <Edge From="20" To="21" Label="Source1" />
+      <Edge From="22" To="23" Label="Source1" />
       <Edge From="24" To="25" Label="Source1" />
       <Edge From="25" To="26" Label="Source1" />
       <Edge From="26" To="27" Label="Source1" />
       <Edge From="27" To="28" Label="Source1" />
-      <Edge From="29" To="30" Label="Source1" />
-      <Edge From="30" To="33" Label="Source1" />
-      <Edge From="31" To="32" Label="Source1" />
-      <Edge From="32" To="33" Label="Source2" />
-      <Edge From="33" To="34" Label="Source1" />
+      <Edge From="28" To="29" Label="Source1" />
+      <Edge From="30" To="31" Label="Source1" />
+      <Edge From="31" To="34" Label="Source1" />
+      <Edge From="32" To="33" Label="Source1" />
+      <Edge From="33" To="34" Label="Source2" />
       <Edge From="34" To="35" Label="Source1" />
       <Edge From="35" To="36" Label="Source1" />
-      <Edge From="36" To="38" Label="Source1" />
-      <Edge From="37" To="38" Label="Source2" />
-      <Edge From="38" To="41" Label="Source1" />
-      <Edge From="39" To="40" Label="Source1" />
-      <Edge From="40" To="41" Label="Source3" />
-      <Edge From="41" To="42" Label="Source1" />
-      <Edge From="41" To="45" Label="Source1" />
-      <Edge From="42" To="44" Label="Source1" />
-      <Edge From="43" To="44" Label="Source2" />
+      <Edge From="36" To="37" Label="Source1" />
+      <Edge From="37" To="39" Label="Source1" />
+      <Edge From="38" To="39" Label="Source2" />
+      <Edge From="39" To="42" Label="Source1" />
+      <Edge From="40" To="41" Label="Source1" />
+      <Edge From="41" To="42" Label="Source3" />
+      <Edge From="42" To="43" Label="Source1" />
+      <Edge From="42" To="46" Label="Source1" />
+      <Edge From="43" To="45" Label="Source1" />
       <Edge From="44" To="45" Label="Source2" />
-      <Edge From="45" To="46" Label="Source1" />
+      <Edge From="45" To="46" Label="Source2" />
       <Edge From="46" To="47" Label="Source1" />
       <Edge From="47" To="48" Label="Source1" />
-      <Edge From="49" To="50" Label="Source1" />
+      <Edge From="48" To="49" Label="Source1" />
       <Edge From="50" To="51" Label="Source1" />
       <Edge From="51" To="52" Label="Source1" />
-      <Edge From="53" To="54" Label="Source1" />
-      <Edge From="54" To="56" Label="Source1" />
-      <Edge From="55" To="56" Label="Source2" />
-      <Edge From="56" To="57" Label="Source1" />
+      <Edge From="52" To="53" Label="Source1" />
+      <Edge From="54" To="55" Label="Source1" />
+      <Edge From="55" To="57" Label="Source1" />
+      <Edge From="56" To="57" Label="Source2" />
       <Edge From="57" To="58" Label="Source1" />
       <Edge From="58" To="59" Label="Source1" />
-      <Edge From="59" To="61" Label="Source1" />
-      <Edge From="60" To="61" Label="Source2" />
-      <Edge From="61" To="66" Label="Source1" />
-      <Edge From="62" To="63" Label="Source1" />
-      <Edge From="63" To="66" Label="Source2" />
-      <Edge From="64" To="65" Label="Source1" />
-      <Edge From="65" To="66" Label="Source3" />
+      <Edge From="59" To="60" Label="Source1" />
+      <Edge From="60" To="65" Label="Source1" />
+      <Edge From="61" To="62" Label="Source1" />
+      <Edge From="62" To="65" Label="Source2" />
+      <Edge From="63" To="64" Label="Source1" />
+      <Edge From="64" To="65" Label="Source3" />
+      <Edge From="65" To="66" Label="Source1" />
       <Edge From="66" To="67" Label="Source1" />
       <Edge From="67" To="68" Label="Source1" />
       <Edge From="68" To="69" Label="Source1" />
-      <Edge From="69" To="70" Label="Source1" />
-      <Edge From="71" To="75" Label="Source1" />
+      <Edge From="70" To="74" Label="Source1" />
+      <Edge From="71" To="72" Label="Source1" />
       <Edge From="72" To="73" Label="Source1" />
-      <Edge From="73" To="74" Label="Source1" />
-      <Edge From="74" To="75" Label="Source2" />
-      <Edge From="75" To="76" Label="Source1" />
-      <Edge From="76" To="79" Label="Source1" />
-      <Edge From="77" To="78" Label="Source1" />
-      <Edge From="78" To="79" Label="Source2" />
-      <Edge From="80" To="85" Label="Source1" />
+      <Edge From="73" To="74" Label="Source2" />
+      <Edge From="74" To="75" Label="Source1" />
+      <Edge From="75" To="78" Label="Source1" />
+      <Edge From="76" To="77" Label="Source1" />
+      <Edge From="77" To="78" Label="Source2" />
+      <Edge From="79" To="84" Label="Source1" />
+      <Edge From="80" To="81" Label="Source1" />
       <Edge From="81" To="82" Label="Source1" />
-      <Edge From="82" To="83" Label="Source1" />
-      <Edge From="83" To="85" Label="Source2" />
-      <Edge From="84" To="85" Label="Source3" />
+      <Edge From="82" To="84" Label="Source2" />
+      <Edge From="83" To="84" Label="Source3" />
+      <Edge From="85" To="86" Label="Source1" />
       <Edge From="86" To="87" Label="Source1" />
       <Edge From="87" To="88" Label="Source1" />
-      <Edge From="88" To="89" Label="Source1" />
+      <Edge From="89" To="90" Label="Source1" />
       <Edge From="90" To="91" Label="Source1" />
       <Edge From="91" To="92" Label="Source1" />
-      <Edge From="92" To="93" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>

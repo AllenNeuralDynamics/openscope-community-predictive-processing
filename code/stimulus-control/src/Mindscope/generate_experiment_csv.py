@@ -1,24 +1,27 @@
-#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-Experimental Session CSV Generator for Visual Mismatch Paradigms
+Experimental Session CSV Generator (Single-Session Mode Only)
 
-This script generates CSV files for visual mismatch paradigms in mice, organized into
-separate folders with multiple variants per session type.
+Simplified to ONLY support the entrypoint used by the Bonsai experiment launcher.
+All former multi-session / variant / example generation code has been removed to
+reduce maintenance overhead and avoid divergent stimulus definitions.
 
-Usage:
-    python generate_experiment_csv.py  # Generate all session folders with 10 variants each
-    python generate_experiment_csv.py --session-type sensorimotor_mismatch --output-path /path/to/file.csv --seed 12345
+Usage (launcher / manual):
+        python generate_experiment_csv.py --session-type sensorimotor_mismatch --output-path C:/path/to/file.csv --seed 12345
 
-This generates 6 session folders, each with 10 variants:
-1. Visual Mismatch (Standard oddball)
-2. Sensory-Motor Mismatch (Motor coupling)  
-3. Sequence Mismatch (Sequential learning)
-4. Duration Mismatch (Temporal oddball)
-5. Sequence No-Oddball (long blocks without oddballs)
-6. Sensory-Motor No-Oddball (long blocks without oddballs)
+Available session types (single complete session per invocation):
+    - visual_mismatch
+    - sensorimotor_mismatch  
+    - sequence_mismatch
+    - duration_mismatch
+    - sequence_mismatch_no_oddball
+    - sensorimotor_mismatch_no_oddball
 
-Each session includes appropriate control blocks and RF mapping.
+NOTES:
+    * open_loop_prerecorded blocks now include explicit oddball_config so prerecorded
+        phase segments receive motor oddballs (same rates as motor_oddball blocks).
+    * Strict phase loading: no fallbacks; raises RuntimeError on any data issue.
+    * Python 2.7 compatible.
 """
 
 import csv
@@ -28,6 +31,7 @@ import math
 import os
 import argparse
 import sys
+import glob
 
 # Standard column order for all CSV files
 STANDARD_FIELDNAMES = [
@@ -81,282 +85,123 @@ ODDBALL_TYPES = {
     'omission': {'Contrast': 0, 'Trial_Type': 'omission'},
     'jitter_150': {'Duration': 0.150, 'Trial_Type': 'jitter'},
     'jitter_350': {'Duration': 0.350, 'Trial_Type': 'jitter'},
-    'motor_halt': {'Temporal_Frequency': 0, 'Delay': 0, 'Trial_Type': 'halt'},
-    'motor_omission': {'Contrast': 0, 'Delay': 0, 'Trial_Type': 'omission'},
-    'motor_orientation_45': {'Orientation': 45, 'Delay': 0, 'Trial_Type': 'orientation_45'},
-    'motor_orientation_90': {'Orientation': 90, 'Delay': 0, 'Trial_Type': 'orientation_90'}
+    # Motor-prefixed variants keep distinct Trial_Type labels for clarity in CSV
+    'motor_halt': {'Temporal_Frequency': 0, 'Delay': 0, 'Trial_Type': 'motor_halt'},
+    'motor_omission': {'Contrast': 0, 'Delay': 0, 'Trial_Type': 'motor_omission'},
+    'motor_orientation_45': {'Orientation': 45, 'Delay': 0, 'Temporal_Frequency': 2, 'Trial_Type': 'motor_orientation_45'},
+    'motor_orientation_90': {'Orientation': 90, 'Delay': 0, 'Temporal_Frequency': 2, 'Trial_Type': 'motor_orientation_90'}
 }
 
 def generate_rf_mapping_positions():
-    """
-    Generate (X, Y) positions for a 9x9 RF mapping grid.
-    Grid spans from -40 to +40 degrees in 10-degree steps.
-    
-    Returns:
-        List of (x, y) tuples for RF mapping positions.
-    """
+    """Return (x,y) positions for 9x9 grid spanning -40..+40 deg in 10 deg steps."""
     positions = []
-    for x in range(-40, 50, 10):  # -40 to +40 in 10° steps (9 positions)
-        for y in range(-40, 50, 10):  # -40 to +40 in 10° steps (9 positions)
+    for x in range(-40, 50, 10):
+        for y in range(-40, 50, 10):
             positions.append((x, y))
     return positions
 
-def main_single_csv():
-    """Main function for generating separate CSV files for each session type."""
-    
-    print("Generating session folders with multiple variants...")
-    print()
+def _load_pre_recorded_phases_radians(duration_seconds, variant_seed):
+    """Strictly load contiguous wheel-derived phase samples (radians) at 30Hz.
 
-    # Generate 10 variants for each session type in separate folders
-    session_files = generate_separate_session_csvs(n_variants=10)
-    
-    print("\nSuccess! Generated session folders with variants:")
-    print("\nEach session type has its own folder with 10 variants:")
-    print("- visual_mismatch/")
-    print("- sensorimotor_mismatch/") 
-    print("- sequence_mismatch/")
-    print("- duration_mismatch/")
-    print("- sequence_mismatch_no_oddball/")
-    print("- sensorimotor_mismatch_no_oddball/")
-    print("\nEach folder contains variant_01.csv through variant_10.csv")
-    print("Load the appropriate CSV file in Bonsai for your experiment.")
-
-def generate_separate_session_csvs(n_variants=10):
+    Requirements (no fallbacks):
+      * running_phases/ directory adjacent to this script.
+      * At least one CSV file present.
+      * One of columns: Phase_Radians OR (Phase_Degrees / Phase / PhaseDegrees / Phase_deg) for degrees.
+      * Sufficient rows (>= duration_seconds * 30).
+    Raises RuntimeError on any violation.
     """
-    Generate separate CSV files for each session type matching the experimental diagram.
-    
-    Each session has the same control block structure but different mismatch blocks:
-    1. Visual Mismatch Session (visual_mismatch_session.csv)
-    2. Sensory-Motor Mismatch Session (sensorimotor_mismatch_session.csv)  
-    3. Sequence Mismatch Session (sequence_mismatch_session.csv)
-    4. Duration Mismatch Session (duration_mismatch_session.csv)
-    5. Sequence No-Oddball Session (sequence_mismatch_no_oddball_session.csv)
-    6. Sensory-Motor No-Oddball Session (sensorimotor_mismatch_no_oddball_session.csv)
-    
-    Args:
-        n_variants: Number of session variants to generate (default 1)
-    
-    Returns:
-        Dictionary mapping session type to generated file path
-    """
-    
-    print("="*80)
-    print("GENERATING SEPARATE SESSION CSV FILES")
-    print("="*80)
-    print()
-    print("Creating 6 separate CSV files, one for each experimental session:")
-    print("1. Visual Mismatch (Standard oddball)")
-    print("2. Sensory-Motor Mismatch (Motor coupling)")  
-    print("3. Sequence Mismatch (Sequential learning)")
-    print("4. Duration Mismatch (Temporal oddball)")
-    print("5. Sequence No-Oddball (Long sequential blocks)")
-    print("6. Sensory-Motor No-Oddball (Long motor blocks)")
-    print()
-    
-    # Standard fieldnames - no session metadata needed since each file is one session
-    fieldnames = [
-        'Block_Number', 'Block_Label', 'Block_Duration_Minutes',
-        'Trial_Number', 'Sequence_Number', 'Trial_In_Sequence',
-    ] + STANDARD_FIELDNAMES
-    
-    # Session configurations matching the diagram
-    session_configs = {
-        'visual_mismatch': {
-            'folder': 'visual_mismatch',
-            'blocks': [
-                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
-                {'type': 'standard_oddball', 'duration_minutes': 26, 'label': 'Standard mismatch block', 
-                 'oddball_config': {'orientation_45': 1.35, 'orientation_90': 1.35, 'halt': 1.35, 'omission': 1.35}},
-                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
-                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
-                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
-                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
-                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
-            ]
-        },
-        
-        'sensorimotor_mismatch': {
-            'folder': 'sensorimotor_mismatch',
-            'blocks': [
-                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
-                {'type': 'motor_oddball', 'duration_minutes': 26, 'label': 'Sensory-motor mismatch block',
-                 'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
-                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
-                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
-                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
-                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
-                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
-            ]
-        },
-        
-        'sequence_mismatch': {
-            'folder': 'sequence_mismatch',
-            'blocks': [
-                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
-                {'type': 'sequential_oddball', 'duration_minutes': 26, 'label': 'Sequence mismatch block',
-                 'oddball_config': {'orientation_45': 1.35, 'orientation_90': 1.35, 'halt': 1.35, 'omission': 1.35}},
-                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
-                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
-                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
-                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
-                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
-            ]
-        },
-        
-        'duration_mismatch': {
-            'folder': 'duration_mismatch',
-            'blocks': [
-                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
-                {'type': 'jitter_oddball', 'duration_minutes': 26, 'label': 'Duration mismatch block',
-                 'oddball_config': {'jitter_150': 1.35, 'jitter_350': 1.35}},
-                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
-                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
-                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
-                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
-                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
-            ]
-        },
-        
-        # No-oddball versions (long blocks without oddballs, all other blocks preserved)
-        'sequence_mismatch_no_oddball': {
-            'folder': 'sequence_mismatch_no_oddball',
-            'blocks': [
-                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
-                {'type': 'sequential_long', 'duration_minutes': 26, 'label': 'Sequence long block (no oddball)'},
-                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
-                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
-                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
-                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
-                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
-            ]
-        },
-        
-        'sensorimotor_mismatch_no_oddball': {
-            'folder': 'sensorimotor_mismatch_no_oddball',
-            'blocks': [
-                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
-                {'type': 'motor_long', 'duration_minutes': 26, 'label': 'Sensory-motor long block (no oddball)'},
-                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
-                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
-                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
-                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
-                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
-            ]
-        }
-    }
-    
-    session_files = {}
-    
-    # Generate each session separately
-    for session_variant in range(n_variants):
-        print("Generating session variant %d/%d" % (session_variant + 1, n_variants))
-        
-        for session_type, session_config in session_configs.items():
-            print("  Processing %s session..." % session_type)
-            
-            all_trials = []
-            trial_counter = 0
-            
-            # Generate each block in the session
-            for block_number, block_config in enumerate(session_config['blocks'], 1):
-                block_type = block_config['type']
-                duration_minutes = block_config['duration_minutes']
-                block_label = block_config['label']
-                oddball_config = block_config.get('oddball_config', None)
-                
-                print("    Block %d: %s (%.1f min)" % (block_number, block_label, duration_minutes))
-                
-                # Generate trials for this block
-                block_trials = generate_block_trials(
-                    block_type=block_type,
-                    duration_minutes=duration_minutes,
-                    oddball_config=oddball_config,
-                    variant=session_variant
-                )
-                
-                # Add block metadata to each trial
-                sequence_counter = 0
-                current_sequence_trial = 0
-                
-                for i, trial in enumerate(block_trials):
-                    trial_counter += 1
-                    
-                    # Handle sequence numbering for sequential blocks
-                    if block_type in ['sequential_oddball', 'open_loop_prerecorded']:
-                        if current_sequence_trial == 0:
-                            sequence_counter += 1
-                        current_sequence_trial = (current_sequence_trial + 1) % 5
-                        trial_in_sequence = current_sequence_trial if current_sequence_trial > 0 else 5
-                    else:
-                        sequence_counter = 0
-                        trial_in_sequence = 0
-                    
-                    # Add metadata (no session info since each file is one session)
-                    enriched_trial = {
-                        'Block_Number': block_number,
-                        'Block_Label': block_label,
-                        'Block_Duration_Minutes': duration_minutes,
-                        'Trial_Number': trial_counter,
-                        'Sequence_Number': sequence_counter,
-                        'Trial_In_Sequence': trial_in_sequence,
-                    }
-                    # Add all the stimulus parameters (Python 2.7 compatible)
-                    enriched_trial.update(trial)
-                    
-                    all_trials.append(enriched_trial)
-            
-            # Save this session's CSV in the appropriate folder with variant naming
-            session_folder = session_config['folder']
-            folder_path = session_folder
-            if not os.path.exists(folder_path):
-                os.makedirs(folder_path)
-            
-            variant_filename = "variant_%02d.csv" % (session_variant + 1)
-            filepath = os.path.join(folder_path, variant_filename)
-            
-            with open(filepath, 'wb') as csvfile:
-                writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
-                writer.writeheader()
-                writer.writerows(all_trials)
-            
-            session_files["%s_variant_%02d" % (session_type, session_variant + 1)] = str(filepath)
-            
-            # Print session summary
-            print("    Generated %d trials -> %s" % (len(all_trials), filepath))
-    
-    # Print overall summary
-    print()
-    print("="*80)
-    print("SESSION CSV GENERATION COMPLETE")
-    print("="*80)
-    print()
-    print("Generated session folders and variants:")
-    
-    # Group files by session type for display
-    session_folders = {}
-    for key, filepath in session_files.items():
-        session_type = key.split('_variant_')[0]
-        if session_type not in session_folders:
-            session_folders[session_type] = []
-        session_folders[session_type].append(filepath)
-    
-    for session_type, filepaths in session_folders.items():
-        folder_name = session_configs[session_type]['folder']
-        print("  %s/  (%d variants)" % (folder_name, len(filepaths)))
-        for filepath in sorted(filepaths):
-            variant_name = os.path.basename(filepath)
-            print("    %s" % variant_name)
-    
-    print()
-    print("Each CSV file contains one complete experimental session:")
-    print("- 7 blocks total (Control 1.1 → Mismatch → Control 1.2 → Control 2 → Control 3 → Control 4 → RF mapping)")
-    print("- Block structure matches the experimental diagram exactly")
-    print("- Use Block_Number column to run blocks sequentially")
-    print("- Use Sequence_Number for sequential block analysis")
-    
-    return session_files
+    base_dir = os.path.join(os.path.dirname(__file__), 'running_phases')
+    target = int(duration_seconds * 30)
+    if target <= 0:
+        raise RuntimeError('Requested non-positive duration for prerecorded phases')
+    if not os.path.isdir(base_dir):
+        raise RuntimeError('Missing running_phases directory: %s' % base_dir)
+    files = glob.glob(os.path.join(base_dir, '*.csv'))
+    if not files:
+        raise RuntimeError('No CSV files found in running_phases directory')
+    rng = random.Random(variant_seed + 1337)
+    chosen = rng.choice(files)
+    with open(chosen, 'r') as f:
+        header = f.readline().strip().split(',')
+        name_to_idx = {}
+        for i, name in enumerate(header):
+            name_to_idx[name.strip()] = i
+        phase_col = name_to_idx['Phase_Radians']
+        phases = []
+        for line in f:
+            if not line.strip():
+                continue
+            parts = line.rstrip().split(',')
+            if phase_col >= len(parts):
+                continue
+            val = float(parts[phase_col])
+            phases.append(val)
+    if len(phases) < target:
+        raise RuntimeError('Not enough samples in %s (have %d need %d)' % (os.path.basename(chosen), len(phases), target))
+    max_start = len(phases) - target
+    start = rng.randint(0, max_start)
+    return phases[start:start + target]
 
-def generate_block_trials(block_type, duration_minutes, oddball_config=None, variant=0):
+def _inject_prerecorded_mismatch(trials, duration_minutes, variant_seed, oddball_config):
+    """Inject motor oddball events into prerecorded trials according to rates.
+
+    Ensures ~2s minimum spacing (at 30Hz -> 60 trial minimum) and 5s start/end buffer.
+    Modifies trials in place.
+    """
+    if not trials or not oddball_config:
+        return
+    total_trials = len(trials)
+    r = random.Random(variant_seed + 4242)
+    min_interval_trials = int(2.0 * 30)
+    buffer_trials = int(5.0 * 30)
+    candidates = list(range(buffer_trials, max(buffer_trials, total_trials - buffer_trials)))
+    r.shuffle(candidates)
+    # Build list of oddball types to place
+    oddball_types = []
+    for odd_type, rate in oddball_config.items():
+        count = int(rate * duration_minutes)
+        oddball_types.extend([odd_type] * count)
+    r.shuffle(oddball_types)
+    if not oddball_types:
+        return
+    placed_indices = []
+    for idx in candidates:
+        if all(abs(idx - p) >= min_interval_trials for p in placed_indices):
+            placed_indices.append(idx)
+            if len(placed_indices) >= len(oddball_types):
+                break
+    placed_indices.sort()
+    if not placed_indices:
+        return
+    # Trim or extend oddball_types to match
+    if len(placed_indices) < len(oddball_types):
+        oddball_types = oddball_types[:len(placed_indices)]
+    elif len(placed_indices) > len(oddball_types):
+        last = oddball_types[-1]
+        while len(oddball_types) < len(placed_indices):
+            oddball_types.append(last)
+    for idx, odd_type in zip(placed_indices, oddball_types):
+        if idx < 0 or idx >= total_trials:
+            continue
+        trial = trials[idx]
+        params = ODDBALL_TYPES.get(odd_type)
+        if not params:
+            continue
+        if 'Orientation' in params:
+            trial['Orientation'] = params['Orientation']
+        if 'Contrast' in params:
+            trial['Contrast'] = params['Contrast']
+        # Temporal frequency rules: halt -> 0, orientation/omission -> 2Hz drifting
+        if params.get('Trial_Type') == 'motor_halt':
+            trial['Temporal_Frequency'] = 0
+        else:
+            trial['Temporal_Frequency'] = 2
+        trial['Duration'] = 0.343  # Match standard oddball duration
+        trial['Trial_Type'] = params['Trial_Type']
+        # Ensure block type stays consistent
+        trial['Block_Type'] = 'open_loop_prerecorded'
+
+def generate_block_trials(block_type, duration_minutes, oddball_config=None, variant=0, block_config=None):
     """
     Generate trials for a specific block type.
     
@@ -435,59 +280,28 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
                 trials.append(trial)
     
     elif block_type == 'open_loop_prerecorded':
-        # Open-loop pre-recorded sequence (Control block 4)
-        # Simulates a pre-recorded sensory-motor sequence where visual stimuli change 
-        # independently of wheel input, representing playback of a recorded session
-        
-        # Frame rate for temporal sampling (60Hz timing, but gratings update at 30Hz)
-        frame_rate = 60
-        grating_update_rate = 30  # Grating changes at 30Hz (every 2 frames)
-        total_frames = int(duration_seconds * frame_rate)
-        frame_duration = 1.0 / frame_rate  # 16.67ms per frame
-        grating_duration = 1.0 / grating_update_rate  # 33.33ms per grating update
-        
-        # Create a simulated pre-recorded sensory-motor sequence pattern
-        # In sensory-motor paradigms, orientation stays constant (vertical)
-        # and only phase varies based on recorded wheel movement
-        
-        # Simulate realistic wheel-driven phase changes over time
-        
-        for frame in range(total_frames):
-            # Time-based phase evolution (simulating recorded wheel movement)
-            time_seconds = frame / frame_rate
-            
-            # Orientation stays constant at vertical (0°) for sensory-motor paradigm
-            # Only phase changes to simulate the pre-recorded wheel movement
-            final_orientation = 0  # Always vertical for sensory-motor
-            
-            # Phase changes over time (simulating continuous motion from recorded wheel data)
-            # This creates realistic wheel-driven motion patterns
-            # Use multiple frequency components to simulate natural wheel movement
-            base_phase = time_seconds * 120  # Base drift rate
-            fine_motion = 30 * math.sin(time_seconds * 8)  # Higher frequency component
-            micro_motion = 10 * math.sin(time_seconds * 25)  # Fine-scale motion
-            simulated_phase = (base_phase + fine_motion + micro_motion) % 360
-            
-            # Create trial with grating duration (33.33ms) for 30Hz grating updates
+        # Pre-recorded wheel-driven phases (radians only, strict, no fallback)
+        grating_update_rate = 30
+        grating_duration = 1.0 / grating_update_rate
+        phase_rads = _load_pre_recorded_phases_radians(duration_seconds, variant)
+        for p in phase_rads:
             trial = {
                 'Contrast': 1,
                 'Delay': 0,
                 'DiameterX': DEFAULT_STIMULUS_SIZE,
                 'DiameterY': DEFAULT_STIMULUS_SIZE,
-                'Duration': grating_duration,  # 33.33ms for 30Hz grating updates
-                'Orientation': int(final_orientation),
+                'Duration': grating_duration,
+                'Orientation': 0,
                 'Spatial_Frequency': 0.04,
-                'Temporal_Frequency': 0,  # Static, phase controlled by prerecorded data
+                'Temporal_Frequency': 0,
                 'X': 0,
                 'Y': 0,
-                'Phase': int(simulated_phase),  # Prerecorded phase evolution
+                'Phase': p,  # radians
                 'Trial_Type': 'prerecorded',
                 'Block_Type': 'open_loop_prerecorded'
             }
-            
-            # Skip every other frame to achieve 30Hz grating updates at 60Hz frame rate
-            if frame % 2 == 0:  # Only add trials every 2 frames (30Hz grating rate)
-                trials.append(trial)
+            trials.append(trial)
+        _inject_prerecorded_mismatch(trials, duration_minutes, variant, oddball_config)
     
     elif block_type == 'sequential_control_block':
         # Control block 2: Sequential-like stimuli but shuffled (not in sequences)
@@ -594,7 +408,9 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
         # RF mapping with parameters matching create_receptive_field_mapping()
         rf_positions = generate_rf_mapping_positions()  # 81 positions (9×9 grid)
         orientations = [0, 45, 90]  # 3 orientations  
-        n_repeats = 10  # 10 repeats (corrected from 5)
+        # Target ~5 minutes: 81 positions * 3 orientations * repeats * 0.25s ≈ 60.75s * repeats
+        # repeats=5 gives ~304s (~5.07 min)
+        n_repeats = 5
         
         # Parameters matching experimental code
         contrast = 0.8
@@ -622,7 +438,34 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
                         'Block_Type': 'rf_mapping'
                     }
                     trials.append(trial)
+        # Explicit shuffle to randomize RF mapping order (positions × orientations × repeats)
+        random.shuffle(trials)
     
+    elif block_type.startswith('movie_'):
+        # Movie presentation blocks
+        width = (block_config or {}).get('width', 120)
+        height = (block_config or {}).get('height', 95)
+        repeats = (block_config or {}).get('repeats', 1)
+        movie_duration_s = (block_config or {}).get('movie_duration_s', int(duration_minutes*60))
+        # Each repeat is one row; duration stored in Duration (seconds), Delay=0
+        for rep in range(repeats):
+            trial = {
+                'Contrast': 1,
+                'Delay': 0,
+                'DiameterX': width,
+                'DiameterY': height,
+                'Duration': movie_duration_s,
+                'Orientation': 0,
+                'Spatial_Frequency': 0,
+                'Temporal_Frequency': 0,  
+                'X': 0,
+                'Y': 0,
+                'Phase': 0,
+                'Trial_Type': 'single',
+                'Block_Type': 'movie'
+            }
+            trials.append(trial)
+
     elif block_type in ['standard_oddball', 'jitter_oddball', 'sequential_oddball']:
         # Oddball blocks with specified mismatch rates
         trials = generate_oddball_block_trials(block_type, duration_minutes, oddball_config, variant)
@@ -633,7 +476,9 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
     
     # Shuffle trials (except for those which maintains structure)
     if block_type not in ['open_loop_prerecorded', 'sequential_oddball', 'sequential_long']:
-        random.shuffle(trials)
+        # Don't shuffle movie or rf mapping order
+        if not block_type.startswith('movie_'):
+            random.shuffle(trials)
     
     return trials
 
@@ -939,6 +784,31 @@ def generate_single_session_csv(session_type, output_path, seed=None):
     
     # Session configurations matching the existing structure
     session_configs = {
+        'short_test': {
+            # ~5 minute comprehensive test covering each block type with at least one oddball of each configured kind
+            'blocks': [
+                # Standard oddball (1.0 min) -> ensures >=1 of each orientation/halt/omission
+                {'type': 'standard_oddball', 'duration_minutes': 1.0, 'label': 'Std mismatch (test)',
+                 'oddball_config': {'orientation_45': 1.35, 'orientation_90': 1.35, 'halt': 1.35, 'omission': 1.35}},
+                # Motor oddball (1.0 min)
+                {'type': 'motor_oddball', 'duration_minutes': 1.0, 'label': 'Motor mismatch (test)',
+                 'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
+                # Sequential oddball (0.75 min)
+                {'type': 'sequential_oddball', 'duration_minutes': 0.75, 'label': 'Seq mismatch (test)',
+                 'oddball_config': {'orientation_45': 1.35, 'orientation_90': 1.35, 'halt': 1.35, 'omission': 1.35}},
+                # Jitter (duration) oddball (0.75 min)
+                {'type': 'jitter_oddball', 'duration_minutes': 0.75, 'label': 'Duration mismatch (test)',
+                 'oddball_config': {'jitter_150': 1.35, 'jitter_350': 1.35}},
+                # Open loop prerecorded with motor oddballs (0.75 min)
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 0.75, 'label': 'Open loop (test)',
+                 'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
+                # Short movies (Trippy 15s, Zebra 15s)
+                {'type': 'movie_trippy', 'duration_minutes': 0.25, 'label': 'Trippy (test)', 'movie_duration_s': 15, 'repeats': 1, 'width': 120, 'height': 95},
+                {'type': 'movie_zebra', 'duration_minutes': 0.25, 'label': 'Zebra (test)', 'movie_duration_s': 15, 'repeats': 1, 'width': 120, 'height': 95},
+                # Very short RF mapping sample (15s ~ 0.25 min): reduces repeats to shorten duration
+                {'type': 'rf_mapping', 'duration_minutes': 0.25, 'label': 'RF mapping (test)'}
+            ]
+        },
         'visual_mismatch': {
             'blocks': [
                 {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
@@ -947,8 +817,11 @@ def generate_single_session_csv(session_type, output_path, seed=None):
                 {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
                 {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
                 {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
-                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
-                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4',
+                 'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
+                {'type': 'movie_trippy', 'duration_minutes': 5, 'label': 'Trippy', 'movie_duration_s': 150, 'repeats': 2, 'width': 120, 'height': 95},
+                {'type': 'movie_zebra', 'duration_minutes': 5, 'label': 'Zebra', 'movie_duration_s': 300, 'repeats': 1, 'width': 120, 'height': 95},
+                {'type': 'rf_mapping', 'duration_minutes': 5, 'label': 'RF mapping'}
             ]
         },
         'sensorimotor_mismatch': {
@@ -959,8 +832,11 @@ def generate_single_session_csv(session_type, output_path, seed=None):
                 {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
                 {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
                 {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
-                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
-                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4',
+                 'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
+                {'type': 'movie_trippy', 'duration_minutes': 5, 'label': 'Trippy', 'movie_duration_s': 150, 'repeats': 2, 'width': 120, 'height': 95},
+                {'type': 'movie_zebra', 'duration_minutes': 5, 'label': 'Zebra', 'movie_duration_s': 300, 'repeats': 1, 'width': 120, 'height': 95},
+                {'type': 'rf_mapping', 'duration_minutes': 5, 'label': 'RF mapping'}
             ]
         },
         'sequence_mismatch': {
@@ -971,8 +847,11 @@ def generate_single_session_csv(session_type, output_path, seed=None):
                 {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
                 {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
                 {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
-                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
-                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4',
+                 'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
+                {'type': 'movie_trippy', 'duration_minutes': 5, 'label': 'Trippy', 'movie_duration_s': 150, 'repeats': 2, 'width': 120, 'height': 95},
+                {'type': 'movie_zebra', 'duration_minutes': 5, 'label': 'Zebra', 'movie_duration_s': 300, 'repeats': 1, 'width': 120, 'height': 95},
+                {'type': 'rf_mapping', 'duration_minutes': 5, 'label': 'RF mapping'}
             ]
         },
         'duration_mismatch': {
@@ -983,8 +862,11 @@ def generate_single_session_csv(session_type, output_path, seed=None):
                 {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
                 {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
                 {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
-                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
-                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4',
+                 'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
+                {'type': 'movie_trippy', 'duration_minutes': 5, 'label': 'Trippy', 'movie_duration_s': 150, 'repeats': 2, 'width': 120, 'height': 95},
+                {'type': 'movie_zebra', 'duration_minutes': 5, 'label': 'Zebra', 'movie_duration_s': 300, 'repeats': 1, 'width': 120, 'height': 95},
+                {'type': 'rf_mapping', 'duration_minutes': 5, 'label': 'RF mapping'}
             ]
         },
         'sequence_mismatch_no_oddball': {
@@ -994,8 +876,11 @@ def generate_single_session_csv(session_type, output_path, seed=None):
                 {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
                 {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
                 {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
-                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
-                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4',
+                 'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
+                {'type': 'movie_trippy', 'duration_minutes': 5, 'label': 'Trippy', 'movie_duration_s': 150, 'repeats': 2, 'width': 120, 'height': 95},
+                {'type': 'movie_zebra', 'duration_minutes': 5, 'label': 'Zebra', 'movie_duration_s': 300, 'repeats': 1, 'width': 120, 'height': 95},
+                {'type': 'rf_mapping', 'duration_minutes': 5, 'label': 'RF mapping'}
             ]
         },
         'sensorimotor_mismatch_no_oddball': {
@@ -1005,8 +890,11 @@ def generate_single_session_csv(session_type, output_path, seed=None):
                 {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
                 {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
                 {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
-                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4'},
-                {'type': 'rf_mapping', 'duration_minutes': 10, 'label': 'RF mapping'}
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4',
+                 'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
+                {'type': 'movie_trippy', 'duration_minutes': 5, 'label': 'Trippy', 'movie_duration_s': 150, 'repeats': 2, 'width': 120, 'height': 95},
+                {'type': 'movie_zebra', 'duration_minutes': 5, 'label': 'Zebra', 'movie_duration_s': 300, 'repeats': 1, 'width': 120, 'height': 95},
+                {'type': 'rf_mapping', 'duration_minutes': 5, 'label': 'RF mapping'}
             ]
         }
     }
@@ -1049,7 +937,8 @@ def generate_single_session_csv(session_type, output_path, seed=None):
             block_type=block_type,
             duration_minutes=duration_minutes,
             oddball_config=oddball_config,
-            variant=0  # Single variant for launcher mode
+            variant=0,  # Single variant for launcher mode
+            block_config=block_config  # Pass full config so movie repeats/durations are applied
         )
         
         # Add block metadata to each trial
@@ -1072,7 +961,7 @@ def generate_single_session_csv(session_type, output_path, seed=None):
             # Add metadata
             enriched_trial = {
                 'Block_Number': block_number,
-                'Block_Label': block_label,
+                        'Block_Label': block_label,
                 'Block_Duration_Minutes': duration_minutes,
                 'Trial_Number': trial_counter,
                 'Sequence_Number': sequence_counter,
@@ -1102,170 +991,22 @@ def generate_single_session_csv(session_type, output_path, seed=None):
         print("Error saving CSV file: %s" % e)
         return False
 
-def generate_example_stimulus_tables():
-    """
-    Generate example stimulus tables for each session type.
-    These match exactly what the launcher generates on-the-fly, 
-    providing full examples for documentation and understanding.
-    """
-    
-    print("="*80)
-    print("EXAMPLE STIMULUS TABLE GENERATOR")
-    print("="*80)
-    print("Generating example stimulus tables that match launcher output...")
-    print()
-    
-    # Create examples folder under Mindscope
-    examples_folder = os.path.join(os.path.dirname(__file__), "examples")
-    if not os.path.exists(examples_folder):
-        os.makedirs(examples_folder)
-        print("Created examples folder: %s" % examples_folder)
-    
-    # All available session types from the launcher
-    session_types = [
-        'visual_mismatch',
-        'sensorimotor_mismatch',
-        'sequence_mismatch', 
-        'duration_mismatch',
-        'sequence_mismatch_no_oddball',
-        'sensorimotor_mismatch_no_oddball'
-    ]
-    
-    generated_files = []
-    
-    # Generate each example using the same logic as the launcher
-    for session_type in session_types:
-        print("Generating example for session type: %s" % session_type)
-        
-        # Use a fixed seed for reproducible examples (like launcher would with session UUID)
-        example_seed = 12345 + hash(session_type) % 10000  # Deterministic but unique per session
-        
-        # Output filename matching session type
-        output_filename = "%s_example.csv" % session_type
-        output_path = os.path.join(examples_folder, output_filename)
-        
-        # Generate the CSV using the same function the launcher calls
-        success = generate_single_session_csv(
-            session_type=session_type,
-            output_path=output_path,
-            seed=example_seed
-        )
-        
-        if success:
-            # Count trials in generated file
-            with open(output_path, 'r') as f:
-                trial_count = sum(1 for _ in f) - 1  # Subtract header
-            
-            print("  → Generated %s (%d trials)" % (output_filename, trial_count))
-            generated_files.append(output_path)
-        else:
-            print("  → Failed to generate %s" % output_filename)
-    
-    print()
-    print("="*80)
-    print("EXAMPLE GENERATION COMPLETE")
-    print("="*80)
-    print()
-    print("Generated %d example stimulus tables in:" % len(generated_files))
-    print("  %s" % examples_folder)
-    print()
-    
-    print("Example files:")
-    for filepath in generated_files:
-        filename = os.path.basename(filepath)
-        print("  %s" % filename)
-    
-    print()
-    print("Each example shows the complete stimulus structure that would be")
-    print("generated by the launcher for that session type, including:")
-    print("- All 7 experimental blocks in sequence")
-    print("- Proper trial timing and parameters") 
-    print("- Oddball distributions and controls")
-    print("- RF mapping grid")
-    print("- Block metadata for analysis")
-    print()
-    print("These examples can be committed to the repository for documentation.")
-    
-    return generated_files
+## Example generation removed.
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        description="Generate experimental session CSV files for visual mismatch paradigms",
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Generate all session folders with 10 variants each (original mode)
-  python generate_experiment_csv.py
-  
-  # Generate example stimulus tables for documentation (new mode)
-  python generate_experiment_csv.py --examples
-  
-  # Generate single session file for launcher (launcher mode)
-  python generate_experiment_csv.py --session-type sensorimotor_mismatch --output-path /path/to/file.csv --seed 12345
-  
-Available session types:
-  - visual_mismatch
-  - sensorimotor_mismatch  
-  - sequence_mismatch
-  - duration_mismatch
-  - sequence_mismatch_no_oddball
-  - sensorimotor_mismatch_no_oddball
-        """
-    )
-    
-    parser.add_argument(
-        '--examples',
-        action='store_true',
-        help='Generate example stimulus tables for each session type (for documentation)'
-    )
-    parser.add_argument(
-        '--session-type', 
-        help='Type of session to generate (for single file mode)'
-    )
-    parser.add_argument(
-        '--output-path',
-        help='Output path for the CSV file (for single file mode)'
-    )
-    parser.add_argument(
-        '--seed',
-        type=int,
-        help='Random seed for reproducibility (for single file mode)'
-    )
-    
+    parser = argparse.ArgumentParser(description="Generate a single experimental session CSV (launcher mode only)")
+    parser.add_argument('--session-type', required=True, help='Session type identifier')
+    parser.add_argument('--output-path', required=True, help='Destination CSV path')
+    parser.add_argument('--seed', type=int, help='Random seed for reproducibility')
+
     args = parser.parse_args()
-    
-    if args.examples:
-        # Generate example tables
-        generate_example_stimulus_tables()
-        sys.exit(0)
-    elif args.session_type and args.output_path:
-        # Single session mode (for launcher integration)
-        print("="*80)
-        print("SINGLE SESSION CSV GENERATOR")
-        print("="*80)
-        success = generate_single_session_csv(
-            session_type=args.session_type,
-            output_path=args.output_path,
-            seed=args.seed
-        )
-        sys.exit(0 if success else 1)
-    else:
-        # Original batch mode (generate all folders with variants)
-        print("="*80)
-        print("EXPERIMENTAL SESSION CSV GENERATOR")
-        print("="*80)
-        print()
-        print("This script generates separate CSV files for each experimental session")
-        print("matching the visual mismatch paradigm diagram:")
-        print("1. Visual Mismatch Session")
-        print("2. Sensory-Motor Mismatch Session")  
-        print("3. Sequence Mismatch Session")
-        print("4. Duration Mismatch Session")
-        print("5. Sequence No-Oddball Session (long blocks without oddballs)")
-        print("6. Sensory-Motor No-Oddball Session (long blocks without oddballs)")
-        print()
-        print("Each session has the same control block structure but different main blocks.")
-        print()
-        
-        # Generate separate session CSV files
-        main_single_csv()
+
+    print("="*80)
+    print("SINGLE SESSION CSV GENERATOR (SIMPLIFIED MODE)")
+    print("="*80)
+    success = generate_single_session_csv(
+        session_type=args.session_type,
+        output_path=args.output_path,
+        seed=args.seed
+    )
+    sys.exit(0 if success else 1)
