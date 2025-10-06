@@ -54,7 +54,22 @@
         <Combinator xsi:type="gl:TextureResources">
           <gl:Textures>
             <gl:TextureConfiguration xsi:type="gl:VideoTexture">
-              <gl:Name>zebra</gl:Name>
+              <gl:Name>Zebra</gl:Name>
+              <gl:Width xsi:nil="true" />
+              <gl:Height xsi:nil="true" />
+              <gl:InternalFormat>Rgba</gl:InternalFormat>
+              <gl:WrapS>Repeat</gl:WrapS>
+              <gl:WrapT>Repeat</gl:WrapT>
+              <gl:MinFilter>Linear</gl:MinFilter>
+              <gl:MagFilter>Linear</gl:MagFilter>
+              <gl:FileName>movies\zebra_allen_screen_tscale_30_scale_10.mp4</gl:FileName>
+              <gl:FlipMode>Vertical</gl:FlipMode>
+              <gl:FrameCount xsi:nil="true" />
+              <gl:StartPosition>0</gl:StartPosition>
+              <gl:BufferLength xsi:nil="true" />
+            </gl:TextureConfiguration>
+            <gl:TextureConfiguration xsi:type="gl:VideoTexture">
+              <gl:Name>Trippy</gl:Name>
               <gl:Width xsi:nil="true" />
               <gl:Height xsi:nil="true" />
               <gl:InternalFormat>Rgba</gl:InternalFormat>
