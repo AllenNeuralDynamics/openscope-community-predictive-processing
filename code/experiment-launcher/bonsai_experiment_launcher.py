@@ -1551,9 +1551,8 @@ class BonsaiExperiment(object):
                 self.save_output()
                 return False
 
-            # Optional opto-tagging: mirror reference.py pattern using camstim get_config + agent
-            if self.params.get('run_opto_tagging'):
-                logging.info('Preparing opto-tagging (reference style)...')
+            if not(self.params.get('disable_opto', True)):
+                logging.info('Preparing opto-tagging...')
                 try:
                     from camstim.misc import get_config
                     from camstim.zro import agent
@@ -1561,40 +1560,20 @@ class BonsaiExperiment(object):
                     logging.warning('Opto-tagging skipped: camstim modules unavailable (%s)' % e)
                 else:
                     # Build params similar to reference.py
-                    opto_params = deepcopy(self.params.get('opto_params', {}))
+                    opto_params = deepcopy(self.params.get('opto_params'))
+
                     # Source mouse id
-                    opto_params['mouse_id'] = self.params.get('mouse_id', 'unknown_mouse')
-                    # Operation mode: allow existing key or map from legacy param
-                    if 'operation_mode' not in opto_params:
-                        if 'opto_mode' in self.params:
-                            opto_params['operation_mode'] = self.params['opto_mode']
-                        else:
-                            opto_params['operation_mode'] = 'experiment'
-                    # Output dir from agent (rig-local) overriding JSON if present
-                    try:
-                        opto_params['output_dir'] = agent.OUTPUT_DIR
-                    except Exception:
-                        opto_params['output_dir'] = self.params.get('opto_output_dir', 'C:/ProgramData/camstim/output/')
-                    # Level list from rig config (zookeeper) with fallback
-                    try:
-                        cfg_levels = get_config('Optogenetics')['level_list']
-                        opto_params['level_list'] = cfg_levels
-                    except Exception as e_cfg:
-                        logging.warning('Failed to read Optogenetics level_list from config (%s); using provided levels', e_cfg)
-                        if 'level_list' not in opto_params:
-                            if 'opto_levels' in self.params:
-                                opto_params['level_list'] = self.params['opto_levels']
-                            else:
-                                opto_params['level_list'] = [1.15, 1.28, 1.345]
+                    opto_params['mouse_id'] = self.params.get('mouse_id')
+                    opto_params['output_dir'] = agent.OUTPUT_DIR
+                    opto_params['level_list'] = get_config('Optogenetics')['level_list']
+
                     # Log summary then execute
                     logging.info('Opto-tagging params: mode=%s levels=%s out=%s' % (
                         opto_params.get('operation_mode'), opto_params.get('level_list'), opto_params.get('output_dir')))
-                    try:
-                        optotagging(**opto_params)
-                        logging.info('Opto-tagging completed.')
-                    except Exception as e_run:
-                        logging.exception('Opto-tagging failed during execution: %s' % e_run)
-            
+   
+                    optotagging(**opto_params)
+                    logging.info('Opto-tagging completed.')
+
             # Save experiment data
             self.save_output()            
             
