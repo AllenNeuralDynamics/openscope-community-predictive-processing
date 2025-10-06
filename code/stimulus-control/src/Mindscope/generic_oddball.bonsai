@@ -421,7 +421,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="gl:Delay">
-          <gl:DueTime>PT1S</gl:DueTime>
+          <gl:DueTime>PT10S</gl:DueTime>
         </Combinator>
       </Expression>
       <Expression xsi:type="SubscribeSubject">
