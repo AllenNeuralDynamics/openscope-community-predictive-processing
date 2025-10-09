@@ -897,6 +897,13 @@ def generate_single_session_csv(session_type, output_path, seed=None):
                 {'type': 'rf_mapping', 'duration_minutes': 5, 'label': 'RF mapping'}
             ]
         }
+        ,
+        'sensorimotor_mismatch_no_oddball_training': {
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'motor_long', 'duration_minutes': 53.6, 'label': 'Sensory-motor long training block'}
+            ]
+        }
     }
     
     # Add shorter aliases for convenience
