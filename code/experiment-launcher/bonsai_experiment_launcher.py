@@ -1376,6 +1376,8 @@ class BonsaiExperiment(object):
         
         # Create structure matching CAMSTIM's output format
         # Include additional fields found in reference CAMSTIM files
+        intervalsms = self._calculate_intervalsms()
+
         output_data = {
             # Core fields present in original CAMSTIM session dictionaries
             'stimuli': stimuli_data,
@@ -1385,10 +1387,14 @@ class BonsaiExperiment(object):
             'script': script_path,  # Full path to the workflow/script
             'config': self.config,
             'params': self.params,
+            'pre_blank_sec': 0.0,
+            'vsynccount': len(intervalsms)+1,
+            'stage': self.params.get('stage', 'unknown_stage'),
             'items': {
                 'foraging': {
-                    'intervalsms': self._calculate_intervalsms(),
-                    'encoders': encoder_data
+                    'intervalsms': intervalsms,
+                    'encoders': encoder_data,
+                    'params': self.params
                 }
             },
             
