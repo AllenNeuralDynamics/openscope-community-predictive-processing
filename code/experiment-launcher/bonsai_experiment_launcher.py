@@ -956,9 +956,13 @@ class BonsaiExperiment(object):
         Returns:
             dict: CAMSTIM-compatible stimulus object
         """
+
         # Extract unique parameter names (dimnames) - migrated to explicit X/Y diameters only
         param_columns = ['Orientation', 'SpatialFrequency', 'TemporalFrequency',
-                         'Contrast', 'Phase', 'DiameterX', 'DiameterY', 'X', 'Y', 'Duration', 'Delay']
+                         'Contrast', 'Phase', 'DiameterX', 'DiameterY', 'X', 'Y', 'Duration', 'Delay',
+                         'BlockNumber', 'BlockLabel', 'BlockDurationMinutes', 'TrialNumber',
+                         'SequenceNumber','TrialInSequence', 'TrialType', 'BlockType'
+                         ]
         dimnames = []
         
         # Check which parameters are present in the data
@@ -1050,13 +1054,14 @@ class BonsaiExperiment(object):
             else:
                 sweep_frames_tuples.append(frame_pair)
         
-        # Get the Bonsai workflow path for stim_path
-        workflow_path = self.params.get('bonsai_path', 'unknown_workflow')
+        # Get the Block label for stim_path. We take the first one as representative.
+        # This is what is used to label the stimulus in CAMSTIM.
+        block_label = block_data[0].get('BlockLabel', 'unknown_block')
         
         # Create stimulus object matching CAMSTIM format
         # Remove 'block_type' and 'num_sweeps' as they don't exist in reference
         stimulus_obj = {
-            'stim_path': workflow_path,
+            'stim_path': block_label,
             'stim': block_type,
             'sweep_frames': sweep_frames_tuples,  # Use tuples like CAMSTIM
             'sweep_order': sweep_order,
