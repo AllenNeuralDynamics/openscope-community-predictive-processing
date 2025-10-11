@@ -203,9 +203,9 @@
               <LocationY>28</LocationY>
               <Layer>2</Layer>
               <Angle>0</Angle>
-              <ColorR>0</ColorR>
-              <ColorG>0</ColorG>
-              <ColorB>0</ColorB>
+              <ColorR>1</ColorR>
+              <ColorG>1</ColorG>
+              <ColorB>1</ColorB>
               <ColorA>1</ColorA>
             </Expression>
             <Expression xsi:type="MemberSelector">
@@ -498,7 +498,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
                           </PropertyMappings>
                         </Expression>
                         <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawVideo.bonsai">
-                          <TextureName>zebra</TextureName>
+                          <TextureName>Zebra</TextureName>
                           <PlaybackRate>30</PlaybackRate>
                           <Loop>false</Loop>
                           <Angle>0</Angle>
@@ -530,7 +530,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
                         </Expression>
                         <Expression xsi:type="Combinator">
                           <Combinator xsi:type="gl:Timer">
-                            <gl:DueTime>PT15S</gl:DueTime>
+                            <gl:DueTime>PT10S</gl:DueTime>
                           </Combinator>
                         </Expression>
                         <Expression xsi:type="Combinator">
@@ -581,20 +581,8 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
                           <Combinator xsi:type="rx:SubscribeWhen" />
                         </Expression>
                         <Expression xsi:type="Combinator">
-                          <Combinator xsi:type="rx:TakeLast">
-                            <rx:Count>1</rx:Count>
-                          </Combinator>
+                          <Combinator xsi:type="rx:Last" />
                         </Expression>
-                        <Expression xsi:type="SubscribeSubject">
-                          <Name>ActualParameters</Name>
-                        </Expression>
-                        <Expression xsi:type="Combinator">
-                          <Combinator xsi:type="rx:WithLatestFrom" />
-                        </Expression>
-                        <Expression xsi:type="scr:ExpressionTransform">
-                          <scr:Expression>it.Item2</scr:Expression>
-                        </Expression>
-                        <Expression xsi:type="WorkflowOutput" />
                         <Expression xsi:type="SubscribeSubject">
                           <Name>Parameters</Name>
                         </Expression>
@@ -613,12 +601,21 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
     Convert.ToDouble(0) as Phase,
     it.TrialType as TrialType,           
     it.BlockType as BlockType, 
-    it.Id as Id
+    it.Id as Id,
+    it.BlockNumber as BlockNumber, 
+    it.BlockLabel as BlockLabel,
+    it.TrialNumber as TrialNumber, 
+    it.SequenceNumber as SequenceNumber,
+    it.TrialInSequence as TrialInSequence
 )</scr:Expression>
                         </Expression>
-                        <Expression xsi:type="rx:PublishSubject">
-                          <Name>ActualParameters</Name>
+                        <Expression xsi:type="Combinator">
+                          <Combinator xsi:type="rx:WithLatestFrom" />
                         </Expression>
+                        <Expression xsi:type="scr:ExpressionTransform">
+                          <scr:Expression>it.Item2</scr:Expression>
+                        </Expression>
+                        <Expression xsi:type="WorkflowOutput" />
                       </Nodes>
                       <Edges>
                         <Edge From="0" To="1" Label="Source1" />
@@ -644,12 +641,11 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
                         <Edge From="21" To="22" Label="Source1" />
                         <Edge From="22" To="23" Label="Source2" />
                         <Edge From="23" To="24" Label="Source1" />
-                        <Edge From="24" To="26" Label="Source1" />
-                        <Edge From="25" To="26" Label="Source2" />
-                        <Edge From="26" To="27" Label="Source1" />
+                        <Edge From="24" To="27" Label="Source1" />
+                        <Edge From="25" To="26" Label="Source1" />
+                        <Edge From="26" To="27" Label="Source2" />
                         <Edge From="27" To="28" Label="Source1" />
-                        <Edge From="29" To="30" Label="Source1" />
-                        <Edge From="30" To="31" Label="Source1" />
+                        <Edge From="28" To="29" Label="Source1" />
                       </Edges>
                     </Workflow>
                   </Expression>
@@ -747,15 +743,15 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
                           </PropertyMappings>
                         </Expression>
                         <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawGratings.bonsai">
-                          <LocationX>-40</LocationX>
-                          <LocationY>20</LocationY>
+                          <LocationX>-30</LocationX>
+                          <LocationY>10</LocationY>
                           <Layer>0</Layer>
                           <ExtentX>20</ExtentX>
                           <ExtentY>20</ExtentY>
                           <SpatialFrequency>0.08</SpatialFrequency>
                           <TemporalFrequency>4</TemporalFrequency>
                           <Phase>0</Phase>
-                          <Angle>90</Angle>
+                          <Angle>0</Angle>
                           <SquareWave>false</SquareWave>
                           <Contrast>0.8</Contrast>
                           <DutyCycle xsi:nil="true" />
@@ -862,7 +858,12 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
     it.Item2 as Phase,
     it.Item1.TrialType as TrialType,           
     it.Item1.BlockType as BlockType, 
-    it.Item1.Id as Id
+    it.Item1.Id as Id,
+    it.Item1.BlockNumber as BlockNumber, 
+    it.Item1.BlockLabel as BlockLabel,
+    it.Item1.TrialNumber as TrialNumber, 
+    it.Item1.SequenceNumber as SequenceNumber,
+    it.Item1.TrialInSequence as TrialInSequence
 )</scr:Expression>
                         </Expression>
                         <Expression xsi:type="rx:PublishSubject">
@@ -975,7 +976,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Delay">
-          <rx:DueTime>PT10M45S</rx:DueTime>
+          <rx:DueTime>PT6M30S</rx:DueTime>
         </Combinator>
       </Expression>
       <Expression xsi:type="Combinator">
@@ -1090,7 +1091,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
         <Append>false</Append>
         <Overwrite>true</Overwrite>
         <Suffix>None</Suffix>
-        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251005T221205/orientations_logger.csv</FileName>
+        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251010T220403/orientations_logger.csv</FileName>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
         <Format>Frame</Format>
@@ -1128,7 +1129,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
         <Text><![CDATA[]]></Text>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251005T221205/orientations_orientations.csv</io:FileName>
+        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251010T220403/orientations_orientations.csv</io:FileName>
         <io:Append>true</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>FileCount</io:Suffix>
