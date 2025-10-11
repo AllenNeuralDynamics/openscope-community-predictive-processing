@@ -921,10 +921,10 @@ class BonsaiExperiment(object):
             logging.warning("Could not create timing map from logger: %s" % e)
             
         return timing_map
-    
-    def _group_by_block_type(self, orientations_data):
+
+    def _group_by_block_label(self, orientations_data):
         """
-        Group orientation data by BlockType without using pandas.
+        Group orientation data by BlockLabel without using pandas.
         
         Args:
             orientations_data (list): List of orientation dictionaries
@@ -934,16 +934,15 @@ class BonsaiExperiment(object):
         """
         grouped = {}
         for row in orientations_data:
-            block_type = row.get('BlockType')
-            if not block_type:  # Handle None, empty string, etc.
-                block_type = 'unknown_block_type'
-            if block_type not in grouped:
-                grouped[block_type] = []
-            grouped[block_type].append(row)
+            block_label = row.get('BlockLabel')
+            if not block_label:  # Handle None, empty string, etc.
+                block_label = 'unknown_block_type'
+            if block_label not in grouped:
+                grouped[block_label] = []
+            grouped[block_label].append(row)
         
         return grouped
 
-    
     def _create_stimulus_object_from_block(self, block_data, block_type, timing_map):
         """
         Create a CAMSTIM-compatible stimulus object from a block of presentations.
@@ -959,10 +958,10 @@ class BonsaiExperiment(object):
 
         # Extract unique parameter names (dimnames) - migrated to explicit X/Y diameters only
         param_columns = ['Orientation', 'SpatialFrequency', 'TemporalFrequency',
-                         'Contrast', 'Phase', 'DiameterX', 'DiameterY', 'X', 'Y', 'Duration', 'Delay',
-                         'BlockNumber', 'BlockLabel', 'BlockDurationMinutes', 'TrialNumber',
-                         'SequenceNumber','TrialInSequence', 'TrialType', 'BlockType'
-                         ]
+                            'Contrast', 'Phase', 'DiameterX', 'DiameterY', 'X', 'Y', 'Duration', 'Delay',
+                            'BlockNumber', 'BlockLabel', 'BlockDurationMinutes', 'TrialNumber',
+                            'SequenceNumber','TrialInSequence', 'TrialType', 'BlockType'
+                            ]
         dimnames = []
         
         # Check which parameters are present in the data
@@ -971,10 +970,126 @@ class BonsaiExperiment(object):
                 if col in block_data[0]:
                     dimnames.append(col)
         
-        # Create sweep_frames and sweep_table
-        sweep_frames = []
-        sweep_table = []
-        sweep_order = []
+        # Special case: movie blocks (expand individual MovieFrame-* events as sweeps)
+        if block_data and block_data[0].get('BlockType') == 'movie':
+            # Ensure TrialInSequence tracked (frame index within movie)
+            if 'TrialInSequence' not in dimnames:
+                dimnames.append('TrialInSequence')
+            # Build a template parameter vector from first row
+            template_row = block_data[0]
+            base_params = []
+            for dn in dimnames:
+                val = template_row.get(dn)
+                if val in (None, ''):
+                    base_params.append(None)
+                else:
+                    try:
+                        if '.' in str(val):
+                            base_params.append(float(val))
+                        else:
+                            base_params.append(int(val))
+                    except Exception:
+                        base_params.append(val)
+            # Collect movie frame timing entries from timing_map: keys starting with 'MovieFrame-'
+            movie_frames = []  # list of (frame_number, timing_info)
+            for k, v in timing_map.items():
+                if isinstance(k, str) and k.startswith('MovieFrame-'):
+                    parts = k.split('-', 1)
+                    if len(parts) == 2:
+                        try:
+                            frame_num = int(parts[1])
+                        except Exception:
+                            continue
+                        movie_frames.append((frame_num, v))
+            movie_frames.sort(key=lambda x: x[0])
+            sweep_frames = []
+            sweep_table = []
+            sweep_order = []
+            # Index of TrialInSequence in param list
+            trial_seq_index = dimnames.index('TrialInSequence')
+            for idx, (frame_num, tinfo) in enumerate(movie_frames):
+                start_frame = tinfo.get('start_frame')
+                end_frame = tinfo.get('end_frame')
+                if start_frame is None:
+                    # Treat as single frame if missing
+                    start_frame = tinfo.get('frame', None)
+                if end_frame is None:
+                    end_frame = start_frame
+                sweep_frames.append((start_frame, end_frame))
+                # Clone params and override TrialInSequence with frame number
+                params = list(base_params)
+                params[trial_seq_index] = frame_num
+                sweep_table.append(tuple(params))
+                sweep_order.append(idx)
+            # For display_sequence compute min/max timestamps over movie frames
+            if movie_frames:
+                start_ts = [t.get('start_timestamp') for _, t in movie_frames if t.get('start_timestamp') is not None]
+                end_ts = [t.get('end_timestamp') for _, t in movie_frames if t.get('end_timestamp') is not None]
+                if start_ts and end_ts and np is not None:
+                    display_sequence = np.array([[min(start_ts), max(end_ts)]])
+                elif start_ts and end_ts:
+                    display_sequence = [[min(start_ts), max(end_ts)]]
+                else:
+                    display_sequence = np.array([[None, None]]) if np is not None else [[None, None]]
+            else:
+                # No movie frame timing -> fallback single None sequence
+                display_sequence = np.array([[None, None]]) if np is not None else [[None, None]]
+            # Convert frames to tuples already done; proceed to build stimulus object below common path
+        else:
+            # Create sweep_frames and sweep_table (standard path)
+            sweep_frames = []
+            sweep_table = []
+            sweep_order = []
+            for idx, row in enumerate(block_data):
+                stim_id = row.get('Id', '')
+                # Get timing info from timing_map
+                if stim_id in timing_map:
+                    timing_info = timing_map[stim_id]
+                    start_frame = timing_info.get('start_frame')
+                    end_frame = timing_info.get('end_frame')
+                    if start_frame is not None and end_frame is not None:
+                        sweep_frames.append([start_frame, end_frame])
+                    else:
+                        sweep_frames.append([None, None])
+                else:
+                    sweep_frames.append([None, None])
+                param_values = []
+                for dimname in dimnames:
+                    value = row.get(dimname)
+                    if value is None or value == '':
+                        param_values.append(None)
+                    else:
+                        try:
+                            if '.' in str(value):
+                                param_values.append(float(value))
+                            else:
+                                param_values.append(int(value))
+                        except (ValueError, TypeError):
+                            param_values.append(value)
+                sweep_table.append(tuple(param_values))
+                sweep_order.append(idx)
+            # Create display_sequence using actual timestamps from logger data (standard path)
+            if sweep_frames:
+                start_timestamps = []
+                end_timestamps = []
+                for idx2, row2 in enumerate(block_data):
+                    stim_id2 = row2.get('Id', '')
+                    if stim_id2 in timing_map:
+                        timing_info2 = timing_map[stim_id2]
+                        st = timing_info2.get('start_timestamp')
+                        et = timing_info2.get('end_timestamp')
+                        if st is not None:
+                            start_timestamps.append(st)
+                        if et is not None:
+                            end_timestamps.append(et)
+                if start_timestamps and end_timestamps:
+                    display_start_sec = min(start_timestamps)
+                    display_end_sec = max(end_timestamps)
+                    display_sequence = np.array([[display_start_sec, display_end_sec]]) if np is not None else [[display_start_sec, display_end_sec]]
+                else:
+                    display_sequence = np.array([[None, None]]) if np is not None else [[None, None]]
+            else:
+                display_sequence = np.array([[None, None]]) if np is not None else [[None, None]]
         
         for idx, row in enumerate(block_data):
             stim_id = row.get('Id', '')
@@ -1016,37 +1131,7 @@ class BonsaiExperiment(object):
             
             sweep_order.append(idx)
         
-        # Create display_sequence using actual timestamps from logger data
-        if sweep_frames:
-            # Find the actual start and end timestamps from timing_map
-            start_timestamps = []
-            end_timestamps = []
-            
-            for idx, row in enumerate(block_data):
-                stim_id = row.get('Id', '')
-                if stim_id in timing_map:
-                    timing_info = timing_map[stim_id]
-                    start_time = timing_info.get('start_timestamp')
-                    end_time = timing_info.get('end_timestamp')
-                    
-                    if start_time is not None:
-                        start_timestamps.append(start_time)
-                    if end_time is not None:
-                        end_timestamps.append(end_time)
-            
-            if start_timestamps and end_timestamps:
-                # Use the earliest start time and latest end time for the display sequence
-                display_start_sec = min(start_timestamps)
-                display_end_sec = max(end_timestamps)
-                # Create as numpy array like in CAMSTIM
-                display_sequence = np.array([[display_start_sec, display_end_sec]])
-            else:
-                # No valid timing data available
-                display_sequence = np.array([[None, None]])
-        else:
-            display_sequence = np.array([[None, None]])
-        
-        # Convert sweep_frames to tuples like in CAMSTIM (not lists)
+        # Convert sweep_frames to tuples like in CAMSTIM (not lists). Movie branch already produced tuples.
         sweep_frames_tuples = []
         for frame_pair in sweep_frames:
             if isinstance(frame_pair, list) and len(frame_pair) >= 2:
@@ -1063,9 +1148,9 @@ class BonsaiExperiment(object):
         stimulus_obj = {
             'stim_path': block_label,
             'stim': block_type,
-            'sweep_frames': sweep_frames_tuples,  # Use tuples like CAMSTIM
+            'sweep_frames': sweep_frames_tuples,
             'sweep_order': sweep_order,
-            'display_sequence': display_sequence,  # As numpy array in seconds
+            'display_sequence': display_sequence,
             'dimnames': dimnames,
             'sweep_table': sweep_table
         }
@@ -1113,7 +1198,7 @@ class BonsaiExperiment(object):
             timing_map = self._create_timing_map(logger_data)
             
             # Group presentations by block type to create stimulus objects
-            grouped_data = self._group_by_block_type(orientations_data)
+            grouped_data = self._group_by_block_label(orientations_data)
             
             for block_type, block_data in grouped_data.items():
                 stimulus_obj = self._create_stimulus_object_from_block(
