@@ -905,7 +905,9 @@ class BonsaiExperiment(object):
                 value = row.get('Value', '')
                 frame = row.get('Frame', '0')
                 timestamp = row.get('Timestamp', '0.0')
-                
+                if not value:
+                    continue
+                # Stimulus start/end markers
                 if value.startswith('StimStart-'):
                     stim_id = value.replace('StimStart-', '')
                     timing_map[stim_id] = {
@@ -917,6 +919,21 @@ class BonsaiExperiment(object):
                     if stim_id in timing_map:
                         timing_map[stim_id]['end_frame'] = int(frame)
                         timing_map[stim_id]['end_timestamp'] = float(timestamp)
+                # Movie frame markers: MovieFrame-<number>
+                elif value.startswith('MovieFrame-'):
+                    # Each movie frame is its own timing entry; treat as single-frame duration
+                    frame_key = value  # keep full key (e.g., MovieFrame-264)
+                    try:
+                        fr_int = int(frame)
+                        ts_float = float(timestamp)
+                    except Exception:
+                        continue
+                    timing_map[frame_key] = {
+                        'start_frame': fr_int,
+                        'end_frame': fr_int,
+                        'start_timestamp': ts_float,
+                        'end_timestamp': ts_float
+                    }
         except Exception as e:
             logging.warning("Could not create timing map from logger: %s" % e)
             
