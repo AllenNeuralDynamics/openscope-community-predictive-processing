@@ -899,8 +899,9 @@ class BonsaiExperiment(object):
             dict: Mapping from stimulus ID to timing info
         """
         timing_map = {}
-        
+
         try:
+            stim_id = None
             for row in logger_data:
                 value = row.get('Value', '')
                 frame = row.get('Frame', '0')
@@ -919,21 +920,40 @@ class BonsaiExperiment(object):
                     if stim_id in timing_map:
                         timing_map[stim_id]['end_frame'] = int(frame)
                         timing_map[stim_id]['end_timestamp'] = float(timestamp)
+                    # if we are closing a movie block, we at end_frame and end_timestamp to the last frame
+                    # Python 2.7: no max(..., default=...), so guard explicitly
+                    if stim_id in timing_map and 'movie' in timing_map[stim_id]:
+                        movie_dict = timing_map[stim_id]['movie']
+                        if movie_dict:
+                            last_frame = max(movie_dict.keys())
+                            if last_frame in movie_dict:
+                                movie_dict[last_frame]['end_frame'] = int(frame)
+                                movie_dict[last_frame]['end_timestamp'] = float(timestamp)    
                 # Movie frame markers: MovieFrame-<number>
                 elif value.startswith('MovieFrame-'):
                     # Each movie frame is its own timing entry; treat as single-frame duration
-                    frame_key = value  # keep full key (e.g., MovieFrame-264)
                     try:
                         fr_int = int(frame)
                         ts_float = float(timestamp)
                     except Exception:
                         continue
-                    timing_map[frame_key] = {
+                    # We convert value into frame number as int
+                    local_frame_index = int(value.replace('MovieFrame-', ''))
+                    # Ensure we have an active stim_id and a movie dict
+                    if stim_id not in timing_map:
+                        # If a MovieFrame appears before StimStart, skip to avoid KeyError
+                        continue
+                    if 'movie' not in timing_map[stim_id] or timing_map[stim_id]['movie'] is None:
+                        timing_map[stim_id]['movie'] = {}
+                    timing_map[stim_id]['movie'][local_frame_index] = {
                         'start_frame': fr_int,
-                        'end_frame': fr_int,
                         'start_timestamp': ts_float,
-                        'end_timestamp': ts_float
                     }
+                    # We fill in end_frame and end_timestamp in local_frame_index - 1 if it exists
+                    if local_frame_index - 1 in timing_map[stim_id]['movie']:
+                        timing_map[stim_id]['movie'][local_frame_index - 1]['end_frame'] = fr_int
+                        timing_map[stim_id]['movie'][local_frame_index - 1]['end_timestamp'] = ts_float
+
         except Exception as e:
             logging.warning("Could not create timing map from logger: %s" % e)
             
@@ -987,93 +1007,92 @@ class BonsaiExperiment(object):
                 if col in block_data[0]:
                     dimnames.append(col)
         
-        # Special case: movie blocks (expand individual MovieFrame-* events as sweeps)
+        # Movie block handling using new timing_map structure: timing_map[stim_id]['movie'][frame_idx]
         if block_data and block_data[0].get('BlockType') == 'movie':
-            # Ensure TrialInSequence tracked (frame index within movie)
+            # Guarantee TrialInSequence present
             if 'TrialInSequence' not in dimnames:
                 dimnames.append('TrialInSequence')
-            # Build a template parameter vector from first row
-            template_row = block_data[0]
-            base_params = []
-            for dn in dimnames:
-                val = template_row.get(dn)
-                if val in (None, ''):
-                    base_params.append(None)
-                else:
-                    try:
-                        if '.' in str(val):
-                            base_params.append(float(val))
-                        else:
-                            base_params.append(int(val))
-                    except Exception:
-                        base_params.append(val)
-            # Collect movie frame timing entries from timing_map: keys starting with 'MovieFrame-'
-            movie_frames = []  # list of (frame_number, timing_info)
-            for k, v in timing_map.items():
-                if isinstance(k, str) and k.startswith('MovieFrame-'):
-                    parts = k.split('-', 1)
-                    if len(parts) == 2:
-                        try:
-                            frame_num = int(parts[1])
-                        except Exception:
-                            continue
-                        movie_frames.append((frame_num, v))
-            movie_frames.sort(key=lambda x: x[0])
             sweep_frames = []
             sweep_table = []
             sweep_order = []
-            # Index of TrialInSequence in param list
-            trial_seq_index = dimnames.index('TrialInSequence')
-            for idx, (frame_num, tinfo) in enumerate(movie_frames):
-                start_frame = tinfo.get('start_frame')
-                end_frame = tinfo.get('end_frame')
-                if start_frame is None:
-                    # Treat as single frame if missing
-                    start_frame = tinfo.get('frame', None)
-                if end_frame is None:
-                    end_frame = start_frame
-                sweep_frames.append((start_frame, end_frame))
-                # Clone params and override TrialInSequence with frame number
-                params = list(base_params)
-                params[trial_seq_index] = frame_num
-                sweep_table.append(tuple(params))
-                sweep_order.append(idx)
-            # For display_sequence compute min/max timestamps over movie frames
-            if movie_frames:
-                start_ts = [t.get('start_timestamp') for _, t in movie_frames if t.get('start_timestamp') is not None]
-                end_ts = [t.get('end_timestamp') for _, t in movie_frames if t.get('end_timestamp') is not None]
-                if start_ts and end_ts and np is not None:
-                    display_sequence = np.array([[min(start_ts), max(end_ts)]])
-                elif start_ts and end_ts:
-                    display_sequence = [[min(start_ts), max(end_ts)]]
+            # For each movie stimulus row (could be multiple movies in a block)
+            global_frame_entries = []  # collect timestamps for display_sequence
+            trial_index_pos = dimnames.index('TrialInSequence')
+            order_counter = 0
+            
+            for row in block_data:
+                stim_id = row.get('Id', '')
+                timing_info = timing_map.get(stim_id, {})
+                movie_dict = timing_info.get('movie', {}) if isinstance(timing_info, dict) else {}
+                
+                # Build base parameter values for this row (excluding TrialInSequence which we'll overwrite)
+                base_params = []
+                for dn in dimnames:
+                    if dn == 'TrialInSequence':
+                        base_params.append(None)  # placeholder
+                        continue
+                    val = row.get(dn)
+                    if val in (None, ''):
+                        base_params.append(None)
+                    else:
+                        try:
+                            if '.' in str(val):
+                                base_params.append(float(val))
+                            else:
+                                base_params.append(int(val))
+                        except Exception:
+                            base_params.append(val)
+                # Expand frames
+                frame_items = sorted(movie_dict.items(), key=lambda kv: kv[0])  # (frame_idx, info)
+                for frame_idx, finfo in frame_items:
+                    start_frame = finfo.get('start_frame')
+                    end_frame = finfo.get('end_frame', start_frame)
+                    sweep_frames.append((start_frame, end_frame))
+                    params = list(base_params)
+                    params[trial_index_pos] = frame_idx
+                    sweep_table.append(tuple(params))
+                    sweep_order.append(order_counter)
+                    order_counter += 1
+                    st_ts = finfo.get('start_timestamp')
+                    en_ts = finfo.get('end_timestamp')
+                    if st_ts is not None:
+                        global_frame_entries.append(('start', st_ts))
+                    if en_ts is not None:
+                        global_frame_entries.append(('end', en_ts))
+            # Compute display_sequence over all frames in block
+            if global_frame_entries:
+                start_times = [ts for kind, ts in global_frame_entries if kind == 'start']
+                end_times = [ts for kind, ts in global_frame_entries if kind == 'end']
+                if start_times and end_times:
+                    ds = min(start_times)
+                    de = max(end_times)
+                    display_sequence = np.array([[ds, de]]) if np is not None else [[ds, de]]
                 else:
                     display_sequence = np.array([[None, None]]) if np is not None else [[None, None]]
             else:
-                # No movie frame timing -> fallback single None sequence
                 display_sequence = np.array([[None, None]]) if np is not None else [[None, None]]
-            # Convert frames to tuples already done; proceed to build stimulus object below common path
         else:
-            # Create sweep_frames and sweep_table (standard path)
+            # Standard (non-movie) path
             sweep_frames = []
             sweep_table = []
             sweep_order = []
             for idx, row in enumerate(block_data):
                 stim_id = row.get('Id', '')
-                # Get timing info from timing_map
-                if stim_id in timing_map:
-                    timing_info = timing_map[stim_id]
+                timing_info = timing_map.get(stim_id)
+                if timing_info:
                     start_frame = timing_info.get('start_frame')
                     end_frame = timing_info.get('end_frame')
                     if start_frame is not None and end_frame is not None:
-                        sweep_frames.append([start_frame, end_frame])
+                        sweep_frames.append((start_frame, end_frame))
                     else:
-                        sweep_frames.append([None, None])
+                        sweep_frames.append((None, None))
                 else:
-                    sweep_frames.append([None, None])
+                    sweep_frames.append((None, None))
+                # Parameter tuple
                 param_values = []
                 for dimname in dimnames:
                     value = row.get(dimname)
-                    if value is None or value == '':
+                    if value in (None, ''):
                         param_values.append(None)
                     else:
                         try:
@@ -1081,78 +1100,41 @@ class BonsaiExperiment(object):
                                 param_values.append(float(value))
                             else:
                                 param_values.append(int(value))
-                        except (ValueError, TypeError):
+                        except Exception:
                             param_values.append(value)
                 sweep_table.append(tuple(param_values))
                 sweep_order.append(idx)
-            # Create display_sequence using actual timestamps from logger data (standard path)
+            # Build display_sequence for standard path
             if sweep_frames:
-                start_timestamps = []
-                end_timestamps = []
-                for idx2, row2 in enumerate(block_data):
-                    stim_id2 = row2.get('Id', '')
-                    if stim_id2 in timing_map:
-                        timing_info2 = timing_map[stim_id2]
-                        st = timing_info2.get('start_timestamp')
-                        et = timing_info2.get('end_timestamp')
-                        if st is not None:
-                            start_timestamps.append(st)
-                        if et is not None:
-                            end_timestamps.append(et)
-                if start_timestamps and end_timestamps:
-                    display_start_sec = min(start_timestamps)
-                    display_end_sec = max(end_timestamps)
-                    display_sequence = np.array([[display_start_sec, display_end_sec]]) if np is not None else [[display_start_sec, display_end_sec]]
+                start_ts_list = []
+                end_ts_list = []
+                for row in block_data:
+                    tinfo2 = timing_map.get(row.get('Id', ''))
+                    if not tinfo2:
+                        continue
+                    st2 = tinfo2.get('start_timestamp')
+                    et2 = tinfo2.get('end_timestamp')
+                    if st2 is not None:
+                        start_ts_list.append(st2)
+                    if et2 is not None:
+                        end_ts_list.append(et2)
+                if start_ts_list and end_ts_list:
+                    ds = min(start_ts_list)
+                    de = max(end_ts_list)
+                    display_sequence = np.array([[ds, de]]) if np is not None else [[ds, de]]
                 else:
                     display_sequence = np.array([[None, None]]) if np is not None else [[None, None]]
             else:
                 display_sequence = np.array([[None, None]]) if np is not None else [[None, None]]
         
-        for idx, row in enumerate(block_data):
-            stim_id = row.get('Id', '')
-            
-            # Get timing info from timing_map
-            if stim_id in timing_map:
-                timing_info = timing_map[stim_id]
-                start_frame = timing_info.get('start_frame')
-                end_frame = timing_info.get('end_frame')
-                
-                # Only use timing if both start and end are available
-                if start_frame is not None and end_frame is not None:
-                    sweep_frames.append([start_frame, end_frame])
-                else:
-                    # Use None to indicate missing timing data
-                    sweep_frames.append([None, None])
-            else:
-                # No timing data available for this stimulus
-                sweep_frames.append([None, None])
-            
-            # Create parameter tuple for this sweep
-            param_values = []
-            for dimname in dimnames:
-                value = row.get(dimname)
-                if value is None or value == '':
-                    # No default values - use None to indicate missing data
-                    param_values.append(None)
-                else:
-                    try:
-                        # Try to convert to number
-                        if '.' in str(value):
-                            param_values.append(float(value))
-                        else:
-                            param_values.append(int(value))
-                    except (ValueError, TypeError):
-                        # If conversion fails, keep the original string value
-                        param_values.append(value)
-            sweep_table.append(tuple(param_values))
-            
-            sweep_order.append(idx)
-        
-        # Convert sweep_frames to tuples like in CAMSTIM (not lists). Movie branch already produced tuples.
+        # sweep_frames already ensured tuples above; if any lists slipped through convert defensively
         sweep_frames_tuples = []
         for frame_pair in sweep_frames:
-            if isinstance(frame_pair, list) and len(frame_pair) >= 2:
-                sweep_frames_tuples.append((frame_pair[0], frame_pair[1]))
+            if isinstance(frame_pair, list):
+                if len(frame_pair) >= 2:
+                    sweep_frames_tuples.append((frame_pair[0], frame_pair[1]))
+                else:
+                    sweep_frames_tuples.append((None, None))
             else:
                 sweep_frames_tuples.append(frame_pair)
         
@@ -1173,7 +1155,7 @@ class BonsaiExperiment(object):
         }
         
         return stimulus_obj
-    
+
     def _load_and_process_bonsai_data(self):
         """
         Load and process Bonsai CSV data, returning both processed stimuli and raw data.
