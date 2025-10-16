@@ -83,8 +83,10 @@ ODDBALL_TYPES = {
     'orientation_90': {'Orientation': 90, 'Trial_Type': 'orientation_90'},
     'halt': {'Temporal_Frequency': 0, 'Trial_Type': 'halt'},
     'omission': {'Contrast': 0, 'Trial_Type': 'omission'},
-    'jitter_150': {'Duration': 0.150, 'Trial_Type': 'jitter'},
-    'jitter_350': {'Duration': 0.350, 'Trial_Type': 'jitter'},
+    'jitter_150': {'Delay': 0.150, 'Trial_Type': 'jitter'},
+    'jitter_350': {'Delay': 0.350, 'Trial_Type': 'jitter'},
+    'jitter_500': {'Delay': 0.500, 'Trial_Type': 'jitter'},
+    'jitter_1000': {'Delay': 1.000, 'Trial_Type': 'jitter'},
     # Motor-prefixed variants keep distinct Trial_Type labels for clarity in CSV
     'motor_halt': {'Temporal_Frequency': 0, 'Delay': 0, 'Trial_Type': 'motor_halt'},
     'motor_omission': {'Contrast': 0, 'Delay': 0, 'Trial_Type': 'motor_omission'},
@@ -266,19 +268,35 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
     
     elif block_type == 'jitter_control':
         # Duration tuning
-        durations = [0.050, 0.100, 0.200, 0.343]
-        n_repeats = max(1, int(duration_minutes * 60 / (len(durations) * 0.686)))
+        # To achieve the same stats, all our trials needs to be 11s long
+        # the duration is fixed to 0.343s, and we add a delay after each trial
+        # So 11s/2 = 5.5s for all delays 
+        # We have one omission so that lives 5.5-0.343 = 5.157s to split between delays.
+        # This is how the delays were chosen (sum to 5.157s)
+        delays = [0.150, 0.343, 0.500, 0.75, 1.000, 1.5, 0.914]
+
+        n_repeats = max(1, int(duration_minutes * 60 / (np.sum(delays)+0.343*len(delays)+1*0.686)))  # +1 for omission
         
-        for duration in durations:
+        for delay in delays:
             for _ in range(n_repeats):
                 trial = DEFAULT_PARAMS.copy()
-                trial['Duration'] = duration
+                trial['Delay'] = delay
                 trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
                 trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
                 trial['Trial_Type'] = 'single'
                 trial['Block_Type'] = 'jitter_control'
                 trials.append(trial)
-    
+        
+        # Add omission trials (same number of repeats)
+        for _ in range(n_repeats):
+            trial = DEFAULT_PARAMS.copy()
+            trial['Contrast'] = 0
+            trial['Trial_Type'] = 'omission'
+            trial['Block_Type'] = 'jitter_control'
+            trial['DiameterX'] = DEFAULT_STIMULUS_SIZE
+            trial['DiameterY'] = DEFAULT_STIMULUS_SIZE
+            trials.append(trial)
+
     elif block_type == 'open_loop_prerecorded':
         # Pre-recorded wheel-driven phases (radians only, strict, no fallback)
         grating_update_rate = 30
@@ -438,8 +456,6 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
                         'Block_Type': 'rf_mapping'
                     }
                     trials.append(trial)
-        # Explicit shuffle to randomize RF mapping order (positions × orientations × repeats)
-        random.shuffle(trials)
     
     elif block_type.startswith('movie_'):
         # Movie presentation blocks
@@ -858,7 +874,7 @@ def generate_single_session_csv(session_type, output_path, seed=None):
             'blocks': [
                 {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
                 {'type': 'jitter_oddball', 'duration_minutes': 26, 'label': 'Duration mismatch block',
-                 'oddball_config': {'jitter_150': 1.35, 'jitter_350': 1.35}},
+                 'oddball_config': {'jitter_150': 1.35, 'jitter_500': 1.35, 'jitter_1000': 1.35, 'omission': 1.35}},
                 {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
                 {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
                 {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
