@@ -902,12 +902,39 @@ class BonsaiExperiment(object):
 
         try:
             stim_id = None
+                           
             for row in logger_data:
                 value = row.get('Value', '')
                 frame = row.get('Frame', '0')
                 timestamp = row.get('Timestamp', '0.0')
                 if not value:
                     continue
+                # We first look for the START marker to set the reference frame number and timestamp
+                # These are registered as 605,18.922494100000002,START in the logger
+                if value.startswith('START'):
+                    try:
+                        ref_frame = int(frame)
+                        ref_timestamp = float(timestamp)
+                        timing_map['START'] = {
+                            'start_frame': ref_frame,
+                            'start_timestamp': ref_timestamp
+                        }
+                        logging.info("Found START marker at frame %d, timestamp %f" % (ref_frame, ref_timestamp))
+                    except Exception as e:
+                        logging.warning("Invalid START marker values: %s" % e)
+
+                if value.startswith('END'):
+                    try:
+                        ref_frame = int(frame)
+                        ref_timestamp = float(timestamp)
+                        timing_map['END'] = {
+                            'start_frame': ref_frame,
+                            'start_timestamp': ref_timestamp,
+                        }
+                        logging.info("Found END marker at frame %d, timestamp %f" % (ref_frame, ref_timestamp))
+                    except Exception as e:
+                        logging.warning("Invalid END marker values: %s" % e)
+
                 # Stimulus start/end markers
                 if value.startswith('StimStart-'):
                     stim_id = value.replace('StimStart-', '')
@@ -1006,7 +1033,17 @@ class BonsaiExperiment(object):
             for col in param_columns:
                 if col in block_data[0]:
                     dimnames.append(col)
-        
+
+        # We first extract the global reference frame and timestamp from timing_map 
+        if 'START' in timing_map:
+            ref_frame = timing_map['START'].get('start_frame')
+            ref_timestamp = timing_map['START'].get('start_timestamp')
+            logging.info("Using START marker as reference: frame %d, timestamp %f" % (ref_frame, ref_timestamp))
+        else:   
+            logging.warning("No START marker found in timing map")
+            ref_frame = 0
+            ref_timestamp = 0.0
+
         # Movie block handling using new timing_map structure: timing_map[stim_id]['movie'][frame_idx]
         if block_data and block_data[0].get('BlockType') == 'movie':
             # Guarantee TrialInSequence present
@@ -1045,16 +1082,16 @@ class BonsaiExperiment(object):
                 # Expand frames
                 frame_items = sorted(movie_dict.items(), key=lambda kv: kv[0])  # (frame_idx, info)
                 for frame_idx, finfo in frame_items:
-                    start_frame = finfo.get('start_frame')
-                    end_frame = finfo.get('end_frame', start_frame)
+                    start_frame = finfo.get('start_frame')-ref_frame
+                    end_frame = finfo.get('end_frame', start_frame)-ref_frame
                     sweep_frames.append((start_frame, end_frame))
                     params = list(base_params)
                     params[trial_index_pos] = frame_idx
                     sweep_table.append(tuple(params))
                     sweep_order.append(order_counter)
                     order_counter += 1
-                    st_ts = finfo.get('start_timestamp')
-                    en_ts = finfo.get('end_timestamp')
+                    st_ts = finfo.get('start_timestamp')-ref_timestamp
+                    en_ts = finfo.get('end_timestamp')-ref_timestamp
                     if st_ts is not None:
                         global_frame_entries.append(('start', st_ts))
                     if en_ts is not None:
@@ -1080,8 +1117,8 @@ class BonsaiExperiment(object):
                 stim_id = row.get('Id', '')
                 timing_info = timing_map.get(stim_id)
                 if timing_info:
-                    start_frame = timing_info.get('start_frame')
-                    end_frame = timing_info.get('end_frame')
+                    start_frame = timing_info.get('start_frame')-ref_frame
+                    end_frame = timing_info.get('end_frame')-ref_frame
                     if start_frame is not None and end_frame is not None:
                         sweep_frames.append((start_frame, end_frame))
                     else:
@@ -1112,8 +1149,8 @@ class BonsaiExperiment(object):
                     tinfo2 = timing_map.get(row.get('Id', ''))
                     if not tinfo2:
                         continue
-                    st2 = tinfo2.get('start_timestamp')
-                    et2 = tinfo2.get('end_timestamp')
+                    st2 = tinfo2.get('start_timestamp')-ref_timestamp
+                    et2 = tinfo2.get('end_timestamp')-ref_timestamp
                     if st2 is not None:
                         start_ts_list.append(st2)
                     if et2 is not None:
@@ -1121,11 +1158,11 @@ class BonsaiExperiment(object):
                 if start_ts_list and end_ts_list:
                     ds = min(start_ts_list)
                     de = max(end_ts_list)
-                    display_sequence = np.array([[ds, de]]) if np is not None else [[ds, de]]
+                    display_sequence = np.array([[ds, de]])
                 else:
-                    display_sequence = np.array([[None, None]]) if np is not None else [[None, None]]
+                    display_sequence = np.array([[None, None]]) 
             else:
-                display_sequence = np.array([[None, None]]) if np is not None else [[None, None]]
+                display_sequence = np.array([[None, None]])
         
         # sweep_frames already ensured tuples above; if any lists slipped through convert defensively
         sweep_frames_tuples = []
@@ -1154,6 +1191,26 @@ class BonsaiExperiment(object):
             'sweep_table': sweep_table
         }
         
+        # CAMSTIM expects sweep_frames should start from 0 for the first frame across sweeps 
+        # Then display_sequence should store the offset of that first frame in seconds
+        # relative to the experiment start (i.e. the START marker) assuming 60 Hz frame rate.
+        # The following adjusts sweep_frames and display_sequence accordingly.
+
+        # We save the current data to log before modification
+        stimulus_obj['bonsai_sweep_frames'] = stimulus_obj['sweep_frames']
+        stimulus_obj['bonsai_display_sequence'] = stimulus_obj['display_sequence']
+
+        first_frame = min([sf[0] for sf in stimulus_obj['sweep_frames'] if sf[0] is not None])
+        last_frame = max([sf[1] for sf in stimulus_obj['sweep_frames'] if sf[1] is not None])
+        stimulus_obj['sweep_frames'] = [(sf[0]-first_frame if sf[0] is not None else None,
+                                        sf[1]-first_frame if sf[1] is not None else None) 
+                                        for sf in stimulus_obj['sweep_frames']]
+        
+        # Convert display_sequence to seconds
+        sequence_start_seconds = first_frame / 60.0 if first_frame is not None else None
+        sequence_end_seconds = last_frame / 60.0 if last_frame is not None else None
+        stimulus_obj['display_sequence'] = np.array([[sequence_start_seconds, sequence_end_seconds]])
+
         return stimulus_obj
 
     def _load_and_process_bonsai_data(self):
@@ -1280,23 +1337,6 @@ class BonsaiExperiment(object):
             logging.warning("Could not read logger file to determine total_frames: %s" % e)
             return 0
 
-    # ---------------- Wheel / Digital Encoder Reconstruction (from Bonsai logger) ---------------- #
-    def _fallback_encoder(self, total_frames):
-        n = int(total_frames) if total_frames and total_frames > 0 else 0
-        dx = np.zeros(n, dtype=np.float32)
-        vin = np.full(n, 5.0, dtype=np.float32)
-        vsig = np.zeros(n, dtype=np.float32)
-        return [{
-            'dx': dx,
-            'gain': 1.0,
-            'items': {},
-            'unpickleable': [],
-            'value': 0.0,
-            'vin': vin,
-            'vsig': vsig,
-            'analog_encoder': False
-        }]
-
     def _reconstruct_encoder_from_logger(self, logger_rows, total_frames):
         """Reconstruct CAMSTIM-style encoder data from Bonsai logger rows.
 
@@ -1307,13 +1347,13 @@ class BonsaiExperiment(object):
         to DigitalBehaviorEncoder, propagate last values for frames without events,
         and compute derived vsig and optional distance.
         """
-        if not logger_rows:
-            logging.warning("No logger rows provided for encoder reconstruction; using fallback.")
-            return self._fallback_encoder(total_frames)
-
         wheel_pattern = re.compile(r'^Wheel-Index-(\d+)-Count-(\d+)-Deg-([0-9eE+\.-]+)$')
+        start_time_pattern = re.compile(r'^START$')
+
         events_by_frame = {}
         max_frame = 0
+        global_ref_timestamps = 0 
+
         for row in logger_rows:
             try:
                 frame = int(row.get('Frame', '0'))
@@ -1326,12 +1366,15 @@ class BonsaiExperiment(object):
                     count = int(m.group(2))
                     deg = float(m.group(3))
                     events_by_frame[frame] = {'index': idx, 'count': count, 'deg': deg}
+                elif start_time_pattern.match(val):
+                    # We save the start frame to align timestamps later 
+                    global_ref_timestamps = row.get('Timestamp')
+                    logging.info("Found START marker at frame %d for encoder reconstruction, timestamp %s" % (frame, global_ref_timestamps))
+
             except Exception:
+                logging.warning("Error parsing logger row for encoder reconstruction: %s" % row)
                 continue
 
-        if not events_by_frame:
-            logging.warning("No wheel events found in logger; using fallback encoder structure.")
-            return self._fallback_encoder(total_frames)
 
         # Determine number of frames to allocate
         n_frames = int(max_frame) + 1
@@ -1387,7 +1430,8 @@ class BonsaiExperiment(object):
                     degrees[f] = 0.0
                     counts[f] = 0.0
                 dx[f] = last_dtheta
-            timestamps[f] = frame_time.get(f, timestamps[f-1] if f > 0 else 0.0)
+            # previous frame timestamp or we substract the last known deltatime
+            timestamps[f] = frame_time.get(f, timestamps[f-1] if f > 0 else timestamps[f]-0.016)
 
         # If some degrees slots remain zero but we had last_deg set, retroactively fill preceding frames
         # (Not strictly necessary; we already integrate above.)
@@ -1418,7 +1462,7 @@ class BonsaiExperiment(object):
             'vsig': vsig.astype(np.float32),
             'analog_encoder': False,
             'counts': counts.astype(np.float32),
-            'timestamp': timestamps.astype(np.float32)
+            'timestamp': timestamps.astype(np.float32)-global_ref_timestamps
         }
         if distance is not None:
             encoder_dict['distance'] = distance.astype(np.float32)
@@ -1445,8 +1489,7 @@ class BonsaiExperiment(object):
         try:
             encoder_data = self._reconstruct_encoder_from_logger(bonsai_raw_data.get('logger', []), total_frames)
         except Exception as e:
-            logging.exception("Encoder reconstruction failed; using fallback: %s" % e)
-            encoder_data = self._fallback_encoder(total_frames)
+            logging.exception("Encoder reconstruction failed: %s" % e)
         
         # Get full path to the Bonsai workflow for script field
         bonsai_path = self.params.get('bonsai_path', '')
