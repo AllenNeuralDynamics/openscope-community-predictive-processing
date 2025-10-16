@@ -272,8 +272,8 @@ def generate_block_trials(block_type, duration_minutes, oddball_config=None, var
         # the duration is fixed to 0.343s, and we add a delay after each trial
         # So 11s/2 = 5.5s for all delays 
         # We have one omission so that lives 5.5-0.343 = 5.157s to split between delays.
-        # This is how the delays were chosen (sum to 5.157s, and include the oddball delays)
-        delays = [0.150, 0.500, 1.000, 0.343, 1.5, 0.75, 0.914]
+        # This is how the delays were chosen (sum to 5.157s)
+        delays = [0.150, 0.343, 0.500, 0.75, 1.000, 1.5, 0.914]
 
         n_repeats = max(1, int(duration_minutes * 60 / (np.sum(delays)+0.343*len(delays)+1*0.686)))  # +1 for omission
         
