@@ -1083,7 +1083,7 @@ class BonsaiExperiment(object):
                 frame_items = sorted(movie_dict.items(), key=lambda kv: kv[0])  # (frame_idx, info)
                 for frame_idx, finfo in frame_items:
                     start_frame = finfo.get('start_frame')-ref_frame
-                    end_frame = finfo.get('end_frame', start_frame)-ref_frame
+                    end_frame = finfo.get('end_frame', finfo.get('start_frame'))-ref_frame
                     sweep_frames.append((start_frame, end_frame))
                     params = list(base_params)
                     params[trial_index_pos] = frame_idx
@@ -1091,7 +1091,7 @@ class BonsaiExperiment(object):
                     sweep_order.append(order_counter)
                     order_counter += 1
                     st_ts = finfo.get('start_timestamp')-ref_timestamp
-                    en_ts = finfo.get('end_timestamp')-ref_timestamp
+                    en_ts = finfo.get('end_timestamp', finfo.get('start_timestamp'))-ref_timestamp
                     if st_ts is not None:
                         global_frame_entries.append(('start', st_ts))
                     if en_ts is not None:
@@ -1368,7 +1368,7 @@ class BonsaiExperiment(object):
                     events_by_frame[frame] = {'index': idx, 'count': count, 'deg': deg}
                 elif start_time_pattern.match(val):
                     # We save the start frame to align timestamps later 
-                    global_ref_timestamps = row.get('Timestamp')
+                    global_ref_timestamps = float(row.get('Timestamp'))
                     logging.info("Found START marker at frame %d for encoder reconstruction, timestamp %s" % (frame, global_ref_timestamps))
 
             except Exception:
