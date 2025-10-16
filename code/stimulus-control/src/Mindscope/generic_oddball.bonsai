@@ -23,7 +23,7 @@
           <gl:CursorVisible>false</gl:CursorVisible>
           <gl:Location xsi:nil="true" />
           <gl:WindowBorder>Fixed</gl:WindowBorder>
-          <gl:WindowState>Fullscreen</gl:WindowState>
+          <gl:WindowState>Normal</gl:WindowState>
           <gl:DisplayDevice>Primary</gl:DisplayDevice>
           <gl:TargetRenderFrequency>60</gl:TargetRenderFrequency>
           <gl:TargetUpdateFrequency>120</gl:TargetUpdateFrequency>
@@ -77,7 +77,7 @@
               <gl:WrapT>Repeat</gl:WrapT>
               <gl:MinFilter>Linear</gl:MinFilter>
               <gl:MagFilter>Linear</gl:MagFilter>
-              <gl:FileName>movies\zebra_allen_screen_tscale_30_scale_10.mp4</gl:FileName>
+              <gl:FileName>movies\Compressed_MATLAB_trippy_150s_1920x1200_30fps_120x95.mp4</gl:FileName>
               <gl:FlipMode>Vertical</gl:FlipMode>
               <gl:FrameCount xsi:nil="true" />
               <gl:StartPosition>0</gl:StartPosition>
@@ -203,9 +203,9 @@
               <LocationY>28</LocationY>
               <Layer>2</Layer>
               <Angle>0</Angle>
-              <ColorR>1</ColorR>
-              <ColorG>1</ColorG>
-              <ColorB>1</ColorB>
+              <ColorR>0</ColorR>
+              <ColorG>0</ColorG>
+              <ColorB>0</ColorB>
               <ColorA>1</ColorA>
             </Expression>
             <Expression xsi:type="MemberSelector">
@@ -498,7 +498,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
                           </PropertyMappings>
                         </Expression>
                         <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawVideo.bonsai">
-                          <TextureName>Zebra</TextureName>
+                          <TextureName>Trippy</TextureName>
                           <PlaybackRate>30</PlaybackRate>
                           <Loop>false</Loop>
                           <Angle>0</Angle>
@@ -1091,7 +1091,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
         <Append>false</Append>
         <Overwrite>true</Overwrite>
         <Suffix>None</Suffix>
-        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251010T220403/orientations_logger.csv</FileName>
+        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251015T105715/orientations_logger.csv</FileName>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
         <Format>Frame</Format>
@@ -1129,7 +1129,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
         <Text><![CDATA[]]></Text>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251010T220403/orientations_orientations.csv</io:FileName>
+        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251015T105715/orientations_orientations.csv</io:FileName>
         <io:Append>true</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>FileCount</io:Suffix>

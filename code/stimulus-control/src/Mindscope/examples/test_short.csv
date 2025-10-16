@@ -4,6 +4,7 @@ Block_Number,Block_Label,Block_Duration_Minutes,Trial_Number,Sequence_Number,Tri
 6,Control block 4,6.4,59744,2304,4,1,0,360,360,0.03333333333333333,0,0.04,0,0,0,4.888510054591507,prerecorded,open_loop_prerecorded
 6,Control block 4,6.4,59745,2304,5,1,0,360,360,0.03333333333333333,0,0.04,0,0,0,5.416819153306686,prerecorded,open_loop_prerecorded
 8,Zebra,5,59748,0,0,1,0,120,95,10,0,0,0,0,0,0,single,movie
-9,RF mapping,5,59749,0,0,0.8,0.0,20,20,0.25,90,0.08,4.0,10,0,0,rf_mapping,rf_mapping
-9,RF mapping,5,59750,0,0,0.8,0.0,20,20,0.25,90,0.08,4.0,40,40,0,rf_mapping,rf_mapping
-9,RF mapping,5,59751,0,0,0.8,0.0,20,20,0.25,0,0.08,4.0,-30,10,0,rf_mapping,rf_mapping
+9,Trippy,5,59748,0,0,1,0,120,95,10,0,0,0,0,0,0,single,movie
+10,RF mapping,5,59749,0,0,0.8,0.0,20,20,0.25,90,0.08,4.0,10,0,0,rf_mapping,rf_mapping
+10,RF mapping,5,59750,0,0,0.8,0.0,20,20,0.25,90,0.08,4.0,40,40,0,rf_mapping,rf_mapping
+10,RF mapping,5,59751,0,0,0.8,0.0,20,20,0.25,0,0.08,4.0,-30,10,0,rf_mapping,rf_mapping
