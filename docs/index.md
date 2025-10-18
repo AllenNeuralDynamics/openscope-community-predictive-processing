@@ -9,7 +9,7 @@
 
 | If you are a... | Start here |
 |-----------------|------------|
-| **New Contributor** | [How to Contribute](how_to_contribute.md) and [Collaboration Policy](collaboration-policy.md) |
+| **New Contributor** | [How to Contribute](how_to_contribute.md) and [Collaboration Policy](collaboration-policy.md)  and the [Discussion forum](https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/discussions)|
 | **Experimental Scientist** | [Experimental Plan](experimental-plan.md) and [Hardware Overview](hardware-overview.md) |
 | **Data Scientist** | [Analysis Plan](analysis-plan.md) and [Experiment Summary](experiment-summary.md) |
 | **Curious Visitor** | [FAQ](faq.md) and [Project Overview](#scientific-context) below |

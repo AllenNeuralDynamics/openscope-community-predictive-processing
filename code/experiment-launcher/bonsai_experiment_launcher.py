@@ -907,6 +907,12 @@ class BonsaiExperiment(object):
                 value = row.get('Value', '')
                 frame = row.get('Frame', '0')
                 timestamp = row.get('Timestamp', '0.0')
+
+                # We create a lookup table for all Frame number that have a Value
+                # This is to assign the end frame/timestamp to each stimulus presentation
+                timing_map['Frames'] = timing_map.get('Frames', {})
+                timing_map['Frames'][int(frame)] = float(timestamp)
+
                 if not value:
                     continue
                 # We first look for the START marker to set the reference frame number and timestamp
@@ -945,8 +951,15 @@ class BonsaiExperiment(object):
                 elif value.startswith('StimEnd-'):
                     stim_id = value.replace('StimEnd-', '')
                     if stim_id in timing_map:
-                        timing_map[stim_id]['end_frame'] = int(frame)
-                        timing_map[stim_id]['end_timestamp'] = float(timestamp)
+                        # Bonsai log StimEnd when the frame AFTER the stimulus ends
+                        if int(frame)-1 in timing_map['Frames']:
+                            timing_map[stim_id]['end_frame'] = int(frame)-1
+                            timing_map[stim_id]['end_timestamp'] = timing_map['Frames'][int(frame)-1]
+                        else:
+                            # If something went wrong during logging, fall back to using the current frame and timestamp
+                            timing_map[stim_id]['end_frame'] = int(frame)
+                            timing_map[stim_id]['end_timestamp'] = float(timestamp)
+                            
                     # if we are closing a movie block, we at end_frame and end_timestamp to the last frame
                     # Python 2.7: no max(..., default=...), so guard explicitly
                     if stim_id in timing_map and 'movie' in timing_map[stim_id]:
