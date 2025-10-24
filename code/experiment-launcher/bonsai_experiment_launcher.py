@@ -972,11 +972,9 @@ class BonsaiExperiment(object):
                 # Movie frame markers: MovieFrame-<number>
                 elif value.startswith('MovieFrame-'):
                     # Each movie frame is its own timing entry; treat as single-frame duration
-                    try:
-                        fr_int = int(frame)
-                        ts_float = float(timestamp)
-                    except Exception:
-                        continue
+                    fr_int = int(frame)
+                    ts_float = float(timestamp)
+
                     # We convert value into frame number as int
                     local_frame_index = int(value.replace('MovieFrame-', ''))
                     # Ensure we have an active stim_id and a movie dict
@@ -990,9 +988,9 @@ class BonsaiExperiment(object):
                         'start_timestamp': ts_float,
                     }
                     # We fill in end_frame and end_timestamp in local_frame_index - 1 if it exists
-                    if local_frame_index - 1 in timing_map[stim_id]['movie']:
-                        timing_map[stim_id]['movie'][local_frame_index - 1]['end_frame'] = fr_int
-                        timing_map[stim_id]['movie'][local_frame_index - 1]['end_timestamp'] = ts_float
+                    if local_frame_index - 1 in timing_map[stim_id]['movie'] and fr_int-1 in timing_map['Frames']:
+                        timing_map[stim_id]['movie'][local_frame_index - 1]['end_frame'] = fr_int-1
+                        timing_map[stim_id]['movie'][local_frame_index - 1]['end_timestamp'] = timing_map['Frames'][fr_int-1]
 
         except Exception as e:
             logging.warning("Could not create timing map from logger: %s" % e)
