@@ -1360,6 +1360,7 @@ class BonsaiExperiment(object):
         """
         wheel_pattern = re.compile(r'^Wheel-Index-(\d+)-Count-(\d+)-Deg-([0-9eE+\.-]+)$')
         start_time_pattern = re.compile(r'^START$')
+        end_time_pattern = re.compile(r'^END$')
 
         events_by_frame = {}
         max_frame = 0
@@ -1381,6 +1382,9 @@ class BonsaiExperiment(object):
                     # We save the start frame to align timestamps later 
                     global_ref_timestamps = float(row.get('Timestamp'))
                     logging.info("Found START marker at frame %d for encoder reconstruction, timestamp %s" % (frame, global_ref_timestamps))
+                elif end_time_pattern.match(val):
+                    logging.info("Found END marker at frame %d for encoder reconstruction" % frame) 
+                    end_session = float(row.get('Timestamp'))
 
             except Exception:
                 logging.warning("Error parsing logger row for encoder reconstruction: %s" % row)
@@ -1463,6 +1467,18 @@ class BonsaiExperiment(object):
         else:
             distance = None
 
+        # We restrict the arrays between global_ref_timestamps and end_session if available
+        if global_ref_timestamps and end_session:
+            kept_frames = timestamps >= global_ref_timestamps & (timestamps <= end_session)
+            logging.info("Trimming encoder arrays from %d to %d frames based on START/END timestamps" % (n_frames, n_kept))
+            dx = dx[kept_frames]
+            degrees = degrees[kept_frames]
+            vin = vin[kept_frames]
+            vsig = vsig[kept_frames]
+            counts = counts[kept_frames]
+            timestamps = timestamps[kept_frames]
+            distance = distance[kept_frames] if distance is not None else None
+
         encoder_dict = {
             'dx': dx.astype(np.float32),
             'gain': 1.0,
@@ -1543,7 +1559,7 @@ class BonsaiExperiment(object):
             
             # Additional fields that exist in original CAMSTIM for completeness
             'platform': self.platform_info,  # Called 'platform' in original, not 'platform_info'
-            'total_frames': total_frames,  # Calculate from actual stimulus data
+            'total_frames': len(intervalsms)+1,  # Total frames based on intervalsms length
             'unpickleable': [],  # Will be populated by wecanpicklethat
             
             # Additional fields found in reference CAMSTIM files
@@ -2336,6 +2352,11 @@ class BonsaiExperiment(object):
                         frame_timestamps.append(timestamp)
                     except (ValueError, TypeError):
                         continue
+                # We extract START and END events to restrict intervals
+                elif value.startswith('START'):
+                    start_session = float(row.get('Timestamp'))
+                elif value.startswith('END'):
+                    end_session = float(row.get('Timestamp'))
             
             if len(frame_timestamps) < 2:
                 logging.warning("Not enough frame timestamps for intervalsms calculation")
@@ -2344,6 +2365,12 @@ class BonsaiExperiment(object):
             # Convert to numpy array for efficient calculation
             frame_timestamps = np.array(frame_timestamps)
             
+            # We restrict to frames between START and END events if available
+            if 'start_session' in locals() and 'end_session' in locals():
+                frame_timestamps = frame_timestamps[
+                    (frame_timestamps >= start_session) & (frame_timestamps <= end_session)
+                ]
+
             # Calculate intervals between successive frame timestamps (in seconds)
             intervals_sec = np.diff(frame_timestamps)
             
