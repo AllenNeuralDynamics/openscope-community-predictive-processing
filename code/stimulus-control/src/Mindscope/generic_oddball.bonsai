@@ -1124,14 +1124,6 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       <Expression xsi:type="MemberSelector">
         <Selector>Degrees</Selector>
       </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="FloatProperty">
-          <Value>0</Value>
-        </Combinator>
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="rx:OnErrorResumeNext" />
-      </Expression>
       <Expression xsi:type="rx:PublishSubject">
         <Name>WheelDegrees</Name>
       </Expression>
@@ -1517,37 +1509,35 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       <Edge From="66" To="67" Label="Source2" />
       <Edge From="67" To="68" Label="Source1" />
       <Edge From="68" To="69" Label="Source1" />
-      <Edge From="69" To="71" Label="Source1" />
-      <Edge From="70" To="71" Label="Source2" />
+      <Edge From="69" To="70" Label="Source1" />
+      <Edge From="70" To="75" Label="Source1" />
       <Edge From="71" To="72" Label="Source1" />
-      <Edge From="72" To="77" Label="Source1" />
+      <Edge From="72" To="75" Label="Source2" />
       <Edge From="73" To="74" Label="Source1" />
-      <Edge From="74" To="77" Label="Source2" />
+      <Edge From="74" To="75" Label="Source3" />
       <Edge From="75" To="76" Label="Source1" />
-      <Edge From="76" To="77" Label="Source3" />
+      <Edge From="76" To="77" Label="Source1" />
       <Edge From="77" To="78" Label="Source1" />
       <Edge From="78" To="79" Label="Source1" />
-      <Edge From="79" To="80" Label="Source1" />
-      <Edge From="80" To="81" Label="Source1" />
-      <Edge From="82" To="86" Label="Source1" />
-      <Edge From="83" To="84" Label="Source1" />
+      <Edge From="80" To="84" Label="Source1" />
+      <Edge From="81" To="82" Label="Source1" />
+      <Edge From="82" To="83" Label="Source1" />
+      <Edge From="83" To="84" Label="Source2" />
       <Edge From="84" To="85" Label="Source1" />
-      <Edge From="85" To="86" Label="Source2" />
+      <Edge From="85" To="88" Label="Source1" />
       <Edge From="86" To="87" Label="Source1" />
-      <Edge From="87" To="90" Label="Source1" />
-      <Edge From="88" To="89" Label="Source1" />
-      <Edge From="89" To="90" Label="Source2" />
-      <Edge From="91" To="96" Label="Source1" />
-      <Edge From="92" To="93" Label="Source1" />
-      <Edge From="93" To="94" Label="Source1" />
-      <Edge From="94" To="96" Label="Source2" />
-      <Edge From="95" To="96" Label="Source3" />
+      <Edge From="87" To="88" Label="Source2" />
+      <Edge From="89" To="94" Label="Source1" />
+      <Edge From="90" To="91" Label="Source1" />
+      <Edge From="91" To="92" Label="Source1" />
+      <Edge From="92" To="94" Label="Source2" />
+      <Edge From="93" To="94" Label="Source3" />
+      <Edge From="95" To="96" Label="Source1" />
+      <Edge From="96" To="97" Label="Source1" />
       <Edge From="97" To="98" Label="Source1" />
-      <Edge From="98" To="99" Label="Source1" />
       <Edge From="99" To="100" Label="Source1" />
+      <Edge From="100" To="101" Label="Source1" />
       <Edge From="101" To="102" Label="Source1" />
-      <Edge From="102" To="103" Label="Source1" />
-      <Edge From="103" To="104" Label="Source1" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
