@@ -1785,7 +1785,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       <Expression xsi:type="scr:ExpressionTransform">
         <scr:Expression>new(
 it as Count,
-it/8192.0 as Degrees)
+360.03*it/8192.0 as Degrees)
 
 </scr:Expression>
       </Expression>
