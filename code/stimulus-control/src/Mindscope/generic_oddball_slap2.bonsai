@@ -23,7 +23,7 @@
           <gl:CursorVisible>false</gl:CursorVisible>
           <gl:Location xsi:nil="true" />
           <gl:WindowBorder>Fixed</gl:WindowBorder>
-          <gl:WindowState>Fullscreen</gl:WindowState>
+          <gl:WindowState>Normal</gl:WindowState>
           <gl:DisplayDevice>Primary</gl:DisplayDevice>
           <gl:TargetRenderFrequency>60</gl:TargetRenderFrequency>
           <gl:TargetUpdateFrequency>120</gl:TargetUpdateFrequency>
@@ -90,7 +90,7 @@
         <Combinator xsi:type="gl:ShaderResources">
           <gl:Shaders>
             <gl:ShaderConfiguration xsi:type="gl:Material">
-              <gl:Name>ColoredGratings</gl:Name>
+              <gl:Name>ColorBalance</gl:Name>
               <gl:RenderState />
               <gl:ShaderUniforms />
               <gl:BufferBindings />
@@ -207,10 +207,10 @@
               <Property Name="LocationY" DisplayName="Photodiode_LocationY" />
             </Expression>
             <Expression xsi:type="IncludeWorkflow" Path="BonVision:Primitives.DrawQuad.bonsai">
-              <ExtentX>8</ExtentX>
-              <ExtentY>8</ExtentY>
-              <LocationX>59</LocationX>
-              <LocationY>28</LocationY>
+              <ExtentX>6</ExtentX>
+              <ExtentY>7.5</ExtentY>
+              <LocationX>32</LocationX>
+              <LocationY>-20</LocationY>
               <Layer>2</Layer>
               <Angle>0</Angle>
               <ColorR>0</ColorR>
@@ -417,7 +417,7 @@
         <Name>Draw</Name>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.SphereMapping.bonsai">
-        <ClearColor>Navy</ClearColor>
+        <ClearColor>Gray</ClearColor>
         <Width xsi:nil="true" />
         <Height xsi:nil="true" />
         <RotationZ>0</RotationZ>
@@ -438,6 +438,30 @@
           <Y>0</Y>
           <Z>-15.1</Z>
         </Translation>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="gl:UpdateViewportState">
+          <gl:X>0</gl:X>
+          <gl:Y>0</gl:Y>
+          <gl:Width>1</gl:Width>
+          <gl:Height>1</gl:Height>
+        </Combinator>
+      </Expression>
+      <Expression xsi:type="ExternalizedMapping">
+        <Property Name="R" DisplayName="Screen_RedColor (0-1)" />
+        <Property Name="G" DisplayName="Screen_GreenColor (0-1)" />
+        <Property Name="B" DisplayName="Screen_BlueColor (0-1)" />
+      </Expression>
+      <Expression xsi:type="IncludeWorkflow" Path="Extensions\ColorBalance.bonsai">
+        <ExtentX>1</ExtentX>
+        <ExtentY>1</ExtentY>
+        <LocationX>0</LocationX>
+        <LocationY>0</LocationY>
+        <Layer>1</Layer>
+        <Angle>0</Angle>
+        <R>0</R>
+        <G>0</G>
+        <B>1</B>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Environment.GammaCorrection.bonsai">
         <ClearColor>Gray</ClearColor>
@@ -1170,14 +1194,6 @@ it[17] as TrialType,
 it[18] as BlockType,
 Guid.NewGuid().ToString() as Id)</scr:Expression>
       </Expression>
-      <Expression xsi:type="ExternalizedMapping">
-        <Property Name="DueTime" DisplayName="SettingUpDelay" />
-      </Expression>
-      <Expression xsi:type="Combinator">
-        <Combinator xsi:type="gl:Delay">
-          <gl:DueTime>PT10S</gl:DueTime>
-        </Combinator>
-      </Expression>
       <Expression xsi:type="SubscribeSubject">
         <Name>TemporalPhase</Name>
       </Expression>
@@ -1724,6 +1740,12 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
           </Edges>
         </Workflow>
       </Expression>
+      <Expression xsi:type="SubscribeSubject">
+        <Name>StartSession</Name>
+      </Expression>
+      <Expression xsi:type="Combinator">
+        <Combinator xsi:type="rx:SubscribeWhen" />
+      </Expression>
       <Expression xsi:type="Combinator">
         <Combinator xsi:type="rx:Take">
           <rx:Count>1</rx:Count>
@@ -1785,7 +1807,7 @@ Guid.NewGuid().ToString() as Id)</scr:Expression>
       <Expression xsi:type="scr:ExpressionTransform">
         <scr:Expression>new(
 it as Count,
-360.03*it/8192.0 as Degrees)
+360.0*it/8192.0 as Degrees)
 
 </scr:Expression>
       </Expression>
@@ -1853,7 +1875,7 @@ it as Count,
         <Append>false</Append>
         <Overwrite>true</Overwrite>
         <Suffix>None</Suffix>
-        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251017T222126/orientations_logger.csv</FileName>
+        <FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251030T152217/orientations_logger.csv</FileName>
       </Expression>
       <Expression xsi:type="IncludeWorkflow" Path="BonVision:Logging.LogEvent.bonsai">
         <Format>Frame</Format>
@@ -1891,7 +1913,7 @@ it as Count,
         <Text><![CDATA[]]></Text>
       </Expression>
       <Expression xsi:type="io:CsvWriter">
-        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251017T222126/orientations_orientations.csv</io:FileName>
+        <io:FileName>C:/BonsaiDataPredictiveProcessing/769904/769904_20251030T152217/orientations_orientations.csv</io:FileName>
         <io:Append>true</io:Append>
         <io:Overwrite>false</io:Overwrite>
         <io:Suffix>FileCount</io:Suffix>
@@ -1935,87 +1957,90 @@ it as Count,
       <Edge From="36" To="37" Label="Source1" />
       <Edge From="37" To="38" Label="Source1" />
       <Edge From="38" To="39" Label="Source1" />
-      <Edge From="41" To="43" Label="Source1" />
-      <Edge From="42" To="43" Label="Source2" />
-      <Edge From="43" To="45" Label="Source1" />
-      <Edge From="44" To="45" Label="Source2" />
-      <Edge From="45" To="46" Label="Source1" />
-      <Edge From="46" To="47" Label="Source1" />
-      <Edge From="47" To="48" Label="Source1" />
+      <Edge From="39" To="41" Label="Source1" />
+      <Edge From="40" To="41" Label="Source2" />
+      <Edge From="41" To="42" Label="Source1" />
+      <Edge From="44" To="46" Label="Source1" />
+      <Edge From="45" To="46" Label="Source2" />
+      <Edge From="46" To="48" Label="Source1" />
+      <Edge From="47" To="48" Label="Source2" />
       <Edge From="48" To="49" Label="Source1" />
       <Edge From="49" To="50" Label="Source1" />
       <Edge From="50" To="51" Label="Source1" />
-      <Edge From="52" To="54" Label="Source1" />
-      <Edge From="53" To="54" Label="Source2" />
-      <Edge From="54" To="55" Label="Source1" />
-      <Edge From="56" To="57" Label="Source1" />
+      <Edge From="51" To="52" Label="Source1" />
+      <Edge From="52" To="53" Label="Source1" />
+      <Edge From="53" To="54" Label="Source1" />
+      <Edge From="55" To="57" Label="Source1" />
+      <Edge From="56" To="57" Label="Source2" />
       <Edge From="57" To="58" Label="Source1" />
-      <Edge From="58" To="59" Label="Source1" />
+      <Edge From="59" To="60" Label="Source1" />
       <Edge From="60" To="61" Label="Source1" />
       <Edge From="61" To="62" Label="Source1" />
-      <Edge From="61" To="63" Label="Source1" />
-      <Edge From="62" To="64" Label="Source1" />
-      <Edge From="63" To="64" Label="Source2" />
+      <Edge From="63" To="64" Label="Source1" />
       <Edge From="64" To="65" Label="Source1" />
-      <Edge From="65" To="66" Label="Source1" />
+      <Edge From="64" To="66" Label="Source1" />
+      <Edge From="65" To="67" Label="Source1" />
+      <Edge From="66" To="67" Label="Source2" />
       <Edge From="67" To="68" Label="Source1" />
-      <Edge From="70" To="72" Label="Source1" />
-      <Edge From="71" To="72" Label="Source2" />
-      <Edge From="72" To="73" Label="Source1" />
-      <Edge From="73" To="74" Label="Source1" />
-      <Edge From="74" To="75" Label="Source1" />
+      <Edge From="68" To="69" Label="Source1" />
+      <Edge From="70" To="71" Label="Source1" />
+      <Edge From="73" To="75" Label="Source1" />
+      <Edge From="74" To="75" Label="Source2" />
+      <Edge From="75" To="76" Label="Source1" />
+      <Edge From="76" To="77" Label="Source1" />
       <Edge From="77" To="78" Label="Source1" />
-      <Edge From="78" To="81" Label="Source1" />
-      <Edge From="79" To="80" Label="Source1" />
-      <Edge From="80" To="81" Label="Source2" />
-      <Edge From="81" To="82" Label="Source1" />
+      <Edge From="80" To="81" Label="Source1" />
+      <Edge From="81" To="84" Label="Source1" />
       <Edge From="82" To="83" Label="Source1" />
-      <Edge From="83" To="84" Label="Source1" />
-      <Edge From="84" To="86" Label="Source1" />
-      <Edge From="85" To="86" Label="Source2" />
-      <Edge From="86" To="89" Label="Source1" />
-      <Edge From="87" To="88" Label="Source1" />
-      <Edge From="88" To="89" Label="Source3" />
-      <Edge From="89" To="90" Label="Source1" />
-      <Edge From="89" To="93" Label="Source1" />
+      <Edge From="83" To="84" Label="Source2" />
+      <Edge From="84" To="85" Label="Source1" />
+      <Edge From="85" To="86" Label="Source1" />
+      <Edge From="86" To="87" Label="Source1" />
+      <Edge From="87" To="90" Label="Source1" />
+      <Edge From="88" To="89" Label="Source1" />
+      <Edge From="89" To="90" Label="Source3" />
       <Edge From="90" To="92" Label="Source1" />
       <Edge From="91" To="92" Label="Source2" />
-      <Edge From="92" To="93" Label="Source2" />
-      <Edge From="93" To="94" Label="Source1" />
-      <Edge From="94" To="95" Label="Source1" />
-      <Edge From="95" To="96" Label="Source1" />
+      <Edge From="92" To="93" Label="Source1" />
+      <Edge From="92" To="96" Label="Source1" />
+      <Edge From="93" To="95" Label="Source1" />
+      <Edge From="94" To="95" Label="Source2" />
+      <Edge From="95" To="96" Label="Source2" />
+      <Edge From="96" To="97" Label="Source1" />
       <Edge From="97" To="98" Label="Source1" />
       <Edge From="98" To="99" Label="Source1" />
-      <Edge From="99" To="100" Label="Source1" />
-      <Edge From="101" To="103" Label="Source1" />
-      <Edge From="102" To="103" Label="Source2" />
-      <Edge From="103" To="104" Label="Source1" />
-      <Edge From="104" To="105" Label="Source1" />
-      <Edge From="105" To="106" Label="Source1" />
+      <Edge From="100" To="101" Label="Source1" />
+      <Edge From="101" To="102" Label="Source1" />
+      <Edge From="102" To="103" Label="Source1" />
+      <Edge From="104" To="106" Label="Source1" />
+      <Edge From="105" To="106" Label="Source2" />
       <Edge From="106" To="107" Label="Source1" />
       <Edge From="107" To="108" Label="Source1" />
-      <Edge From="108" To="113" Label="Source1" />
+      <Edge From="108" To="109" Label="Source1" />
       <Edge From="109" To="110" Label="Source1" />
-      <Edge From="110" To="113" Label="Source2" />
-      <Edge From="111" To="112" Label="Source1" />
-      <Edge From="112" To="113" Label="Source3" />
-      <Edge From="113" To="114" Label="Source1" />
+      <Edge From="110" To="111" Label="Source1" />
+      <Edge From="111" To="116" Label="Source1" />
+      <Edge From="112" To="113" Label="Source1" />
+      <Edge From="113" To="116" Label="Source2" />
       <Edge From="114" To="115" Label="Source1" />
-      <Edge From="115" To="116" Label="Source1" />
+      <Edge From="115" To="116" Label="Source3" />
       <Edge From="116" To="117" Label="Source1" />
-      <Edge From="118" To="122" Label="Source1" />
+      <Edge From="117" To="118" Label="Source1" />
+      <Edge From="118" To="119" Label="Source1" />
       <Edge From="119" To="120" Label="Source1" />
-      <Edge From="120" To="121" Label="Source1" />
-      <Edge From="121" To="122" Label="Source2" />
+      <Edge From="121" To="125" Label="Source1" />
       <Edge From="122" To="123" Label="Source1" />
-      <Edge From="123" To="126" Label="Source1" />
-      <Edge From="124" To="125" Label="Source1" />
-      <Edge From="125" To="126" Label="Source2" />
-      <Edge From="127" To="132" Label="Source1" />
-      <Edge From="128" To="129" Label="Source1" />
-      <Edge From="129" To="130" Label="Source1" />
-      <Edge From="130" To="132" Label="Source2" />
-      <Edge From="131" To="132" Label="Source3" />
+      <Edge From="123" To="124" Label="Source1" />
+      <Edge From="124" To="125" Label="Source2" />
+      <Edge From="125" To="126" Label="Source1" />
+      <Edge From="126" To="129" Label="Source1" />
+      <Edge From="127" To="128" Label="Source1" />
+      <Edge From="128" To="129" Label="Source2" />
+      <Edge From="130" To="135" Label="Source1" />
+      <Edge From="131" To="132" Label="Source1" />
+      <Edge From="132" To="133" Label="Source1" />
+      <Edge From="133" To="135" Label="Source2" />
+      <Edge From="134" To="135" Label="Source3" />
     </Edges>
   </Workflow>
 </WorkflowBuilder>
