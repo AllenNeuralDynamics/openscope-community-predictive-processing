@@ -1469,7 +1469,10 @@ class BonsaiExperiment(object):
 
         # We restrict the arrays between global_ref_timestamps and end_session if available
         if global_ref_timestamps and end_session:
-            kept_frames = timestamps >= global_ref_timestamps & (timestamps <= end_session)
+            timestamps_float = timestamps.astype(np.float64, copy=False)
+            kept_frames = ((timestamps_float >= float(global_ref_timestamps)) &
+                           (timestamps_float <= float(end_session)))
+            n_kept = np.sum(kept_frames)
             logging.info("Trimming encoder arrays from %d to %d frames based on START/END timestamps" % (n_frames, n_kept))
             dx = dx[kept_frames]
             degrees = degrees[kept_frames]
