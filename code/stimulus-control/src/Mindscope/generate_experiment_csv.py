@@ -995,21 +995,29 @@ def generate_single_session_csv(session_type, output_path, seed=None):
             
             all_trials.append(enriched_trial)
     
-    # Save the CSV file
+    # Save the CSV file (Python 2.7 + 3.x compatible)
     try:
         output_dir = os.path.dirname(output_path)
         if output_dir and not os.path.exists(output_dir):
             os.makedirs(output_dir)
-        
-        with open(output_path, 'wb') as csvfile:
-            writer = csv.DictWriter(csvfile, fieldnames=fieldnames)
+
+        import sys
+        # Python 2 csv module expects binary mode; Python 3 expects text with newline=''
+        if sys.version_info[0] < 3:
+            fh = open(output_path, 'wb')
+        else:
+            fh = open(output_path, 'w', newline='')  # newline='' prevents blank rows on Windows
+        try:
+            writer = csv.DictWriter(fh, fieldnames=fieldnames)
             writer.writeheader()
             writer.writerows(all_trials)
-        
+        finally:
+            fh.close()
+
         print("Successfully generated %d trials" % len(all_trials))
         print("Saved to: %s" % output_path)
         return True
-        
+
     except Exception as e:
         print("Error saving CSV file: %s" % e)
         return False
