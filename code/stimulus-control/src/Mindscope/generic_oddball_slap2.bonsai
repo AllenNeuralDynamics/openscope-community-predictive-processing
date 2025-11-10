@@ -575,14 +575,14 @@
               </PropertyMappings>
             </Expression>
             <Expression xsi:type="Combinator">
-              <Combinator xsi:type="harp:Device">
+              <Combinator xsi:type="beh:Device">
                 <harp:OperationMode>Active</harp:OperationMode>
                 <harp:OperationLed>On</harp:OperationLed>
                 <harp:DumpRegisters>true</harp:DumpRegisters>
                 <harp:VisualIndicators>On</harp:VisualIndicators>
-                <harp:Heartbeat>Enabled</harp:Heartbeat>
+                <harp:Heartbeat>Disabled</harp:Heartbeat>
                 <harp:IgnoreErrors>false</harp:IgnoreErrors>
-                <harp:PortName>COM7</harp:PortName>
+                <harp:PortName>COMx</harp:PortName>
               </Combinator>
             </Expression>
             <Expression xsi:type="WorkflowOutput" />
