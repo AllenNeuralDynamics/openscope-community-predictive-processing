@@ -1,0 +1,34 @@
+{
+    "launcher": "bonsai",
+    "repository_url": "https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing.git",
+    "repository_commit_hash": "ac2b22c288b17bcd41d332dce27ef32ae87f6540",
+    "local_repository_path": "C:/BonsaiDataPredictiveProcessing/Code",
+    "script_path": "code/stimulus-control/src/Mindscope/generic_oddball_slap2.bonsai",
+    "bonsai_exe_path": "code/stimulus-control/bonsai/Bonsai.exe",
+    "bonsai_setup_script": "code/stimulus-control/bonsai/setup.cmd",
+    "output_root_folder": "C:/BonsaiDataPredictiveProcessing", 
+    "script_parameters": {
+        "stimulus_table_path": "{session_folder}\\predictive_processing_session.csv",
+        "PortName": "{rig_param:COM_port}",
+        "RecordCameras": "{rig_param:RecordCameras}",
+        "Subject": "{subject_id}",
+        "DisplayDeviceIndex": "{rig_param:DisplayDeviceIndex}",
+        "WindowStateIndex": "{rig_param:WindowStateIndex}"
+    },
+    "pre_acquisition_pipeline": [
+        {
+            "module_type": "script_module",
+            "module_path": "code/stimulus-control/src/Mindscope/generate_experiment_csv.py",
+            "module_parameters": {
+                "function": "generate_single_session_csv",
+                "function_args": {
+                    "session_type": "visual_mismatch",
+                    "seed": 42,
+                    "output_path": "{session_folder}\\predictive_processing_session.csv"
+                }
+            }
+        }
+    ],
+    "post_acquisition_pipeline": [
+    ]
+}
