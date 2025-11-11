@@ -1212,6 +1212,19 @@ groupMasks:
               <Index>0</Index>
               <EventName>FaceCamera</EventName>
             </Expression>
+            <Expression xsi:type="rx:Visualizer">
+              <Workflow>
+                <Nodes>
+                  <Expression xsi:type="WorkflowInput">
+                    <Name>Source1</Name>
+                  </Expression>
+                  <Expression xsi:type="WorkflowOutput" />
+                </Nodes>
+                <Edges>
+                  <Edge From="0" To="1" Label="Source1" />
+                </Edges>
+              </Workflow>
+            </Expression>
             <Expression xsi:type="IncludeWorkflow" Path="..\Extensions\behavior_camera.bonsai">
               <Format>{0}/body_video.avi</Format>
               <Index>1</Index>
@@ -1223,7 +1236,9 @@ groupMasks:
               <EventName>EyeCamera</EventName>
             </Expression>
           </Nodes>
-          <Edges />
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+          </Edges>
         </Workflow>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
