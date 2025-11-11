@@ -13,7 +13,8 @@
         "RecordCameras": "{rig_param:RecordCameras}",
         "Subject": "{subject_id}",
         "DisplayDeviceIndex": "{rig_param:DisplayDeviceIndex}",
-        "WindowStateIndex": "{rig_param:WindowStateIndex}"
+        "WindowStateIndex": "{rig_param:WindowStateIndex}",
+        "stimulus_table_duration": "02:00:00"
     },
     "pre_acquisition_pipeline": [
         {
