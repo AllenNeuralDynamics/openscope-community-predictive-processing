@@ -1,0 +1,10 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<VisualizerLayout Version="2.9.0">
+  <WindowSettings Index="88">
+    <NestedLayout>
+      <WindowSettings Index="6">
+        <VisualizerTypeName>Bonsai.Design.Visualizers.TableLayoutPanelVisualizer</VisualizerTypeName>
+      </WindowSettings>
+    </NestedLayout>
+  </WindowSettings>
+</VisualizerLayout>

@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<WorkflowBuilder Version="2.8.5"
+<WorkflowBuilder Version="2.9.0"
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xmlns:gl="clr-namespace:Bonsai.Shaders;assembly=Bonsai.Shaders"
                  xmlns:res="clr-namespace:Bonsai.Resources;assembly=Bonsai.System"
@@ -8,6 +8,7 @@
                  xmlns:wie="clr-namespace:Bonsai.Windows.Input;assembly=Bonsai.Windows.Input"
                  xmlns:harp="clr-namespace:Bonsai.Harp;assembly=Bonsai.Harp"
                  xmlns:beh="clr-namespace:Harp.Behavior;assembly=Harp.Behavior"
+                 xmlns:viz="clr-namespace:Bonsai.Design.Visualizers;assembly=Bonsai.Design.Visualizers"
                  xmlns:io="clr-namespace:Bonsai.IO;assembly=Bonsai.System"
                  xmlns="https://bonsai-rx.org/2018/workflow">
   <Workflow>
@@ -1173,18 +1174,35 @@ groupMasks:
               <Index>0</Index>
               <EventName>FaceCamera</EventName>
             </Expression>
-            <Expression xsi:type="IncludeWorkflow" Path="..\Extensions\behavior_camera.bonsai">
-              <Format>{0}/body_video.avi</Format>
-              <Index>1</Index>
-              <EventName>BodyCamera</EventName>
-            </Expression>
+            <Expression xsi:type="VisualizerMapping" />
             <Expression xsi:type="IncludeWorkflow" Path="..\Extensions\behavior_camera.bonsai">
               <Format>{0}/eye_video.avi</Format>
               <Index>2</Index>
               <EventName>EyeCamera</EventName>
             </Expression>
+            <Expression xsi:type="VisualizerMapping" />
+            <Expression xsi:type="IncludeWorkflow" Path="..\Extensions\behavior_camera.bonsai">
+              <Format>{0}/body_video.avi</Format>
+              <Index>1</Index>
+              <EventName>BodyCamera</EventName>
+            </Expression>
+            <Expression xsi:type="VisualizerMapping" />
+            <Expression xsi:type="viz:TableLayoutPanelBuilder">
+              <viz:ColumnCount>1</viz:ColumnCount>
+              <viz:RowCount>3</viz:RowCount>
+              <viz:ColumnStyles />
+              <viz:RowStyles />
+              <viz:CellSpans />
+            </Expression>
           </Nodes>
-          <Edges />
+          <Edges>
+            <Edge From="0" To="1" Label="Source1" />
+            <Edge From="1" To="6" Label="Source1" />
+            <Edge From="2" To="3" Label="Source1" />
+            <Edge From="3" To="6" Label="Source2" />
+            <Edge From="4" To="5" Label="Source1" />
+            <Edge From="5" To="6" Label="Source3" />
+          </Edges>
         </Workflow>
       </Expression>
       <Expression xsi:type="ExternalizedMapping">
