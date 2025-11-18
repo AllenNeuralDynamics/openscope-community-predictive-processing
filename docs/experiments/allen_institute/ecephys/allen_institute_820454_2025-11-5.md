@@ -15,6 +15,16 @@
     - all 6 probes inserted 
     - settled probes for 30 minutes after reaching 3000 micron depth
     - no eye foam!
-    - Mouse walked a little (intermittent), no running. Stationary most of the experiment 
-    
-    
+    - Mouse walked a little (intermittent), no running. Stationary most of the experiment
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20experiments/allen_institute/ecephys/allen_institute_820454_2025-11-5" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->

@@ -20,5 +20,16 @@
     - pupil never obscured 
     - Mouse walked a little (intermittent), no running. Stationary most of the experiment 
     - First recording with new optic fiber mounts
-        -frontal fiber positioned between probes E and F on tailcone (previously between F and A) 
-    
+        -frontal fiber positioned between probes E and F on tailcone (previously between F and A)
+
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20experiments/allen_institute/ecephys/allen_institute_820454_2025-11-4" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
