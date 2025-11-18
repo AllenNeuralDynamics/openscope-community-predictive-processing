@@ -14,7 +14,7 @@
 <div class="discussion-link">
     <hr>
     <p>
-        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20experiments/allen_institute/ecephys/2025-11-10" target="_blank">
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20experiments/allen_institute/ecephys/YYYY-MM-DD" target="_blank">
             💬 Start a discussion for this page on GitHub
         </a>
         <span class="note">(A GitHub account is required to create or participate in discussions)</span>
