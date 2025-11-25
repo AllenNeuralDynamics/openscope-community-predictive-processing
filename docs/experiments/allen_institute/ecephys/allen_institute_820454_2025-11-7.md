@@ -17,6 +17,14 @@
     - 0:46 minor eye foam in corner, clears up but is a bit squinty afterwards
     - Mouse walked more than previously!
 
+## Data Access
+
+- **DANDI Repository**: The data from this experiment has been uploaded to the DANDI Archive and is available at: [DANDI:001637/sub-820454](https://dandiarchive.org/dandiset/001637/draft/files?location=sub-820454&page=1)
+
+- **Data Format**: Data is stored in Neurodata Without Borders (NWB) format.
+
+- **Analysis Code**: To explore the structure of the NWB file and validate its contents, you can use the [intro_to_ephys_nwbs](https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/blob/main/docs/notebooks/intro_to_ephys_nwbs.ipynb) script in our repository.
+
 <!-- DISCUSSION_LINK_START -->
 <div class="discussion-link">
     <hr>
