@@ -24,6 +24,9 @@
 
 - **Data Format**: Data is stored in Neurodata Without Borders (NWB) format.
 
+- **Code Ocean**: Raw data (unpackaged and largely unprocessed) can be accessed on Allen Institute's Code Ocean [*Public Collection* here](https://codeocean.allenneuraldynamics.org/collections/f7b909a8-e515-4016-94ac-5487c009f20d?page=1&filter=all)
+
+
 - **Analysis Code**: To explore the structure of the NWB file and validate its contents, you can use the [intro_to_ephys_nwbs](https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/blob/main/docs/notebooks/intro_to_ephys_nwbs.ipynb) script in our repository.
 
 <!-- DISCUSSION_LINK_START -->
