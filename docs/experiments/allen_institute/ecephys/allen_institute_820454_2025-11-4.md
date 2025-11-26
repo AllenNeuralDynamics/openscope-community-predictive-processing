@@ -4,16 +4,16 @@
 - Date:*2025_11_04*
 - Experimenter:*@ryan-gillis*
 - Rig / Setup ID:*NP1*
-- Stimulus version:* Openscope_P3_v52 EPHYS_SESSION1_PROD_P3_SENSORYMOTOR*
+- Stimulus version:*Openscope_P3_v52 EPHYS_SESSION1_PROD_P3_SENSORYMOTOR*
 - Protocol followed:*extracellular electrophysiology*
 - **Notes & Issues:**
 Probe	Target
-Probe A	ACA
-Probe B	Visa
-Probe C	Visp
-Probe D	Vislm
-Probe E	Mop
-Probe F	ACA Mos
+-Probe A	ACA
+-Probe B	Visa
+-Probe C	Visp
+-Probe D	Vislm
+-Probe E	Mop
+-Probe F	ACA Mos
     - first instance of using Openscope_P3_v52
     -mouse had silicone plug removal the previous Friday (membrane regrowth expected)
     - restarted all computers prior to putting the mouse on the rig
