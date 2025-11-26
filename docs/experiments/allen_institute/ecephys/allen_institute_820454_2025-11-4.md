@@ -8,13 +8,19 @@
 - Protocol followed: *extracellular electrophysiology*
 - **Notes & Issues:**
 | Probe | Target |
-|---|---|
+
 | Probe A | ACA |
+
 | Probe B | Visa |
+
 | Probe C | Visp |
+
 | Probe D | Vislm |
+
 | Probe E | Mop |
+
 | Probe F | ACA Mos |
+
     - first instance of using Openscope_P3_v52
     -mouse had silicone plug removal the previous Friday (membrane regrowth expected)
     - restarted all computers prior to putting the mouse on the rig
