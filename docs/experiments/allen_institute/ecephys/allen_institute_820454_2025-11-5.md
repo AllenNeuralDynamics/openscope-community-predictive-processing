@@ -7,7 +7,8 @@
 - **Stimulus version: *Openscope_P3_v52 EPHYS_SESSION2_PROD_P3_STANDARD*
 - **Protocol followed: *extracellular electrophysiology*
 - **Notes & Issues:**
-| Probe | Target |
+
+| **Probe** | **Target** |
 
 | Probe A | ACA |
 
