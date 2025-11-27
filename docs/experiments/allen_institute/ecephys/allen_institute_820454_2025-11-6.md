@@ -1,12 +1,27 @@
 # Experiment Session Notes
 
-- **Mouse ID:*820454*
-- **Date:*2025_11_06*
-- **Experimenter:*Ryan Gillis*
-- **Rig / Setup ID:*NP1*
-- **Stimulus version:* Openscope_P3_v52 EPHYS_SESSION3_PROD_P3_SEQUENCE*
-- **Protocol followed:*extracellular electrophysiology*
+- Mouse ID: *820454*
+- Date:* 2025_11_06*
+- Experimenter: *Ryan Gillis*
+- Rig / Setup ID: *NP1*
+- Stimulus version: *Openscope_P3_v52 EPHYS_SESSION3_PROD_P3_SEQUENCE*
+- Protocol followed: *extracellular electrophysiology*
 - **Notes & Issues:**
+
+| Probe | Target |
+
+| Probe A | ACA |
+
+| Probe B | Visa |
+
+| Probe C | Visp |
+
+| Probe D | Vislm |
+
+| Probe E | Mop |
+
+| Probe F | ACA Mos |
+
     - restarted all computers prior to putting the mouse on the rig
     - Ryan performed the insertion, Casey was shadowing and assisting
     - coated probes (5x dips) in CM-DiD
