@@ -8,7 +8,7 @@
 - Protocol followed: *extracellular electrophysiology*
 - **Notes & Issues:**
 
-| Probe | Target |
+| **Probe** | **Target** |
 
 | Probe A | ACA |
 
