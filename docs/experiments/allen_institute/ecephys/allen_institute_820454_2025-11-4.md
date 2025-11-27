@@ -7,6 +7,7 @@
 - Stimulus version: *Openscope_P3_v52 EPHYS_SESSION1_PROD_P3_SENSORYMOTOR*
 - Protocol followed: *extracellular electrophysiology*
 - **Notes & Issues:**
+
 | Probe | Target |
 
 | Probe A | ACA |
