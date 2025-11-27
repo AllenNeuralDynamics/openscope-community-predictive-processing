@@ -2,7 +2,7 @@
 
 - Mouse ID: *820454*
 - Date:* 2025_11_06*
-- Experimenter: *Ryan Gillis*
+- Experimenter: *@ryan-gillis*
 - Rig / Setup ID: *NP1*
 - Stimulus version: *Openscope_P3_v52 EPHYS_SESSION3_PROD_P3_SEQUENCE*
 - Protocol followed: *extracellular electrophysiology*
