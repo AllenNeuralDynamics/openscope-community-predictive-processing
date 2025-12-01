@@ -34,7 +34,7 @@ def _get_yml_from_who_am_i(who_am_i: int, release: str = "main") -> io.BytesIO:
         else:
             return yml
 
-def _get_who_am_i_list(url: str = "https://raw.githubusercontent.com/harp-tech/protocol/main/whoami.yml"):
+def _get_who_am_i_list(url: str = "https://raw.githubusercontent.com/harp-tech/whoami/main/whoami.yml"):
     response = requests.get(url, allow_redirects=True, timeout=5)
     content = response.content.decode("utf-8")
     content = yaml.safe_load(content)
