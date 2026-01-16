@@ -3,7 +3,7 @@
                  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
                  xmlns:rx="clr-namespace:Bonsai.Reactive;assembly=Bonsai.Core"
                  xmlns:cv="clr-namespace:Bonsai.Vision;assembly=Bonsai.Vision"
-                 xmlns:avt="clr-namespace:Bonsai.Vimba;assembly=Bonsai.Vimba"
+                 xmlns:spk="clr-namespace:Bonsai.Spinnaker;assembly=Bonsai.Spinnaker"
                  xmlns:p1="clr-namespace:AllenNeuralDynamics.Core;assembly=AllenNeuralDynamics.Core"
                  xmlns:harp="clr-namespace:Bonsai.Harp;assembly=Bonsai.Harp"
                  xmlns="https://bonsai-rx.org/2018/workflow">
@@ -11,8 +11,8 @@
     <Nodes>
       <Expression xsi:type="ExternalizedMapping">
         <Property Name="Format" />
-        <Property Name="Index" />
         <Property Name="EventName" />
+        <Property Name="SerialNumber" />
       </Expression>
       <Expression xsi:type="rx:Defer">
         <Workflow>
@@ -43,19 +43,19 @@
                 <cv:FourCC>FMP4</cv:FourCC>
                 <cv:FrameRate>30</cv:FrameRate>
                 <cv:FrameSize>
-                  <cv:Width>728</cv:Width>
-                  <cv:Height>544</cv:Height>
+                  <cv:Width>720</cv:Width>
+                  <cv:Height>540</cv:Height>
                 </cv:FrameSize>
                 <cv:ResizeInterpolation>NearestNeighbor</cv:ResizeInterpolation>
               </Combinator>
             </Expression>
             <Expression xsi:type="ExternalizedMapping">
-              <Property Name="Index" />
+              <Property Name="SerialNumber" />
             </Expression>
             <Expression xsi:type="Combinator">
-              <Combinator xsi:type="avt:VimbaCapture">
-                <avt:Index>2</avt:Index>
-                <avt:FrameCount xsi:nil="true" />
+              <Combinator xsi:type="spk:SpinnakerCapture">
+                <spk:Index xsi:nil="true" />
+                <spk:ColorProcessing>Default</spk:ColorProcessing>
               </Combinator>
             </Expression>
             <Expression xsi:type="SubscribeSubject">
