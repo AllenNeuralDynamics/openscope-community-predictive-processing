@@ -4,7 +4,7 @@
     <Contents Count="3">
       <Content ID="0" PersistString="WorkflowFindToolWindow" AutoHidePortion="0.25" IsHidden="True" IsFloat="False" />
       <Content ID="1" PersistString="WatchToolWindow" AutoHidePortion="0.25" IsHidden="True" IsFloat="False" />
-      <Content ID="2" PersistString="WorkflowDockContent" AutoHidePortion="0.25" IsHidden="False" IsFloat="False" />
+      <Content ID="2" PersistString="WorkflowDockContent:1" AutoHidePortion="0.25" IsHidden="False" IsFloat="False" />
     </Contents>
     <Panes Count="1">
       <Pane ID="0" DockState="Document" ActiveContent="2">
