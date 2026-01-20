@@ -996,6 +996,19 @@ def generate_single_session_csv(session_type, output_path, seed=None):
                 {'type': 'rf_mapping', 'duration_minutes': 5, 'label': 'RF mapping'}
             ]
         },
+         'sensorimotor_no_oddball_long_zebra': {
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'motor_long', 'duration_minutes': 26, 'label': 'Sensory-motor long block (no oddball)'},
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.2'},
+                {'type': 'sequential_control_block', 'duration_minutes': 4.7, 'label': 'Control block 2'},
+                {'type': 'jitter_control', 'duration_minutes': 6.4, 'label': 'Control block 3'},
+                {'type': 'open_loop_prerecorded', 'duration_minutes': 6.4, 'label': 'Control block 4',
+                 'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
+                {'type': 'movie_zebra', 'duration_minutes': 10, 'label': 'Zebra', 'movie_duration_s': 300, 'repeats': 2, 'width': 120, 'height': 95},
+                {'type': 'rf_mapping', 'duration_minutes': 5, 'label': 'RF mapping'}
+            ]
+        },
         'sensorimotor_mismatch_no_oddball_training': {
             'blocks': [
                 {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
