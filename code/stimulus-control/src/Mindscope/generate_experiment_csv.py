@@ -22,6 +22,7 @@ Available session types (single complete session per invocation):
     - duration_mismatch_long_zebra
     - sequence_mismatch_no_oddball_long_zebra
     - sensorimotor_mismatch_no_oddball_long_zebra
+    - sequence_mismatch_no_oddball_training
 
 NOTES:
     * open_loop_prerecorded blocks now include explicit oddball_config so prerecorded
@@ -973,6 +974,12 @@ def generate_single_session_csv(session_type, output_path, seed=None):
                  'oddball_config': {'motor_orientation_45': 1.35, 'motor_orientation_90': 1.35, 'motor_halt': 1.35, 'motor_omission': 1.35}},
                 {'type': 'movie_zebra', 'duration_minutes': 10, 'label': 'Zebra', 'movie_duration_s': 300, 'repeats': 2, 'width': 120, 'height': 95},
                 {'type': 'rf_mapping', 'duration_minutes': 5, 'label': 'RF mapping'}
+            ]
+        },
+        'sequence_mismatch_no_oddball_training': {
+            'blocks': [
+                {'type': 'standard_control', 'duration_minutes': 6.4, 'label': 'Control block 1.1'},
+                {'type': 'sequential_long', 'duration_minutes': 53.6, 'label': 'Sequence long training block'}
             ]
         },
         'sensorimotor_mismatch_no_oddball': {
