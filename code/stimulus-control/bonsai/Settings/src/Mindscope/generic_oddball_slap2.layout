@@ -1,6 +1,2 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<VisualizerLayout Version="2.9.0">
-  <WindowSettings Index="94">
-    <VisualizerTypeName>Bonsai.Design.Visualizers.TableLayoutPanelVisualizer</VisualizerTypeName>
-  </WindowSettings>
-</VisualizerLayout>
+<VisualizerLayout Version="2.9.0" />
