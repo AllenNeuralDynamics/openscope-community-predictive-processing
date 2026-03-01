@@ -1,0 +1,532 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://allenneuraldynamics.github.io/openscope-community-predictive-processing/stimuli/sensory-motor-closed-loop/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Sensory-Motor Closed-Loop - OpenScope Community Predictive Processing</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Sensory-Motor Closed-Loop";
+        var mkdocs_page_input_path = "stimuli/sensory-motor-closed-loop.md";
+        var mkdocs_page_url = "/openscope-community-predictive-processing/stimuli/sensory-motor-closed-loop/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> OpenScope Community Predictive Processing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Plan</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../experimental-plan/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../detailed-experimental-plan/">Experimental Plan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../analysis-plan/">Analysis Plan</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Resources</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../experiment-summary/">Experiment Summary</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stimuli</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../bonsai_introduction/">Introduction to Bonsai</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../bonsai_instructions/">Bonsai Instructions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../bonsai_for_python_programmers/">Bonsai for Python Programmers</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../experimental-launcher/">Experimental Launcher</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../list_scripts/">List of scripts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../standard-oddball/">Standard Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../standard-oddball-jitter-random/">Standard Oddball Jitter Random</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Sensory-Motor Closed-Loop</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#stimulus-structure">Stimulus Structure</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#script-location">Script Location</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#hardware-requirements">Hardware Requirements</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#stimulus-parameters">Stimulus Parameters</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#basic-parameters">Basic Parameters</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#oddball-parameters">Oddball Parameters</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#experimental-design">Experimental Design</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#closed-loop-sensorimotor-integration">Closed-Loop Sensorimotor Integration</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#oddball-implementation">Oddball Implementation</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#technical-implementation">Technical Implementation</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-collection">Data Collection</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#synchronization">Synchronization</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#running-the-experiment">Running the Experiment</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-documents">Related Documents</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sensory-motor-coupling/">Sensory-Motor Coupling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sequence-mismatch/">Sequence Mismatch</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../generic-oddball/">Generic Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../gamma-calibration/">Gamma Calibration</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Hardware</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-overview/">Hardware Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/behavior_training/">Behavioral</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_slap2_hardware/">SLAP2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_neuropixels_hardware/">Neuropixels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_mesoscope_hardware/">Mesoscope</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/wheel_encoder_plugin/">Wheel Encoder Plugin</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Templates</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../template-files/mouse_experiment_template/">Experiment Template</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../template-files/meeting_template/">Meeting Template</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Analysis</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../pilotanalysis/">SLAP2 pilot data analysis</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/pilot_analysis_rfs/">SLAP2 pilot notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/dff_calculation/">DFF calculation notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/intro_to_ephys_nwbs/">Intro to Ephys NWBs</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Experiments</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >allen_institute</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" >ecephys</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-4/">allen_institute_820454_2025-11-4</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-5/">allen_institute_820454_2025-11-5</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-6/">allen_institute_820454_2025-11-6</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-7/">allen_institute_820454_2025-11-7</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-10/">allen_institute_820459_2025-11-10</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-12/">allen_institute_820459_2025-11-12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_mouseID_YYYY-MM-DD/">allen_institute_mouseID_YYYY-MM-DD</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >slap2</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_776270_2025-07-02/">allen_institute_776270_2025-07-02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_787727_2025-03-27/">allen_institute_787727_2025-03-27</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-04-03/">allen_institute_794237_2025-04-03</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-04-24/">allen_institute_794237_2025-04-24</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-05-08/">allen_institute_794237_2025-05-08</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_08_25/">allen_institute_796630_2025_08_25</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_08_28/">allen_institute_796630_2025_08_28</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_09_26/">allen_institute_796630_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_10_01/">allen_institute_796630_2025_10_01</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796632_2025_09_26/">allen_institute_796632_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025-05-29/">allen_institute_801381_2025-05-29</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025-06-05/">allen_institute_801381_2025-06-05</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025_09_26/">allen_institute_801381_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025_10_02/">allen_institute_801381_2025_10_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_803496_2025_07_02/">allen_institute_803496_2025_07_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_809006_2025_08_22/">allen_institute_809006_2025_08_22</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_820409_2025_11_11/">allen_institute_820409_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_11/">allen_institute_828408_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_12/">allen_institute_828408_2025_11_12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_13/">allen_institute_828408_2025_11_13</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_NA_2025-03-20/">allen_institute_NA_2025-03-20</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../people/">Team</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how_to_contribute/">How to Contribute</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../collaboration-policy/">Collaboration Policy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../project-tracking/">Project Tracking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Website Development</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../how_to_serve_locally/">Serving Locally</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../github-actions-automation/">GitHub Actions Automation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Meetings</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-04-21/">2025-04-21</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-06/">2025-05-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-13/">2025-05-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-20/">2025-05-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-27/">2025-05-27</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-03/">2025-06-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-10/">2025-06-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-17/">2025-06-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-24/">2025-06-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-01/">2025-07-01</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-08/">2025-07-08</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-15/">2025-07-15</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-22/">2025-07-22</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-29/">2025-07-29</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-05/">2025-08-05</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-12/">2025-08-12</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-19/">2025-08-19</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-26/">2025-08-26</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-02/">2025-09-02</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-09/">2025-09-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-16/">2025-09-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-23/">2025-09-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-30/">2025-09-30</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-03/">2025-10-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-07/">2025-10-07</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-14/">2025-10-14</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-20/">2025-10-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-28/">2025-10-28</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-11-18/">2025-11-18</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-11-25/">2025-11-25</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-12-09/">2025-12-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-12-16/">2025-12-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-12-23/">2025-12-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-01-06/">2026-01-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-01-13/">2026-01-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-01-20/">2026-01-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-03/">2026-02-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-10/">2026-02-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-17/">2026-02-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-24/">2026-02-24</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../faq/">FAQ</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">OpenScope Community Predictive Processing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Project Resources</li>
+          <li class="breadcrumb-item">Stimuli</li>
+      <li class="breadcrumb-item active">Sensory-Motor Closed-Loop</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/edit/main/docs/stimuli/sensory-motor-closed-loop.md">Edit</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="sensory-motor-closed-loop-stimulus">Sensory-Motor Closed-Loop Stimulus</h1>
+<h2 id="overview">Overview</h2>
+<p>The Sensory-Motor Closed-Loop stimulus provides a visual environment where the movement of the mouse (via a running wheel) directly controls the phase of drifting gratings. This creates a closed sensorimotor loop that allows investigation of how neural responses are modulated by self-generated visual feedback. In the oddball variant, the relationship between wheel movement and visual feedback is occasionally broken, creating sensorimotor prediction errors.</p>
+<h2 id="stimulus-structure">Stimulus Structure</h2>
+<p><img alt="Sensory-Motor Mismatch Analysis" src="../../img/stimuli/sensorimotor_mismatch_structure_analysis.png" /></p>
+<p>The figure above shows a comprehensive analysis of the sensory-motor mismatch stimulus structure:</p>
+<ol>
+<li><strong>Block Structure Timeline</strong>: Displays the temporal organization including:</li>
+<li><strong>Motor Oddball Blocks</strong>: Main experimental periods where sensory-motor coupling is established and violated</li>
+<li><strong>Motor Control Blocks</strong>: Baseline periods with standard sensory-motor relationships</li>
+<li>
+<p><strong>RF Mapping Blocks</strong>: Spatial tuning phases</p>
+</li>
+<li>
+<p><strong>Grating Orientations Over Time</strong>: Shows how visual stimuli change throughout the session, including both coupled and decoupled phases</p>
+</li>
+<li>
+<p><strong>Oddball Events Distribution</strong>: Highlights sensory-motor mismatch events where the expected relationship between wheel movement and visual feedback is violated</p>
+</li>
+</ol>
+<p>This analysis demonstrates how the protocol creates predictable sensory-motor relationships and systematically violates them to study prediction error signals in the context of self-generated sensory feedback.</p>
+<h2 id="script-location">Script Location</h2>
+<p>The stimulus script is located at:
+- <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/blob/main/code/stimulus-control/src/Sensory_motor_oddball_slap2.bonsai"><code>/code/stimulus-control/src/Sensory_motor_oddball_slap2.bonsai</code></a> - Closed-loop implementation with oddball functionality</p>
+<h2 id="hardware-requirements">Hardware Requirements</h2>
+<ul>
+<li>SLAP2 imaging system</li>
+<li>Behavior device with encoder/wheel for tracking animal movement</li>
+<li>Running wheel connected to an encoder on Port 2</li>
+</ul>
+<h2 id="stimulus-parameters">Stimulus Parameters</h2>
+<h3 id="basic-parameters">Basic Parameters</h3>
+<ul>
+<li><strong>Display Type</strong>: Drifting gratings</li>
+<li><strong>Spatial Frequency</strong>: 0.04 cycles per degree</li>
+<li><strong>Temporal Frequency</strong>: 0 Hz (static, since motion is controlled by the wheel)</li>
+<li><strong>Contrast</strong>: 1.0 (full contrast)</li>
+<li><strong>Size</strong>: 90° (covering a large portion of the visual field)</li>
+<li><strong>Aperture</strong>: 90°</li>
+<li><strong>Angle</strong>: 0° (horizontal grating)</li>
+</ul>
+<h3 id="oddball-parameters">Oddball Parameters</h3>
+<ul>
+<li><strong>Oddball Frequency</strong>: Random intervals, controlled by experiment duration and number of oddballs</li>
+<li><strong>Oddball Duration</strong>: Configurable, default is ~1 second per event</li>
+<li><strong>Total Oddballs</strong>: Configurable, default is 5 per session</li>
+<li><strong>Oddball Type</strong>: Orientation change (0° → 45° during oddball events)</li>
+</ul>
+<h2 id="experimental-design">Experimental Design</h2>
+<h3 id="closed-loop-sensorimotor-integration">Closed-Loop Sensorimotor Integration</h3>
+<p>The core of this experiment is the direct coupling between:</p>
+<ol>
+<li><strong>Mouse Movement</strong>: Rotary encoder on Port 2 tracks the animal's wheel running</li>
+<li><strong>Visual Feedback</strong>: Encoder data is used to update the phase of the visual gratings in real-time</li>
+</ol>
+<p>This creates a predictable relationship where:
+- Forward wheel movement → Forward grating motion
+- Backward wheel movement → Backward grating motion
+- Stationary → Static grating</p>
+<p>The script implements this coupling by:
+- Reading encoder values from the behavior device
+- Dividing encoder values by 300 to create an appropriate scaling factor
+- Using the modulus of 360 to convert the wheel position to grating phase
+- Applying this calculated phase to the gratings in real-time</p>
+<h3 id="oddball-implementation">Oddball Implementation</h3>
+<p>The oddball implementation introduces brief violations of the sensorimotor contingency:</p>
+<ol>
+<li><strong>Random Timing</strong>: Oddballs occur at unpredictable intervals throughout the session</li>
+<li><strong>Brief Duration</strong>: Each oddball lasts for a configurable duration (default ~1 second)</li>
+<li><strong>Orientation Change</strong>: During an oddball, the grating orientation changes from 0° to 45°</li>
+<li><strong>Limited Quantity</strong>: A configurable number of oddballs (default 5) occur per session</li>
+<li><strong>Layer Priority</strong>: Oddball gratings are displayed on a higher layer (Layer 1) than the standard gratings (Layer 0)</li>
+</ol>
+<p>The oddball generator uses frame permutation for randomization and implements a detection system to display the oddball stimulus when the current frame matches one of the predefined oddball frames.</p>
+<h2 id="technical-implementation">Technical Implementation</h2>
+<ul>
+<li>Encoder values are acquired at high frequency and published to a subject called "Encoder"</li>
+<li>The DrawGratings workflow subscribes to this encoder data</li>
+<li>Real-time mapping applies encoder position to grating phase</li>
+<li>The temporal frequency parameter is set to 0 Hz as the movement is controlled by the wheel</li>
+</ul>
+<h2 id="data-collection">Data Collection</h2>
+<ul>
+<li>Running data is collected via an encoder on Port 2 of the behavior device</li>
+</ul>
+<h2 id="synchronization">Synchronization</h2>
+<ul>
+<li>SLAP2 recording is automatically started and stopped during the experiment</li>
+<li>The experiment can be controlled via spacebar (start) and End key (stop)</li>
+</ul>
+<h2 id="running-the-experiment">Running the Experiment</h2>
+<ol>
+<li>Start the Bonsai workflow</li>
+<li>Press the spacebar to begin the experiment</li>
+<li>The mouse can then control the gratings by running on the wheel</li>
+<li>In the oddball variant, brief sensorimotor mismatches will occur automatically</li>
+<li>The experiment can be terminated with the End key</li>
+</ol>
+<h2 id="related-documents">Related Documents</h2>
+<ul>
+<li><strong><a href="../bonsai_instructions/">Bonsai Instructions</a></strong>: Setup and deployment of Bonsai code</li>
+<li><strong><a href="../../experimental-plan/">Experimental Plan</a></strong>: Overview of all experimental paradigms</li>
+<li><strong><a href="../../hardware/allen_institute_slap2_hardware/">SLAP2 Hardware</a></strong>: Details about the SLAP2 imaging system</li>
+<li><strong><a href="../standard-oddball/">Standard Oddball</a></strong>: Information about the related standard oddball paradigm</li>
+</ul>
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/sensory-motor-closed-loop" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../standard-oddball-jitter-random/" class="btn btn-neutral float-left" title="Standard Oddball Jitter Random"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../sensory-motor-coupling/" class="btn btn-neutral float-right" title="Sensory-Motor Coupling">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../standard-oddball-jitter-random/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../sensory-motor-coupling/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../js/github-profiles.js"></script>
+      <script src="../../js/analytics.js"></script>
+      <script src="https://www.googletagmanager.com/gtag/js?id=G-DT93KEXV5Q"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

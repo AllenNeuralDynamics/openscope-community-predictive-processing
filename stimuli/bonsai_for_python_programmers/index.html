@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://allenneuraldynamics.github.io/openscope-community-predictive-processing/stimuli/bonsai_for_python_programmers/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Bonsai for Python Programmers - OpenScope Community Predictive Processing</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Bonsai for Python Programmers";
+        var mkdocs_page_input_path = "stimuli/bonsai_for_python_programmers.md";
+        var mkdocs_page_url = "/openscope-community-predictive-processing/stimuli/bonsai_for_python_programmers/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> OpenScope Community Predictive Processing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Plan</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../experimental-plan/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../detailed-experimental-plan/">Experimental Plan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../analysis-plan/">Analysis Plan</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Resources</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../experiment-summary/">Experiment Summary</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stimuli</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../bonsai_introduction/">Introduction to Bonsai</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../bonsai_instructions/">Bonsai Instructions</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Bonsai for Python Programmers</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#procedural-versus-functional-programming">Procedural versus functional programming</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#for-loops-and-why-they-dont-exist-in-bonsai">for loops, and why they don't exist in Bonsai</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#flow-control-if-statements-and-conditions">Flow control: if statements and Conditions</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#coordinating-data-io">Coordinating data I/O</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#conclusion">Conclusion</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../experimental-launcher/">Experimental Launcher</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../list_scripts/">List of scripts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../standard-oddball/">Standard Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../standard-oddball-jitter-random/">Standard Oddball Jitter Random</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sensory-motor-closed-loop/">Sensory-Motor Closed-Loop</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sensory-motor-coupling/">Sensory-Motor Coupling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sequence-mismatch/">Sequence Mismatch</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../generic-oddball/">Generic Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../gamma-calibration/">Gamma Calibration</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Hardware</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-overview/">Hardware Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/behavior_training/">Behavioral</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_slap2_hardware/">SLAP2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_neuropixels_hardware/">Neuropixels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_mesoscope_hardware/">Mesoscope</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/wheel_encoder_plugin/">Wheel Encoder Plugin</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Templates</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../template-files/mouse_experiment_template/">Experiment Template</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../template-files/meeting_template/">Meeting Template</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Analysis</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../pilotanalysis/">SLAP2 pilot data analysis</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/pilot_analysis_rfs/">SLAP2 pilot notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/dff_calculation/">DFF calculation notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/intro_to_ephys_nwbs/">Intro to Ephys NWBs</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Experiments</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >allen_institute</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" >ecephys</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-4/">allen_institute_820454_2025-11-4</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-5/">allen_institute_820454_2025-11-5</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-6/">allen_institute_820454_2025-11-6</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-7/">allen_institute_820454_2025-11-7</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-10/">allen_institute_820459_2025-11-10</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-12/">allen_institute_820459_2025-11-12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_mouseID_YYYY-MM-DD/">allen_institute_mouseID_YYYY-MM-DD</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >slap2</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_776270_2025-07-02/">allen_institute_776270_2025-07-02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_787727_2025-03-27/">allen_institute_787727_2025-03-27</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-04-03/">allen_institute_794237_2025-04-03</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-04-24/">allen_institute_794237_2025-04-24</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-05-08/">allen_institute_794237_2025-05-08</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_08_25/">allen_institute_796630_2025_08_25</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_08_28/">allen_institute_796630_2025_08_28</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_09_26/">allen_institute_796630_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_10_01/">allen_institute_796630_2025_10_01</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796632_2025_09_26/">allen_institute_796632_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025-05-29/">allen_institute_801381_2025-05-29</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025-06-05/">allen_institute_801381_2025-06-05</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025_09_26/">allen_institute_801381_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025_10_02/">allen_institute_801381_2025_10_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_803496_2025_07_02/">allen_institute_803496_2025_07_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_809006_2025_08_22/">allen_institute_809006_2025_08_22</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_820409_2025_11_11/">allen_institute_820409_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_11/">allen_institute_828408_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_12/">allen_institute_828408_2025_11_12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_13/">allen_institute_828408_2025_11_13</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_NA_2025-03-20/">allen_institute_NA_2025-03-20</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../people/">Team</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how_to_contribute/">How to Contribute</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../collaboration-policy/">Collaboration Policy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../project-tracking/">Project Tracking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Website Development</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../how_to_serve_locally/">Serving Locally</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../github-actions-automation/">GitHub Actions Automation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Meetings</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-04-21/">2025-04-21</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-06/">2025-05-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-13/">2025-05-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-20/">2025-05-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-27/">2025-05-27</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-03/">2025-06-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-10/">2025-06-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-17/">2025-06-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-24/">2025-06-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-01/">2025-07-01</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-08/">2025-07-08</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-15/">2025-07-15</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-22/">2025-07-22</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-29/">2025-07-29</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-05/">2025-08-05</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-12/">2025-08-12</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-19/">2025-08-19</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-26/">2025-08-26</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-02/">2025-09-02</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-09/">2025-09-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-16/">2025-09-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-23/">2025-09-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-30/">2025-09-30</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-03/">2025-10-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-07/">2025-10-07</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-14/">2025-10-14</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-20/">2025-10-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-28/">2025-10-28</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-11-18/">2025-11-18</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-11-25/">2025-11-25</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-12-09/">2025-12-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-12-16/">2025-12-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-12-23/">2025-12-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-01-06/">2026-01-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-01-13/">2026-01-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-01-20/">2026-01-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-03/">2026-02-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-10/">2026-02-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-17/">2026-02-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-24/">2026-02-24</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../faq/">FAQ</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">OpenScope Community Predictive Processing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Project Resources</li>
+          <li class="breadcrumb-item">Stimuli</li>
+      <li class="breadcrumb-item active">Bonsai for Python Programmers</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/edit/main/docs/stimuli/bonsai_for_python_programmers.md">Edit</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="bonsai-a-guide-for-python-programmers">Bonsai: A Guide for Python Programmers</h1>
+<blockquote>
+<p>Guide originally created by @jsiegle</p>
+</blockquote>
+<p>Bonsai is a "visual reactive programming language," which, at its core, is a wrapper around the <a href="http://reactivex.io/">ReactiveX</a> library with interfaces to many common I/O devices used for behavioral neuroscience experiments. ReactiveX is based on concepts from <em>functional programming</em>, which may be unfamiliar to those of us who spend the vast majority of our time writing <em>procedural</em> code in languages such as Python. This can make it difficult to follow the logic behind more complex Bonsai workflows, and can be a major impediment to constructing novel workflows. </p>
+<p>When first learning Bonsai, it is natural to try to translate concepts from procedural languages into our workflows. As we will see, there are many cases where this is neither possible nor desirable. Bonsai (and functional languages in general), surrender certain abilities in order to make it possible to write more performant, maintainable code. This guide is intended to explain the rationale behind some of these design decisions, in order to make working in Bonsai more intuitive and enjoyable.</p>
+<p><br/></p>
+<h2 id="procedural-versus-functional-programming">Procedural versus functional programming</h2>
+<p>Procedural and functional programming represent two complementary approaches to designing software. In its ideal form, procedural programming is:</p>
+<ul>
+<li>Synchronous</li>
+<li>Linear</li>
+<li>State-dependent</li>
+</ul>
+<p>A purely functional program, on the other hand, will be:</p>
+<ul>
+<li>Asynchronous</li>
+<li>Non-linear</li>
+<li>Stateless</li>
+</ul>
+<p>Procedural programming is based on what we typically think of as <em>algorithms</em>: an explicit series of steps, executed in a particular order, that specify how a computer should behave. Functional programming, as its name implies, is based on <em>functions</em>: expressions that define how a particular input should be transformed into an output. A functional program (in principle) consists of a series of expressions that always operate on their input values in the same, predictable way. Expressions should have no <em>side effects</em>, which change their internal state in some way that cannot be observed by the rest of the program.</p>
+<p>With procedural programming, there are no restrictions on functions having their own private states that can change with time. This is actually quite intuitive, because it's consistent with our concept of how the world works: our interactions with a real-world object are strongly dependent on that thing's internal state. However, this approach can make code harder to debug, because the output of a function cannot be predicted from its inputs alone.</p>
+<p>Things become especially tricky when writing programs to handle many inputs and outputs in parallel. This is exactly the situation that arises in neuroscience experiments where stimuli and rewards are contingent on some behavioral readout. In this case, trying to keep track of state changes across multiple I/O sources can quickly lead to messy and uninterpretable code withot a lot of careful forethought. This is exactly the type of problem that Bonsai was designed to address.</p>
+<p><br/></p>
+<h2 id="for-loops-and-why-they-dont-exist-in-bonsai"><code>for</code> loops, and why they don't exist in Bonsai</h2>
+<p>Let's consider a simple Bonsai workflow that takes a series of camera frames and converts them to grayscale:</p>
+<p><img alt="video_workflow" src="../../img/bonsai/video_workflow.png" /></p>
+<p>This workflow contains one "Source" (green) and one "Transform" (blue), and has no branch points. It's quite easy to imagine how we would translate this into Python:</p>
+<pre><code class="language-python">from camera_library import CameraCapture
+from vision_library import Grayscale, WriteFrame
+
+camera = CameraCapture(CAMERA_ID)
+
+grayscale_frames = []
+
+for i in range(MAX_FRAMES):
+
+    frame = camera.getNextFrame()
+    grayscale_frames.append(Grayscale(frame))
+</code></pre>
+<p>After the <code>for</code> loop runs, we end up with a list of frames, which we can analyze, visualize, write to disk, etc:</p>
+<pre><code class="language-python">&gt;&gt; type(grayscale_frames)
+&lt;class 'list'&gt;
+</code></pre>
+<p>The important thing to note here is that the <code>for</code> loop is driving the processing. The actions happen sequentially inside this loop, always in the same order.</p>
+<p>How else could we implement this functionality? Python has a neat feature called "list comprehension" which allows us to express the same actions more succinctly:</p>
+<pre><code class="language-python">grayscale_frames = [Grayscale(frame) for frame in camera.getFrames()]
+</code></pre>
+<p>Although the syntax is similar, there are some subtle differences worth nothing. For one, it's implicit in this formulation that, at some point, <code>getFrames()</code> will stop returning frames. When the output of <code>getFrames()</code> terminates, the processing by the <code>Grayscale</code> function will terminate as well. Although we've ceded some control to the <code>camera</code> object, the output is a list that's the same as when we used the explicit <code>for</code> loop:</p>
+<pre><code class="language-python">&gt;&gt; type(grayscale_frames)
+&lt;class 'list'&gt;
+</code></pre>
+<p>There is yet another way that we can express the same actions: by using the <code>map</code> function. <code>map</code> is a built-in <em>higher-order function</em> that takes another function as input. Thgitis will allow us to do some functional programming within Python, by passing the <code>Grayscale</code> function into <code>map</code>:</p>
+<pre><code class="language-python">grayscale_frames = map(Grayscale, camera.getFrames())
+</code></pre>
+<p>This should give us the same overall result as the previous two formulations. However, the output is no longer a list, but an instance of the <code>map</code> class:</p>
+<pre><code class="language-python">&gt;&gt; type(grayscale_frames)
+&lt;class 'map'&gt;
+</code></pre>
+<p>What we have done is <em>mapped</em> the <code>Grayscale</code> function to the output of <code>camera.getFrames()</code>, such that the result is not calculated until a frame becomes available. In this way, we can achieve the same outcome as when we used a <code>for</code> loop, but without needing to explicitly specify how many frames to process. Whenever a frame comes in, the <code>map</code> function ensures that it gets converted to grayscale.</p>
+<p>Similarly, we could map the <code>WriteFrame</code> function to our <code>grayscale_frames</code> object, so the converted frames get written to disk as they arrive.</p>
+<p>This last formulation is most similar to how operators work in Bonsai. There are no <code>for</code> loops in Bonsai because every operator is essentially its own <em>reactive</em> loop, either generating output sequences or creating transformed versions of its inputs. It is implicit that each operator will apply its internal function to every one of its inputs, until it receives a signal to terminate. In this way, Bonsai lets the incoming data drive the processing, without the need for the programmer to explicit determine the sequence of events.</p>
+<p><br/></p>
+<h2 id="flow-control-if-statements-and-conditions">Flow control: <code>if</code> statements and Conditions</h2>
+<p>For the next example, we'll start with some Python code:</p>
+<pre><code class="language-python">import numpy as np
+from custom_library import functionA, functionB
+
+normal_distribution = np.random.randn(10)
+
+for value in normal_distribution:
+
+    if 0 &lt; value &lt; 1:
+        functionA()
+    elif -1 &lt; value &lt; 0:
+        functionB()
+</code></pre>
+<p>This is a very simple program that uses the value of a random number generator to determine which of two functions is called.</p>
+<p>In Bonsai, we would set this up in a different, but equally approachable, way:</p>
+<p><img alt="random-number-generator" src="../../img/bonsai/random-number-generator.png" /></p>
+<p>We start with a custom <em>GroupWorkflow</em> called "Normal Random" that generates normally distributed random numbers. This sends its output to two parallel <em>Condition</em> operators, called "GreaterThanZero" and "LessThanZero." At the names imply, the first one checks whether the value it receives is between 0 and 1, and the second one checks whether the value is between -1 and 0. If the appropriate conditions are met, the workflow will trigger sequences inside one of two <em>SelectMany</em> operators, called "SequenceA" and "SequenceB," similar to <code>functionA</code> and <code>functionB</code> in the Python example.</p>
+<p>Logically, this program replicates what we wrote in Python, but with one important difference. The <em>Condition</em> operators in Bonsai are <strong>non-blocking</strong>, which means both branches of the workflow can be active simultaneously. If two values arrive in quick succession, the first one greater than 0 and the second one less than 0, "SequenceB" can be initiated before "SequenceA" has even finished. This contrasts with our Python implementation, where the next value cannot be checked until <code>functionA</code> or <code>functionB</code> returns.</p>
+<p>There are of course ways to allow functions to run concurrently in Python, most notably the <code>asyncio</code> library. However, these are not typically used in everyday coding. As a result, Python programs are inherently <em>linear</em>, while Bonsai workflows are inherently <em>parallel</em>.</p>
+<p>Before we explore the implications of this fact in more detail, let's take a look at what's inside the "GreaterThanZero" operator:</p>
+<p><img alt="range-test" src="../../img/bonsai/range-test.png" /></p>
+<p>This is quite a bit less succinct than the <code>0 &lt; value &lt; 1</code> we used to perform the operation in Python, but it has the same functionality. The incoming value is sent to two comparison expressions, one that checks if it's greater than 0, and one that checks if it's less than 1. The outputs of these are combined using the <em>Zip</em> operator, followed by the <em>LogicalAnd</em> operator that outputs <code>True</code> if both of these conditions are met. Importantly, the output of the complete <em>Condition</em> operator is not <code>True</code>, but is instead the value that was passed into it. It acts as a gate for passing information, which is a bit different than what we're used to Python. </p>
+<p>In practice, we can use <em>Condition</em> operators to check for any relevant state changes. For example, we could set up a <em>Condition</em> to determine whether or not a response occurred in a reward window, whether a subject entered a certain part of the environment, or whether a neuron's firing rate went above a threshold. Unlike with an <code>if</code> statement, <em>Condition</em> operators will not block any other part of the workflow, including other <em>Conditions</em> that are being checked in parallel. So while adopting Bonsai may mean we have have given up the familiar <code>if</code> ... <code>else</code> syntax, in return we have gained a powerful new tool.</p>
+<p><br/></p>
+<h2 id="coordinating-data-io">Coordinating data I/O</h2>
+<p>Let's return to our camera capture example. Now, instead of streaming a video to a file, we're going to save an image every time the mouse is clicked. We also have an operator that's checking for keyboard inputs, and stops the workflow if the spacebar is pressed. </p>
+<p><img alt="key_press_example" src="../../img/bonsai/camera_capture.png" /></p>
+<p>It should be easy to interpret what's happening here, as the flow of data is intuitively represented by the left-to-right organization of the operators.</p>
+<p>There are nearly limitless strategies to translate this into Python. Here, we'll use a design pattern that relies on "callbacks" that run whenever a new input event arrives. The program constantly checks the various input streams for incoming events, and then runs a specified function that responds to them. Global variables are used to keep track of states:</p>
+<pre><code class="language-python">
+from camera_library import CameraCapture
+from vision_library import Grayscale, SaveImage
+from io_library import Mouse, Keyboard
+
+camera = CameraCapture(CAMERA_ID)
+mouse = Mouse()
+keyboard = Keyboard()
+output_directory = '/path/to/output'
+
+saveNextFrame = False
+acquire = True
+
+def camera_callback(frame):
+
+    global saveNextFrame
+
+    if saveNextFrame:
+        SaveImage(Grayscale(frame), output_directory)
+        saveNextFrame = False
+
+def mouse_callback(event):
+
+    global saveNextFrame
+
+    if event.mouseDown == True:
+        saveNextFrame = True
+
+def keyboard_callback(event):
+
+    global acquire
+
+    if event.key == 'space':
+        acquire = False
+
+def check_inputs():
+
+    if mouse.event():
+        mouse_callback(mouse.getEvent())
+
+    if keyboard.event():
+        keyboard_callback(keyboard.getEvent())
+
+    if camera.frameAvailable():
+        camera_callback(camera.getNextFrame())
+
+while acquire:
+
+    check_inputs()
+
+</code></pre>
+<p>Note that the function to check whether or not the key was pressed happens in the same loop as the camera capture. This is an example of synchronous programming, because each function call blocks the next one.</p>
+<p>It's also important note that some of these Python callbacks have "side effects," such as changing the state of global variables, while others depend on the state of these variables. In Bonsai, side effects can only happen inside "Sink" operators, which pass their inputs out of the other end unchanged.</p>
+<p>Another big difference is that for a user to determine the relationships between the various inputs and outputs requires reading the code in detail, whereas with Bonsai it was much easier to parse how data was being transformed just by looking at the workflow. In general, Bonsai (and functional languages in general) have a more elegant way of representing data <em>flows.</em> In Python, we are stuck using an explicit sequence to coordinate operations that we would naturally think of occurring in parallel (such as camera capture, key presses, and mouse clicks).</p>
+<p>As stated previously, it's entirely possible to carry out arbitrarily complex asynchronous, parallel operations using Python. But parallelism is not an inherent part of the language, as it is with Bonsai. It's also true that true that Bonsai has plenty of its own complex (likely procedural) code under the hood for coordinating I/O operations. However, this can be ignored by the average user. </p>
+<p><br/></p>
+<h2 id="conclusion">Conclusion</h2>
+<p>This guide has provided the rationale for why some common concepts from procedural programming cannot be translated into Bonsai. Using Bonsai effectively requires abandoning the procedural mindset, which can be  difficult for those of us who use Python or other procedural languages on a daily basis. While it's certainly the case that some operations that would be simple in Python are frustratingly complex to implement in Bonsai, the opposite is also true. Bonsai makes it straightforward to program causal relationships between sequences that are evolving in parallel. It does this via:</p>
+<ul>
+<li><em>Operators</em> that transform their inputs automatically, without the need for <code>for</code> loops</li>
+<li><em>Conditions</em> that can run in parallel, without blocking subsequent inputs</li>
+<li><em>Combinators</em> that determine how sequences interact with one another</li>
+</ul>
+<p>The last topic will likely be covered in a future iteration of this guide, since it's central to the way that Bonsai works. For now, you can read up on Combinators in the <a href="https://bonsai-rx.org/docs/operators/#combining">Bonsai documentation</a>.</p>
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/bonsai_for_python_programmers" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../bonsai_instructions/" class="btn btn-neutral float-left" title="Bonsai Instructions"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../experimental-launcher/" class="btn btn-neutral float-right" title="Experimental Launcher">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../bonsai_instructions/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../experimental-launcher/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../js/github-profiles.js"></script>
+      <script src="../../js/analytics.js"></script>
+      <script src="https://www.googletagmanager.com/gtag/js?id=G-DT93KEXV5Q"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

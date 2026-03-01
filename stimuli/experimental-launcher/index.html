@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://allenneuraldynamics.github.io/openscope-community-predictive-processing/stimuli/experimental-launcher/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Experimental Launcher - OpenScope Community Predictive Processing</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Experimental Launcher";
+        var mkdocs_page_input_path = "stimuli/experimental-launcher.md";
+        var mkdocs_page_url = "/openscope-community-predictive-processing/stimuli/experimental-launcher/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> OpenScope Community Predictive Processing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Plan</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../experimental-plan/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../detailed-experimental-plan/">Experimental Plan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../analysis-plan/">Analysis Plan</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Resources</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../experiment-summary/">Experiment Summary</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stimuli</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../bonsai_introduction/">Introduction to Bonsai</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../bonsai_instructions/">Bonsai Instructions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../bonsai_for_python_programmers/">Bonsai for Python Programmers</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Experimental Launcher</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#architecture">Architecture</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#core-components">Core Components</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#experiment-lifecycle">Experiment Lifecycle</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#phase-1-repository-setup">Phase 1: Repository Setup</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#phase-2-bonsai-installation">Phase 2: Bonsai Installation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#phase-3-package-verification">Phase 3: Package Verification</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#phase-4-stimulus-table-generation">Phase 4: Stimulus Table Generation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#phase-5-experiment-execution">Phase 5: Experiment Execution</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#phase-6-cleanup-data-management">Phase 6: Cleanup &amp; Data Management</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#configuration">Configuration</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#parameter-file-structure">Parameter File Structure</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#key-parameters">Key Parameters</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#session-types">Session Types</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#stimulus-table-generation">Stimulus Table Generation</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#on-the-fly-generation">On-the-Fly Generation</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#generation-process">Generation Process</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#logging-and-traceability">Logging and Traceability</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#package-management">Package Management</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#automatic-package-verification">Automatic Package Verification</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#auto-reinstall-system">Auto-Reinstall System</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-examples">Usage Examples</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#basic-usage">Basic Usage</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#testing-and-development">Testing and Development</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#integration-with-camstim-agent">Integration with Camstim Agent</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#see-also">See Also</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../list_scripts/">List of scripts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../standard-oddball/">Standard Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../standard-oddball-jitter-random/">Standard Oddball Jitter Random</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sensory-motor-closed-loop/">Sensory-Motor Closed-Loop</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sensory-motor-coupling/">Sensory-Motor Coupling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sequence-mismatch/">Sequence Mismatch</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../generic-oddball/">Generic Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../gamma-calibration/">Gamma Calibration</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Hardware</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-overview/">Hardware Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/behavior_training/">Behavioral</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_slap2_hardware/">SLAP2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_neuropixels_hardware/">Neuropixels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_mesoscope_hardware/">Mesoscope</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/wheel_encoder_plugin/">Wheel Encoder Plugin</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Templates</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../template-files/mouse_experiment_template/">Experiment Template</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../template-files/meeting_template/">Meeting Template</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Analysis</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../pilotanalysis/">SLAP2 pilot data analysis</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/pilot_analysis_rfs/">SLAP2 pilot notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/dff_calculation/">DFF calculation notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/intro_to_ephys_nwbs/">Intro to Ephys NWBs</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Experiments</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >allen_institute</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" >ecephys</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-4/">allen_institute_820454_2025-11-4</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-5/">allen_institute_820454_2025-11-5</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-6/">allen_institute_820454_2025-11-6</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-7/">allen_institute_820454_2025-11-7</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-10/">allen_institute_820459_2025-11-10</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-12/">allen_institute_820459_2025-11-12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_mouseID_YYYY-MM-DD/">allen_institute_mouseID_YYYY-MM-DD</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >slap2</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_776270_2025-07-02/">allen_institute_776270_2025-07-02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_787727_2025-03-27/">allen_institute_787727_2025-03-27</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-04-03/">allen_institute_794237_2025-04-03</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-04-24/">allen_institute_794237_2025-04-24</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-05-08/">allen_institute_794237_2025-05-08</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_08_25/">allen_institute_796630_2025_08_25</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_08_28/">allen_institute_796630_2025_08_28</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_09_26/">allen_institute_796630_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_10_01/">allen_institute_796630_2025_10_01</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796632_2025_09_26/">allen_institute_796632_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025-05-29/">allen_institute_801381_2025-05-29</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025-06-05/">allen_institute_801381_2025-06-05</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025_09_26/">allen_institute_801381_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025_10_02/">allen_institute_801381_2025_10_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_803496_2025_07_02/">allen_institute_803496_2025_07_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_809006_2025_08_22/">allen_institute_809006_2025_08_22</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_820409_2025_11_11/">allen_institute_820409_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_11/">allen_institute_828408_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_12/">allen_institute_828408_2025_11_12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_13/">allen_institute_828408_2025_11_13</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_NA_2025-03-20/">allen_institute_NA_2025-03-20</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../people/">Team</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how_to_contribute/">How to Contribute</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../collaboration-policy/">Collaboration Policy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../project-tracking/">Project Tracking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Website Development</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../how_to_serve_locally/">Serving Locally</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../github-actions-automation/">GitHub Actions Automation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Meetings</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-04-21/">2025-04-21</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-06/">2025-05-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-13/">2025-05-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-20/">2025-05-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-27/">2025-05-27</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-03/">2025-06-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-10/">2025-06-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-17/">2025-06-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-24/">2025-06-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-01/">2025-07-01</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-08/">2025-07-08</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-15/">2025-07-15</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-22/">2025-07-22</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-29/">2025-07-29</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-05/">2025-08-05</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-12/">2025-08-12</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-19/">2025-08-19</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-26/">2025-08-26</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-02/">2025-09-02</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-09/">2025-09-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-16/">2025-09-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-23/">2025-09-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-30/">2025-09-30</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-03/">2025-10-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-07/">2025-10-07</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-14/">2025-10-14</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-20/">2025-10-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-28/">2025-10-28</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-11-18/">2025-11-18</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-11-25/">2025-11-25</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-12-09/">2025-12-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-12-16/">2025-12-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-12-23/">2025-12-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-01-06/">2026-01-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-01-13/">2026-01-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-01-20/">2026-01-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-03/">2026-02-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-10/">2026-02-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-17/">2026-02-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-24/">2026-02-24</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../faq/">FAQ</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">OpenScope Community Predictive Processing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Project Resources</li>
+          <li class="breadcrumb-item">Stimuli</li>
+      <li class="breadcrumb-item active">Experimental Launcher</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/edit/main/docs/stimuli/experimental-launcher.md">Edit</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="experimental-launcher">Experimental Launcher</h1>
+<p>The Experimental Launcher is an automated system that manages the complete lifecycle of running Bonsai experiments, from repository setup to experiment execution. It ensures reproducible, reliable experiment execution with automatic package management and error handling.</p>
+<h2 id="overview">Overview</h2>
+<p>The launcher provides a unified interface for running Bonsai experiments with the following key capabilities:</p>
+<ul>
+<li><strong>Automated Repository Management</strong>: Downloads and syncs experiment code from GitHub</li>
+<li><strong>Bonsai Installation &amp; Package Management</strong>: Automatically installs and verifies Bonsai packages</li>
+<li><strong>Experiment Execution</strong>: Launches Bonsai workflows with proper parameter handling</li>
+<li><strong>Error Recovery</strong>: Automatically fixes common package and dependency issues</li>
+<li><strong>Data Management</strong>: Handles experiment data storage and session tracking</li>
+</ul>
+<h2 id="architecture">Architecture</h2>
+<h3 id="core-components">Core Components</h3>
+<p><strong>BonsaiExperiment Class</strong> (<code>bonsai_experiment_launcher.py</code>)</p>
+<ul>
+<li>Main orchestrator for experiment execution</li>
+<li>Handles all phases of experiment lifecycle</li>
+<li>Provides error handling and recovery mechanisms</li>
+</ul>
+<p><strong>Parameter Management</strong></p>
+<ul>
+<li>JSON-based configuration system</li>
+<li>Environment-specific settings (camstim config integration)</li>
+<li>Session metadata and UUID generation</li>
+</ul>
+<p><strong>Process Management</strong></p>
+<ul>
+<li>Windows job object integration for proper cleanup</li>
+<li>Process monitoring and timeout handling</li>
+<li>Signal handling for graceful shutdown</li>
+</ul>
+<h2 id="experiment-lifecycle">Experiment Lifecycle</h2>
+<h3 id="phase-1-repository-setup">Phase 1: Repository Setup</h3>
+<ol>
+<li>Clone/update repository from GitHub</li>
+<li>Checkout specific commit or branch</li>
+<li>Verify repository integrity</li>
+<li>Set up local working directory</li>
+</ol>
+<h3 id="phase-2-bonsai-installation">Phase 2: Bonsai Installation</h3>
+<ol>
+<li>Locate Bonsai executable in repository</li>
+<li>Verify Bonsai installation</li>
+<li>Run setup scripts if needed</li>
+<li>Validate Bonsai version compatibility</li>
+</ol>
+<h3 id="phase-3-package-verification">Phase 3: Package Verification</h3>
+<ol>
+<li>Parse Bonsai.config for required packages</li>
+<li>Scan installed packages directory</li>
+<li>Compare versions and dependencies</li>
+<li>Auto-reinstall if mismatches detected</li>
+</ol>
+<h3 id="phase-4-stimulus-table-generation">Phase 4: Stimulus Table Generation</h3>
+<ol>
+<li>Generate session UUID and metadata</li>
+<li>Create session-specific stimulus CSV using on-the-fly generation</li>
+<li>Use session-specific random seed for unique stimulus sequences</li>
+<li>Place stimulus table in session output folder</li>
+</ol>
+<h3 id="phase-5-experiment-execution">Phase 5: Experiment Execution</h3>
+<ol>
+<li>Prepare experiment parameters with generated stimulus table path</li>
+<li>Launch Bonsai workflow with --start --no-editor</li>
+<li>Monitor process and capture output</li>
+<li>Capture and log experiment output</li>
+</ol>
+<h3 id="phase-6-cleanup-data-management">Phase 6: Cleanup &amp; Data Management</h3>
+<ol>
+<li>Ensure proper process termination</li>
+<li>Save experiment data and metadata</li>
+<li>Generate session reports</li>
+<li>Clean up temporary resources</li>
+</ol>
+<h2 id="configuration">Configuration</h2>
+<h3 id="parameter-file-structure">Parameter File Structure</h3>
+<p>The launcher uses JSON parameter files with the following structure:</p>
+<pre><code class="language-json">{
+    &quot;repository_url&quot;: &quot;https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing.git&quot;,
+    &quot;commit_hash&quot;: &quot;main&quot;, 
+    &quot;local_repository_path&quot;: &quot;C:/BonsaiDataPredictiveProcessingTest&quot;,
+    &quot;bonsai_path&quot;: &quot;code/stimulus-control/src/Mindscope/generic_oddball.bonsai&quot;,
+    &quot;session_type&quot;: &quot;sensorimotor_mismatch&quot;,
+    &quot;mouse_id&quot;: &quot;test_mouse&quot;,
+    &quot;user_id&quot;: &quot;test_user&quot;
+}
+</code></pre>
+<h3 id="key-parameters">Key Parameters</h3>
+<table>
+<thead>
+<tr>
+<th>Parameter</th>
+<th>Description</th>
+<th>Required</th>
+<th>Default</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>repository_url</code></td>
+<td>GitHub repository URL</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>commit_hash</code></td>
+<td>Specific commit or branch name</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>local_repository_path</code></td>
+<td>Local directory for repository</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>bonsai_path</code></td>
+<td>Relative path to workflow file</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>session_type</code></td>
+<td>Experimental session type for stimulus generation</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>mouse_id</code></td>
+<td>Subject identifier</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>user_id</code></td>
+<td>Experimenter identifier</td>
+<td>Yes</td>
+<td>-</td>
+</tr>
+<tr>
+<td><code>bonsai_exe_path</code></td>
+<td>Relative path to Bonsai executable</td>
+<td>No</td>
+<td><code>tools/Bonsai.startstop/Bonsai.exe</code></td>
+</tr>
+<tr>
+<td><code>bonsai_setup_script</code></td>
+<td>Path to package installation script</td>
+<td>No</td>
+<td><code>code/stimulus-control/bonsai/setup.cmd</code></td>
+</tr>
+</tbody>
+</table>
+<h3 id="session-types">Session Types</h3>
+<p>The launcher supports the following session types for automatic stimulus table generation:</p>
+<table>
+<thead>
+<tr>
+<th>Session Type</th>
+<th>Description</th>
+<th>Typical Duration</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>visual_mismatch</code></td>
+<td>Standard oddball with orientation deviants</td>
+<td>~66 minutes</td>
+</tr>
+<tr>
+<td><code>sensorimotor_mismatch</code></td>
+<td>Motor coupling with mismatch blocks</td>
+<td>~66 minutes</td>
+</tr>
+<tr>
+<td><code>sequence_mismatch</code></td>
+<td>Sequential learning with pattern violations</td>
+<td>~66 minutes</td>
+</tr>
+<tr>
+<td><code>duration_mismatch</code></td>
+<td>Temporal oddball with duration deviants</td>
+<td>~66 minutes</td>
+</tr>
+<tr>
+<td><code>sequence_no_oddball</code></td>
+<td>Long blocks without oddball trials</td>
+<td>~66 minutes</td>
+</tr>
+<tr>
+<td><code>sensorimotor_no_oddball</code></td>
+<td>Long motor coupling without mismatches</td>
+<td>~66 minutes</td>
+</tr>
+</tbody>
+</table>
+<p>Each session type generates a unique stimulus table with appropriate control blocks and RF mapping.</p>
+<h2 id="stimulus-table-generation">Stimulus Table Generation</h2>
+<h3 id="on-the-fly-generation">On-the-Fly Generation</h3>
+<p>The launcher automatically generates stimulus tables for each experimental session using the integrated CSV generator. This approach provides several advantages:</p>
+<ul>
+<li><strong>Unique Stimulus Sequences</strong>: Each session uses a session-specific random seed, ensuring no two sessions have identical stimulus presentations</li>
+<li><strong>Reproducible Results</strong>: The random seed is logged with session metadata, allowing exact replication when needed</li>
+<li><strong>Simplified Workflow</strong>: No need to pre-generate or manage static CSV files</li>
+<li><strong>Reduced Storage</strong>: Only the active session's stimulus table is stored, eliminating large collections of unused CSV files</li>
+</ul>
+<h3 id="generation-process">Generation Process</h3>
+<ol>
+<li><strong>Session Initialization</strong>: When a session starts, the launcher extracts the <code>session_type</code> parameter</li>
+<li><strong>Seed Generation</strong>: A unique random seed is created based on the session UUID, session type, and current time</li>
+<li><strong>CSV Creation</strong>: The generator script is called with the session type, output path (in session folder), and unique seed</li>
+<li><strong>Parameter Update</strong>: The <code>stimulus_table_path</code> parameter is updated to point to the generated CSV file</li>
+<li><strong>Bonsai Launch</strong>: The workflow is launched with the path to the newly generated stimulus table</li>
+</ol>
+<h3 id="logging-and-traceability">Logging and Traceability</h3>
+<p>All stimulus generation is fully logged:
+- Generator script execution and output
+- Random seed used for generation
+- Number of trials generated
+- Output file location and verification
+- Any errors or warnings during generation</p>
+<p>This ensures complete traceability and reproducibility of experimental conditions.</p>
+<h2 id="package-management">Package Management</h2>
+<h3 id="automatic-package-verification">Automatic Package Verification</h3>
+<p>The launcher automatically verifies that installed Bonsai packages match the requirements specified in <code>Bonsai.config</code>. This includes:</p>
+<ul>
+<li><strong>Version Matching</strong>: Ensures exact version compatibility</li>
+<li><strong>Dependency Resolution</strong>: Verifies all package dependencies</li>
+<li><strong>Missing Package Detection</strong>: Identifies packages that need installation</li>
+</ul>
+<h3 id="auto-reinstall-system">Auto-Reinstall System</h3>
+<p>The launcher automatically fixes package issues when detected:</p>
+<ol>
+<li><strong>Detection</strong>: Identifies version mismatches or missing packages</li>
+<li><strong>Cleanup</strong>: Removes the entire Packages directory for a clean slate</li>
+<li><strong>Reinstallation</strong>: Runs the setup script to install all packages fresh</li>
+<li><strong>Verification</strong>: Re-checks packages to confirm the fix worked</li>
+</ol>
+<p>This ensures experiments always run with the correct package versions.</p>
+<h2 id="usage-examples">Usage Examples</h2>
+<h3 id="basic-usage">Basic Usage</h3>
+<pre><code class="language-python">from bonsai_experiment_launcher import BonsaiExperiment
+
+# Create experiment instance
+experiment = BonsaiExperiment()
+
+# Run experiment with parameter file
+success = experiment.run('experiment_params.json')
+
+if success:
+    print(&quot;Experiment completed successfully!&quot;)
+else:
+    print(&quot;Experiment failed - check logs for details&quot;)
+</code></pre>
+<h3 id="testing-and-development">Testing and Development</h3>
+<pre><code class="language-bash"># Test the launcher with sample parameters
+python test_bonsai_launcher.py
+
+# Use custom parameter file
+python test_bonsai_launcher.py --param-file my_params.json
+</code></pre>
+<h3 id="integration-with-camstim-agent">Integration with Camstim Agent</h3>
+<p>The launcher is designed to be executed by the <strong>camstim agent</strong> - one of the Allen Institute's internal session management system. The integration works as follows:</p>
+<h4 id="agent-based-execution">Agent-Based Execution</h4>
+<ul>
+<li><strong>Agent receives</strong>: A script path and YAML parameter file from the experiment scheduling system</li>
+<li><strong>Agent calls</strong>: The experimental launcher with the provided parameters</li>
+<li><strong>Agent monitors</strong>: Experiment execution and handles results</li>
+</ul>
+<h4 id="parameter-flow">Parameter Flow</h4>
+<pre><code>1. Experiment scheduling system → YAML parameters → camstim agent
+2. camstim agent → experimental launcher
+3. experimental launcher → experiment execution → results back to agent
+</code></pre>
+<h4 id="camstim-infrastructure-integration">Camstim Infrastructure Integration</h4>
+<ul>
+<li><strong>Configuration</strong>: Reads from <code>C:/ProgramData/AIBS_MPE/camstim/config/stim.cfg</code></li>
+<li><strong>Data Storage</strong>: Saves experiment data to camstim-compatible pickle files</li>
+<li><strong>Session Management</strong>: Uses camstim session UUID format and metadata structure</li>
+<li><strong>Logging</strong>: Compatible with camstim logging standards and tracking formats</li>
+<li><strong>Process Management</strong>: Integrates with camstim's process monitoring and cleanup</li>
+</ul>
+<h4 id="expected-usage-pattern">Expected Usage Pattern</h4>
+<pre><code class="language-python"># This is typically called by the camstim agent, not directly by users
+from bonsai_experiment_launcher import BonsaiExperiment
+
+# Agent provides the YAML file path
+experiment = BonsaiExperiment()
+success = experiment.run('agent_provided_params.json')  # Agent converts YAML→JSON
+
+# Results are automatically saved in camstim-compatible format
+# Agent handles success/failure reporting back to scheduling system
+</code></pre>
+<h4 id="camstim-compatible-output-format">Camstim-Compatible Output Format</h4>
+<p>The launcher generates pickle files with the same structure as standard camstim experiments:
+- Platform and session metadata
+- Experiment parameters and checksums
+- Behavioral data integration points
+- LIMS-compatible data structure</p>
+<h2 id="see-also">See Also</h2>
+<ul>
+<li><a href="../bonsai_instructions/">Bonsai Instructions</a> - Basic Bonsai usage</li>
+<li><a href="../bonsai_for_python_programmers/">Bonsai for Python Programmers</a> - Integration concepts</li>
+<li><a href="../standard-oddball/">Standard Oddball</a> - Example experiment workflow</li>
+</ul>
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/experimental-launcher" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../bonsai_for_python_programmers/" class="btn btn-neutral float-left" title="Bonsai for Python Programmers"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../list_scripts/" class="btn btn-neutral float-right" title="List of scripts">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../bonsai_for_python_programmers/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../list_scripts/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../js/github-profiles.js"></script>
+      <script src="../../js/analytics.js"></script>
+      <script src="https://www.googletagmanager.com/gtag/js?id=G-DT93KEXV5Q"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

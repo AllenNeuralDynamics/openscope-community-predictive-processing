@@ -1,0 +1,698 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://allenneuraldynamics.github.io/openscope-community-predictive-processing/stimuli/generic-oddball/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>Generic Oddball - OpenScope Community Predictive Processing</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Generic Oddball";
+        var mkdocs_page_input_path = "stimuli/generic-oddball.md";
+        var mkdocs_page_url = "/openscope-community-predictive-processing/stimuli/generic-oddball/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> OpenScope Community Predictive Processing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Plan</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../experimental-plan/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../detailed-experimental-plan/">Experimental Plan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../analysis-plan/">Analysis Plan</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Resources</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../experiment-summary/">Experiment Summary</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Stimuli</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../bonsai_introduction/">Introduction to Bonsai</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../bonsai_instructions/">Bonsai Instructions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../bonsai_for_python_programmers/">Bonsai for Python Programmers</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../experimental-launcher/">Experimental Launcher</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../list_scripts/">List of scripts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../standard-oddball/">Standard Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../standard-oddball-jitter-random/">Standard Oddball Jitter Random</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sensory-motor-closed-loop/">Sensory-Motor Closed-Loop</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sensory-motor-coupling/">Sensory-Motor Coupling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../sequence-mismatch/">Sequence Mismatch</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">Generic Oddball</a>
+    <ul class="current">
+    <li class="toctree-l3"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#architecture">Architecture</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#script-locations">Script Locations</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#hardware-requirements">Hardware Requirements</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#csv-parameter-structure">CSV Parameter Structure</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#standard-csv-columns">Standard CSV Columns</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#sensory-contexts">Sensory Contexts</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#1-visual-mismatch-visual_mismatch">1. Visual Mismatch (visual_mismatch)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#2-sensorimotor-mismatch-sensorimotor_mismatch">2. Sensorimotor Mismatch (sensorimotor_mismatch)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#3-sequence-mismatch-sequence_mismatch">3. Sequence Mismatch (sequence_mismatch)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#4-duration-mismatch-duration_mismatch">4. Duration Mismatch (duration_mismatch)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#5-sequence-no-oddball-sequence_no_oddball">5. Sequence No-Oddball (sequence_no_oddball)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#6-sensorimotor-no-oddball-sensorimotor_no_oddball">6. Sensorimotor No-Oddball (sensorimotor_no_oddball)</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#usage-instructions">Usage Instructions</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#integrated-workflow-recommended">Integrated Workflow (Recommended)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#manual-generation-advanced-users">Manual Generation (Advanced Users)</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#session-folder-structure">Session Folder Structure</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#bonsai-workflow-configuration">Bonsai Workflow Configuration</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#reproducibility-and-session-uniqueness">Reproducibility and Session Uniqueness</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#unique-sessions">Unique Sessions</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#reproducibility">Reproducibility</a>
+    </li>
+    <li class="toctree-l4"><a class="reference internal" href="#session-metadata">Session Metadata</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#data-collection">Data Collection</a>
+        <ul>
+    <li class="toctree-l4"><a class="reference internal" href="#stimulus-logs">Stimulus Logs</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#related-documents">Related Documents</a>
+    </li>
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../gamma-calibration/">Gamma Calibration</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Hardware</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-overview/">Hardware Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/behavior_training/">Behavioral</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_slap2_hardware/">SLAP2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_neuropixels_hardware/">Neuropixels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_mesoscope_hardware/">Mesoscope</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/wheel_encoder_plugin/">Wheel Encoder Plugin</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Templates</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../template-files/mouse_experiment_template/">Experiment Template</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../template-files/meeting_template/">Meeting Template</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Analysis</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../pilotanalysis/">SLAP2 pilot data analysis</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/pilot_analysis_rfs/">SLAP2 pilot notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/dff_calculation/">DFF calculation notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/intro_to_ephys_nwbs/">Intro to Ephys NWBs</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Experiments</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >allen_institute</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" >ecephys</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-4/">allen_institute_820454_2025-11-4</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-5/">allen_institute_820454_2025-11-5</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-6/">allen_institute_820454_2025-11-6</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-7/">allen_institute_820454_2025-11-7</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-10/">allen_institute_820459_2025-11-10</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-12/">allen_institute_820459_2025-11-12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_mouseID_YYYY-MM-DD/">allen_institute_mouseID_YYYY-MM-DD</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >slap2</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_776270_2025-07-02/">allen_institute_776270_2025-07-02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_787727_2025-03-27/">allen_institute_787727_2025-03-27</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-04-03/">allen_institute_794237_2025-04-03</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-04-24/">allen_institute_794237_2025-04-24</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-05-08/">allen_institute_794237_2025-05-08</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_08_25/">allen_institute_796630_2025_08_25</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_08_28/">allen_institute_796630_2025_08_28</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_09_26/">allen_institute_796630_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_10_01/">allen_institute_796630_2025_10_01</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796632_2025_09_26/">allen_institute_796632_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025-05-29/">allen_institute_801381_2025-05-29</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025-06-05/">allen_institute_801381_2025-06-05</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025_09_26/">allen_institute_801381_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025_10_02/">allen_institute_801381_2025_10_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_803496_2025_07_02/">allen_institute_803496_2025_07_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_809006_2025_08_22/">allen_institute_809006_2025_08_22</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_820409_2025_11_11/">allen_institute_820409_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_11/">allen_institute_828408_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_12/">allen_institute_828408_2025_11_12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_13/">allen_institute_828408_2025_11_13</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_NA_2025-03-20/">allen_institute_NA_2025-03-20</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../people/">Team</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how_to_contribute/">How to Contribute</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../collaboration-policy/">Collaboration Policy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../project-tracking/">Project Tracking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Website Development</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../how_to_serve_locally/">Serving Locally</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../github-actions-automation/">GitHub Actions Automation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Meetings</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-04-21/">2025-04-21</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-06/">2025-05-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-13/">2025-05-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-20/">2025-05-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-05-27/">2025-05-27</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-03/">2025-06-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-10/">2025-06-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-17/">2025-06-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-06-24/">2025-06-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-01/">2025-07-01</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-08/">2025-07-08</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-15/">2025-07-15</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-22/">2025-07-22</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-07-29/">2025-07-29</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-05/">2025-08-05</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-12/">2025-08-12</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-19/">2025-08-19</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-08-26/">2025-08-26</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-02/">2025-09-02</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-09/">2025-09-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-16/">2025-09-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-23/">2025-09-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-09-30/">2025-09-30</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-03/">2025-10-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-07/">2025-10-07</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-14/">2025-10-14</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-20/">2025-10-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-10-28/">2025-10-28</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-11-18/">2025-11-18</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-11-25/">2025-11-25</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-12-09/">2025-12-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-12-16/">2025-12-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2025-12-23/">2025-12-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-01-06/">2026-01-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-01-13/">2026-01-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-01-20/">2026-01-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-03/">2026-02-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-10/">2026-02-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-17/">2026-02-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../meetings/2026-02-24/">2026-02-24</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../faq/">FAQ</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">OpenScope Community Predictive Processing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Project Resources</li>
+          <li class="breadcrumb-item">Stimuli</li>
+      <li class="breadcrumb-item active">Generic Oddball</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/edit/main/docs/stimuli/generic-oddball.md">Edit</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="generic-oddball-protocol">Generic Oddball Protocol</h1>
+<h2 id="overview">Overview</h2>
+<p>The Generic Oddball Protocol represents a unified framework for running multiple experimental sensory contexts using a single Bonsai script. The system uses dynamically generated CSV files to define stimulus parameters, providing precise control over trial sequences, timing, and stimulus properties with unique stimulus presentations for each experimental session.</p>
+<h2 id="architecture">Architecture</h2>
+<p>The Generic Oddball system consists of two main components:</p>
+<ol>
+<li><strong><code>generate_experiment_csv.py</code></strong>: Python script that generates CSV files containing stimulus parameters for different experimental sensory contexts</li>
+<li><strong><code>generic_oddball.bonsai</code></strong>: Bonsai workflow that reads CSV files and presents stimuli according to the specified parameters</li>
+</ol>
+<p>This separation allows for:
+- <strong>Reproducible experiments</strong>: Exact stimulus sequences can be reproduced using logged random seeds
+- <strong>Unique sessions</strong>: Each session generates a unique stimulus sequence to avoid habituation effects
+- <strong>Flexible parameter control</strong>: All stimulus properties can be precisely specified
+- <strong>Complex experimental designs</strong>: Multiple sensory contexts can be run with the same underlying infrastructure
+- <strong>Integrated workflow</strong>: The experimental launcher automatically generates stimulus tables on-the-fly</p>
+<h2 id="script-locations">Script Locations</h2>
+<ul>
+<li><strong>Python Generator</strong>: <a href="https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/blob/main/code/stimulus-control/src/Mindscope/generate_experiment_csv.py"><code>/code/stimulus-control/src/Mindscope/generate_experiment_csv.py</code></a></li>
+<li><strong>Bonsai Workflow</strong>: <a href="https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/blob/main/code/stimulus-control/src/Mindscope/generic_oddball.bonsai"><code>/code/stimulus-control/src/Mindscope/generic_oddball.bonsai</code></a></li>
+</ul>
+<h2 id="hardware-requirements">Hardware Requirements</h2>
+<ul>
+<li>Behavior device with encoder/wheel for tracking animal movement (when used)</li>
+<li>Digital outputs for synchronization with recording equipment</li>
+</ul>
+<h2 id="csv-parameter-structure">CSV Parameter Structure</h2>
+<h3 id="standard-csv-columns">Standard CSV Columns</h3>
+<p>Each CSV file contains the following standardized columns:</p>
+<table>
+<thead>
+<tr>
+<th>Column</th>
+<th>Description</th>
+<th>Units</th>
+<th>Typical Values</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>Contrast</code></td>
+<td>Stimulus contrast</td>
+<td>0-1</td>
+<td>1 (full contrast), 0 (omission)</td>
+</tr>
+<tr>
+<td><code>Delay</code></td>
+<td>Inter-stimulus interval</td>
+<td>seconds</td>
+<td>0.343, 1.0, 1.5, 2.0</td>
+</tr>
+<tr>
+<td><code>Diameter</code></td>
+<td>Stimulus diameter (also serves as sensory context marker)</td>
+<td>degrees</td>
+<td>340-390 (see Diameter Markers)</td>
+</tr>
+<tr>
+<td><code>Duration</code></td>
+<td>Stimulus presentation duration</td>
+<td>seconds</td>
+<td>0.343, 0.250, 0.050-0.200</td>
+</tr>
+<tr>
+<td><code>Orientation</code></td>
+<td>Grating orientation</td>
+<td>degrees</td>
+<td>0, 45, 90, 135, etc.</td>
+</tr>
+<tr>
+<td><code>Spatial_Frequency</code></td>
+<td>Spatial frequency of grating</td>
+<td>cycles/degree</td>
+<td>0.04</td>
+</tr>
+<tr>
+<td><code>Temporal_Frequency</code></td>
+<td>Temporal frequency of grating</td>
+<td>Hz</td>
+<td>2, 0 (for halt)</td>
+</tr>
+<tr>
+<td><code>X</code></td>
+<td>Horizontal position offset</td>
+<td>degrees</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>Y</code></td>
+<td>Vertical position offset</td>
+<td>degrees</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>Phase</code></td>
+<td>Initial phase of grating</td>
+<td>radians</td>
+<td>0</td>
+</tr>
+<tr>
+<td><code>Trial_Type</code></td>
+<td>Type of trial</td>
+<td>string</td>
+<td>'standard', 'orientation_45', 'orientation_90', 'halt', 'omission', 'jitter', 'single'</td>
+</tr>
+<tr>
+<td><code>Block_Type</code></td>
+<td>Experimental sensory context</td>
+<td>string</td>
+<td>'standard_oddball', 'jitter_oddball', 'sequential_oddball', etc.</td>
+</tr>
+</tbody>
+</table>
+<h2 id="sensory-contexts">Sensory Contexts</h2>
+<p>The system supports six main experimental session types, each designed to probe different aspects of predictive processing:</p>
+<h3 id="1-visual-mismatch-visual_mismatch">1. Visual Mismatch (<code>visual_mismatch</code>)</h3>
+<p><strong>Purpose</strong>: Classic oddball paradigm with orientation deviants to probe sensory prediction error responses
+<strong>Blocks</strong>: Control blocks interspersed with oddball blocks containing orientation deviants (45°, 90°), halts, and omissions</p>
+<h3 id="2-sensorimotor-mismatch-sensorimotor_mismatch">2. Sensorimotor Mismatch (<code>sensorimotor_mismatch</code>)</h3>
+<p><strong>Purpose</strong>: Closed-loop paradigm where visual stimulus phase is coupled to wheel movement, with occasional mismatches
+<strong>Blocks</strong>: Control blocks plus sensorimotor mismatch blocks with motor coupling violations</p>
+<h3 id="3-sequence-mismatch-sequence_mismatch">3. Sequence Mismatch (<code>sequence_mismatch</code>)</h3>
+<p><strong>Purpose</strong>: Tests sequence learning and prediction with ordered stimulus presentations and violations
+<strong>Blocks</strong>: Control blocks plus sequential blocks with predictable patterns and violations</p>
+<h3 id="4-duration-mismatch-duration_mismatch">4. Duration Mismatch (<code>duration_mismatch</code>)</h3>
+<p><strong>Purpose</strong>: Temporal prediction paradigm with duration-based deviants
+<strong>Blocks</strong>: Control blocks plus duration oddball blocks with shorter/longer duration deviants</p>
+<h3 id="5-sequence-no-oddball-sequence_no_oddball">5. Sequence No-Oddball (<code>sequence_no_oddball</code>)</h3>
+<p><strong>Purpose</strong>: Long blocks of sequential stimuli without oddball trials for baseline sequence processing
+<strong>Blocks</strong>: Extended control and sequential blocks without mismatch trials</p>
+<h3 id="6-sensorimotor-no-oddball-sensorimotor_no_oddball">6. Sensorimotor No-Oddball (<code>sensorimotor_no_oddball</code>)</h3>
+<p><strong>Purpose</strong>: Long blocks of sensorimotor coupling without mismatch for baseline motor-visual coupling
+<strong>Blocks</strong>: Extended control and motor coupling blocks without mismatch trials</p>
+<p>Each session type includes:
+- <strong>RF Mapping</strong>: 9x9 grid of positions for receptive field characterization
+- <strong>Control Blocks</strong>: Standard stimulus presentations for baseline comparisons<br />
+- <strong>Session-Specific Randomization</strong>: Unique random seed ensures different stimulus sequences per session</p>
+<h2 id="usage-instructions">Usage Instructions</h2>
+<h3 id="integrated-workflow-recommended">Integrated Workflow (Recommended)</h3>
+<p>The recommended approach is to use the experimental launcher, which automatically handles stimulus table generation:</p>
+<ol>
+<li><strong>Create Parameter File</strong>: Specify the desired session type in the launcher parameter JSON:</li>
+</ol>
+<pre><code class="language-json">{
+    &quot;repository_url&quot;: &quot;https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing.git&quot;,
+    &quot;commit_hash&quot;: &quot;main&quot;,
+    &quot;local_repository_path&quot;: &quot;C:/BonsaiDataPredictiveProcessingTest&quot;, 
+    &quot;bonsai_path&quot;: &quot;code/stimulus-control/src/Mindscope/generic_oddball.bonsai&quot;,
+    &quot;session_type&quot;: &quot;sensorimotor_mismatch&quot;,
+    &quot;mouse_id&quot;: &quot;subject_123&quot;,
+    &quot;user_id&quot;: &quot;experimenter&quot;
+}
+</code></pre>
+<ol>
+<li><strong>Run Launcher</strong>: Execute the launcher with your parameter file:</li>
+</ol>
+<pre><code class="language-bash">python bonsai_experiment_launcher.py your_params.json
+</code></pre>
+<ol>
+<li><strong>Automatic Processing</strong>: The launcher will:</li>
+<li>Generate a unique stimulus table for the specified session type</li>
+<li>Place the CSV file in the session output folder</li>
+<li>Launch Bonsai with the correct stimulus table path</li>
+<li>Log all generation details for traceability</li>
+</ol>
+<h3 id="manual-generation-advanced-users">Manual Generation (Advanced Users)</h3>
+<p>For direct control over stimulus generation, you can use the generator script directly:</p>
+<p><strong>Generate a Single Session CSV:</strong></p>
+<pre><code class="language-bash">cd code/stimulus-control/src/Mindscope/
+python generate_experiment_csv.py --session-type sensorimotor_mismatch --output-path my_session.csv --seed 12345
+</code></pre>
+<p><strong>Available Session Types:</strong>
+- <code>visual_mismatch</code>
+- <code>sensorimotor_mismatch</code> 
+- <code>sequence_mismatch</code>
+- <code>duration_mismatch</code>
+- <code>sequence_no_oddball</code>
+- <code>sensorimotor_no_oddball</code></p>
+<h3 id="session-folder-structure">Session Folder Structure</h3>
+<p>When using the integrated workflow, each session creates an organized folder structure:</p>
+<pre><code>session_timestamp_mouseID_bonsai/
+├── session_timestamp.pkl              # Session data
+├── stimulus_table_sensorimotor_mismatch.csv  # Generated stimulus table
+├── orientations_logger.csv            # Bonsai timing logs
+├── orientations_orientations.csv      # Bonsai parameter logs
+└── [other session files...]
+</code></pre>
+<h3 id="bonsai-workflow-configuration">Bonsai Workflow Configuration</h3>
+<p>The Bonsai workflow (<code>generic_oddball.bonsai</code>) automatically reads the stimulus table from the path provided by the launcher. Key features:</p>
+<ul>
+<li><strong>Single CSV Input</strong>: The workflow reads one stimulus table per session</li>
+<li><strong>Dynamic Parameter Loading</strong>: All stimulus parameters are loaded from the CSV file</li>
+<li><strong>Hardware Integration</strong>: Supports encoder/wheel input for motor coupling experiments</li>
+<li><strong>Synchronization</strong>: Provides digital outputs for recording equipment sync</li>
+<li><strong>Real-time Logging</strong>: Generates detailed logs during stimulus presentation</li>
+</ul>
+<p>The launcher automatically passes the correct CSV file path to Bonsai via the <code>stimulus_table_path</code> parameter.</p>
+<h2 id="reproducibility-and-session-uniqueness">Reproducibility and Session Uniqueness</h2>
+<h3 id="unique-sessions">Unique Sessions</h3>
+<ul>
+<li>Each experimental session generates a unique stimulus sequence using a session-specific random seed</li>
+<li>The seed is derived from session UUID, session type, and timestamp, ensuring no two sessions are identical</li>
+<li>This prevents habituation effects while maintaining experimental rigor</li>
+</ul>
+<h3 id="reproducibility">Reproducibility</h3>
+<ul>
+<li>All random seeds are logged with session metadata</li>
+<li>Sessions can be exactly reproduced by using the same seed value</li>
+<li>Complete audit trail from stimulus generation through data collection</li>
+</ul>
+<h3 id="session-metadata">Session Metadata</h3>
+<p>Each session maintains complete metadata including:
+- Session UUID and timestamp
+- Random seed used for stimulus generation
+- Session type and parameter configuration
+- Experiment launcher version and checksums
+- Hardware configuration details</p>
+<h2 id="data-collection">Data Collection</h2>
+<p>The system generates several output files during each session:</p>
+<h3 id="stimulus-logs">Stimulus Logs</h3>
+<ul>
+<li>
+<p><code>orientations_logger.csv</code>: Timing information for each stimulus presentation</p>
+<ul>
+<li>Stimulus onset and offset times</li>
+<li>Unique trial identifiers</li>
+</ul>
+</li>
+<li>
+<p><code>orientations_orientations.csv</code>: Complete stimulus parameter log with trial details</p>
+<ul>
+<li>All stimulus parameters (orientation, contrast, duration, etc.)</li>
+<li>Trial type and block type information</li>
+<li>Unique trial identifiers</li>
+<li>Behavioral data (when encoder is connected)</li>
+</ul>
+</li>
+</ul>
+<h2 id="related-documents">Related Documents</h2>
+<ul>
+<li><strong><a href="../standard-oddball/">Standard Oddball</a></strong>: Original standard oddball implementation</li>
+<li><strong><a href="../sensory-motor-closed-loop/">Sensory-Motor Closed-Loop</a></strong>: Sensorimotor paradigm details</li>
+<li><strong><a href="../sequence-mismatch/">Sequence Mismatch</a></strong>: Sequence learning paradigm</li>
+<li><strong><a href="../../experimental-plan/">Experimental Plan</a></strong>: Overview of all experimental sensory contexts</li>
+<li><strong><a href="../bonsai_instructions/">Bonsai Instructions</a></strong>: General Bonsai setup and usage</li>
+</ul>
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20stimuli/generic-oddball" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../sequence-mismatch/" class="btn btn-neutral float-left" title="Sequence Mismatch"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../gamma-calibration/" class="btn btn-neutral float-right" title="Gamma Calibration">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../sequence-mismatch/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../gamma-calibration/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../js/github-profiles.js"></script>
+      <script src="../../js/analytics.js"></script>
+      <script src="https://www.googletagmanager.com/gtag/js?id=G-DT93KEXV5Q"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://allenneuraldynamics.github.io/openscope-community-predictive-processing/analysis-plan/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Analysis Plan - OpenScope Community Predictive Processing</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Analysis Plan";
+        var mkdocs_page_input_path = "analysis-plan.md";
+        var mkdocs_page_url = "/openscope-community-predictive-processing/analysis-plan/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> OpenScope Community Predictive Processing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Plan</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../experimental-plan/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../detailed-experimental-plan/">Experimental Plan</a>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" href="#">Analysis Plan</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#overview">Overview</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#i-what-kind-of-information-is-encoded-by-mismatch-responses">I. What kind of information is encoded by mismatch responses?</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#ii-distinguish-between-two-categories-of-prediction-made-by-neurons">II. Distinguish between two categories of prediction made by neurons</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#iii-mismatch-responses-across-different-types-of-predictions">III. Mismatch responses across different types of predictions</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#shared-analysis-metrics">Shared Analysis Metrics</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#computational-modeling">Computational Modeling</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#references">References</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#related-documents">Related Documents</a>
+    </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Resources</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../experiment-summary/">Experiment Summary</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Stimuli</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/bonsai_introduction/">Introduction to Bonsai</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/bonsai_instructions/">Bonsai Instructions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/bonsai_for_python_programmers/">Bonsai for Python Programmers</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/experimental-launcher/">Experimental Launcher</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/list_scripts/">List of scripts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/standard-oddball/">Standard Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/standard-oddball-jitter-random/">Standard Oddball Jitter Random</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/sensory-motor-closed-loop/">Sensory-Motor Closed-Loop</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/sensory-motor-coupling/">Sensory-Motor Coupling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/sequence-mismatch/">Sequence Mismatch</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/generic-oddball/">Generic Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/gamma-calibration/">Gamma Calibration</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Hardware</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware-overview/">Hardware Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/behavior_training/">Behavioral</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/allen_institute_slap2_hardware/">SLAP2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/allen_institute_neuropixels_hardware/">Neuropixels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/allen_institute_mesoscope_hardware/">Mesoscope</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/wheel_encoder_plugin/">Wheel Encoder Plugin</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Templates</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../template-files/mouse_experiment_template/">Experiment Template</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../template-files/meeting_template/">Meeting Template</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Analysis</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../pilotanalysis/">SLAP2 pilot data analysis</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../notebooks/pilot_analysis_rfs/">SLAP2 pilot notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../notebooks/dff_calculation/">DFF calculation notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../notebooks/intro_to_ephys_nwbs/">Intro to Ephys NWBs</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Experiments</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >allen_institute</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" >ecephys</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-4/">allen_institute_820454_2025-11-4</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-5/">allen_institute_820454_2025-11-5</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-6/">allen_institute_820454_2025-11-6</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-7/">allen_institute_820454_2025-11-7</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-10/">allen_institute_820459_2025-11-10</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-12/">allen_institute_820459_2025-11-12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_mouseID_YYYY-MM-DD/">allen_institute_mouseID_YYYY-MM-DD</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >slap2</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_776270_2025-07-02/">allen_institute_776270_2025-07-02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_787727_2025-03-27/">allen_institute_787727_2025-03-27</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_794237_2025-04-03/">allen_institute_794237_2025-04-03</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_794237_2025-04-24/">allen_institute_794237_2025-04-24</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_794237_2025-05-08/">allen_institute_794237_2025-05-08</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_796630_2025_08_25/">allen_institute_796630_2025_08_25</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_796630_2025_08_28/">allen_institute_796630_2025_08_28</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_796630_2025_09_26/">allen_institute_796630_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_796630_2025_10_01/">allen_institute_796630_2025_10_01</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_796632_2025_09_26/">allen_institute_796632_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_801381_2025-05-29/">allen_institute_801381_2025-05-29</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_801381_2025-06-05/">allen_institute_801381_2025-06-05</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_801381_2025_09_26/">allen_institute_801381_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_801381_2025_10_02/">allen_institute_801381_2025_10_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_803496_2025_07_02/">allen_institute_803496_2025_07_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_809006_2025_08_22/">allen_institute_809006_2025_08_22</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_820409_2025_11_11/">allen_institute_820409_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_828408_2025_11_11/">allen_institute_828408_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_828408_2025_11_12/">allen_institute_828408_2025_11_12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_828408_2025_11_13/">allen_institute_828408_2025_11_13</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_NA_2025-03-20/">allen_institute_NA_2025-03-20</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../people/">Team</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../how_to_contribute/">How to Contribute</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../collaboration-policy/">Collaboration Policy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../project-tracking/">Project Tracking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Website Development</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../how_to_serve_locally/">Serving Locally</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../github-actions-automation/">GitHub Actions Automation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Meetings</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-04-21/">2025-04-21</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-05-06/">2025-05-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-05-13/">2025-05-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-05-20/">2025-05-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-05-27/">2025-05-27</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-06-03/">2025-06-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-06-10/">2025-06-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-06-17/">2025-06-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-06-24/">2025-06-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-07-01/">2025-07-01</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-07-08/">2025-07-08</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-07-15/">2025-07-15</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-07-22/">2025-07-22</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-07-29/">2025-07-29</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-08-05/">2025-08-05</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-08-12/">2025-08-12</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-08-19/">2025-08-19</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-08-26/">2025-08-26</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-09-02/">2025-09-02</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-09-09/">2025-09-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-09-16/">2025-09-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-09-23/">2025-09-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-09-30/">2025-09-30</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-10-03/">2025-10-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-10-07/">2025-10-07</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-10-14/">2025-10-14</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-10-20/">2025-10-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-10-28/">2025-10-28</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-11-18/">2025-11-18</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-11-25/">2025-11-25</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-12-09/">2025-12-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-12-16/">2025-12-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-12-23/">2025-12-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-01-06/">2026-01-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-01-13/">2026-01-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-01-20/">2026-01-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-02-03/">2026-02-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-02-10/">2026-02-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-02-17/">2026-02-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-02-24/">2026-02-24</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../faq/">FAQ</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">OpenScope Community Predictive Processing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Project Plan</li>
+      <li class="breadcrumb-item active">Analysis Plan</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/edit/main/docs/analysis-plan.md">Edit</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="analysis-plan">Analysis Plan</h1>
+<p>This document outlines the comprehensive analysis plan for the OpenScope Predictive Processing Project. It describes the methods and approaches we'll use to analyze neural data collected across different experimental paradigms to understand predictive processing mechanisms in the brain.</p>
+<h2 id="overview">Overview</h2>
+<p>Our analysis is structured to address three main scientific questions, each focusing on different aspects of how the brain implements predictions and processes prediction errors:</p>
+<ol>
+<li><strong>What kind of information is encoded by mismatch responses?</strong></li>
+<li><strong>What categories of predictions are made by neurons?</strong></li>
+<li><strong>How do mismatch responses differ across prediction types?</strong></li>
+</ol>
+<p>These questions are designed to help distinguish between competing hypotheses about whether predictive processing relies on a unified neural mechanism or multiple specialized mechanisms.</p>
+<h2 id="i-what-kind-of-information-is-encoded-by-mismatch-responses">I. What kind of information is encoded by mismatch responses?</h2>
+<p>We will determine whether mismatch responses represent:</p>
+<ul>
+<li>
+<p><strong>Multiplicative novelty</strong>: Stimulus-specific enhancement for novel stimuli</p>
+<ul>
+<li>Analysis method: Compare tuning curves between standard and oddball conditions</li>
+<li>Expected signature: Multiplicative scaling of tuning curves</li>
+<li>Testable prediction: Neurons with strong preference for the standard stimulus will show the largest mismatch responses to deviants</li>
+<li>Implementation: Fit tuning curves with multiplicative gain parameters and test for significant changes</li>
+</ul>
+</li>
+<li>
+<p><strong>Additive novelty</strong>: A generalized "alert" signal independent of stimulus identity</p>
+<ul>
+<li>Analysis method: Test for uniform response increase across all stimulus conditions</li>
+<li>Expected signature: Constant response increment regardless of stimulus preference</li>
+<li>Testable prediction: All neurons will show similar magnitude mismatch responses regardless of their tuning</li>
+<li>Implementation: Fit tuning curves with additive offset parameters and test for significant changes</li>
+</ul>
+</li>
+<li>
+<p><strong>Subtractive novelty</strong>: Difference between expected vs. actual stimulus (true prediction error)</p>
+<ul>
+<li>Analysis method: Calculate difference between predicted response (based on prior stimuli) and actual response</li>
+<li>Expected signature: Activity proportional to the difference between predicted and actual stimulus representations</li>
+<li>Testable prediction: Response will be proportional to distance between expected and actual stimulus in feature space</li>
+<li>Implementation: Build predictive models of expected neural activity and compare with actual activity</li>
+</ul>
+</li>
+</ul>
+<p>For each of these possibilities, we will compare results across paradigms to test whether the same information coding principles apply consistently to different types of prediction errors.</p>
+<h2 id="ii-distinguish-between-two-categories-of-prediction-made-by-neurons">II. Distinguish between two categories of prediction made by neurons</h2>
+<p>We will distinguish between two fundamental categories of neural prediction:</p>
+<ul>
+<li>
+<p><strong>Detailed stimulus predictions</strong>: Specific predictions about the identity of upcoming stimuli</p>
+<ul>
+<li>Analysis method: Compare responses to the same mismatch stimulus across closed-loop vs. open-loop conditions</li>
+<li>Key questions: Do neurons encode precise predictions about what the next stimulus will be?</li>
+<li>Implementation: Measure neural responses during the sensorimotor mismatch paradigm, comparing closed-loop (when running controls visual flow) vs. open-loop conditions</li>
+<li>Expected results: Stronger mismatch responses in closed-loop conditions would indicate detailed prediction encoding, as only this condition allows for precise stimulus predictions</li>
+</ul>
+</li>
+<li>
+<p><strong>Ensemble probability deviations</strong>: Detection of stimuli that deviate from the expected statistical ensemble (often described as "adaptation")</p>
+<ul>
+<li>Analysis method: Population decoding and mutual information analyses comparing control vs. open-loop conditions</li>
+<li>Key questions: Do neurons primarily signal when stimuli deviate from the expected distribution rather than predicting specific stimuli?</li>
+<li>Implementation: Calculate mutual information and use machine learning decoders (SVM) to quantify how well neural activity represents individual mismatch stimuli vs. novelty detection</li>
+<li>Expected results: Greater information content in control vs. open-loop conditions would support ensemble deviation encoding over detailed predictions</li>
+</ul>
+</li>
+<li>
+<p><strong>Predictive learning dynamics</strong>: Emergence of prediction signals with experience</p>
+<ul>
+<li>Analysis method: Track changes in neural responses to repeated oddball stimuli over time</li>
+<li>Key questions: Do neural responses adapt as the brain learns stimulus correlations?</li>
+<li>Implementation: Apply exponential/linear decay models to neuronal responses across trials; use tensor component analysis to identify population-level learning patterns</li>
+<li>Expected results: Progressive response changes would indicate predictive learning, while static responses would suggest fixed stimulus tuning</li>
+</ul>
+</li>
+<li>
+<p><strong>Pattern completion mechanisms</strong>: Predictive activity during stimulus omissions</p>
+<ul>
+<li>Analysis method: Analyze neural activity during stimulus omission periods</li>
+<li>Key questions: Does neural activity during omissions reflect predictions based on preceding context?</li>
+<li>Implementation: Determine whether omission responses systematically depend on preceding stimulus patterns</li>
+<li>Expected results: Context-dependent omission responses would indicate predictive pattern completion</li>
+</ul>
+</li>
+</ul>
+<p>These analyses will help us determine whether neural activity primarily represents precise stimulus predictions or statistical regularities, and how these mechanisms develop with experience.</p>
+<h2 id="iii-mismatch-responses-across-different-types-of-predictions">III. Mismatch responses across different types of predictions</h2>
+<p>We will compare neural responses across our five experimental paradigms to determine:</p>
+<ul>
+<li>
+<p><strong>Shared vs. distinct neural ensembles</strong>:</p>
+<ul>
+<li>Analysis method: Track the same neurons across multiple paradigms</li>
+<li>Key questions: Do the same neurons encode different types of prediction errors?</li>
+<li>Implementation: Apply dimensionality reduction to identify shared response subspaces</li>
+<li>Expected results: Either consistent neural ensemble involvement across paradigms (supporting unified mechanism) or distinct ensemble recruitment (supporting multiple mechanisms)</li>
+</ul>
+</li>
+<li>
+<p><strong>Mismatch type specificity</strong>:</p>
+<ul>
+<li>Analysis method: Compare responses to different mismatch types (orientation, motion, temporal, omission)</li>
+<li>Key questions: Are responses stimulus-feature specific or general across mismatch types?</li>
+<li>Implementation: Compare population response patterns across mismatch types</li>
+<li>Expected results: Either similar response patterns across mismatch types (supporting unified mechanism) or stimulus-specific patterns (supporting multiple mechanisms)</li>
+</ul>
+</li>
+<li>
+<p><strong>Passive vs. active prediction differences</strong>:</p>
+<ul>
+<li>Analysis method: Directly compare oddball vs. sensorimotor mismatch responses</li>
+<li>Key questions: How do motor-based predictions differ from passive statistical learning?</li>
+<li>Implementation: Compare response magnitude, timing, and cell-type specificity</li>
+<li>Expected results: Either similar mechanisms with contextual modulation (unified) or fundamentally different computational mechanisms (multiple)</li>
+</ul>
+</li>
+<li>
+<p><strong>Temporal dynamics analysis</strong>:</p>
+<ul>
+<li>Analysis method: Compare response onset, duration, and oscillatory patterns across paradigms</li>
+<li>Key questions: Do different prediction types share temporal signatures?</li>
+<li>Implementation: Time-frequency analysis of response patterns</li>
+<li>Expected results: Either consistent temporal dynamics (supporting unified mechanism) or distinct dynamics (supporting multiple mechanisms)</li>
+</ul>
+</li>
+</ul>
+<p>This comprehensive comparison across paradigms will provide critical evidence for evaluating whether the brain implements a unified prediction error mechanism that operates across contexts or employs multiple specialized mechanisms for different types of predictions.</p>
+<h2 id="shared-analysis-metrics">Shared Analysis Metrics</h2>
+<figure>
+  <img src="../img/paper/2504.09614v1-3_page074_img010_1280x480.png" alt="Figure 13: Shared analysis metrics">
+  <figcaption>Figure 13: Shared analysis metrics. Throughout all hypotheses, we will leverage a shared set of metrics computed on all datasets. Encoding metrics include measures for deterministic models (linear/logistic regression) such as accuracy, mean square error, and R² coefficient of determination, as well as measures for probabilistic models like generalized linear models (GLMs). Decoding metrics include measures from pattern clustering and classification such as Mahalanobis distance, confusion matrices, F1 score, mutual information, and bit rate/latency. Additionally, analyses of response distribution across anatomical locations and cell types will be used to test all hypotheses.</figcaption>
+</figure>
+
+<h2 id="computational-modeling">Computational Modeling</h2>
+<p>We will develop computational models to formalize hypotheses about predictive processing mechanisms:</p>
+<ol>
+<li>
+<p><strong>Predictive Coding Models</strong>:</p>
+<ul>
+<li>Implement hierarchical prediction networks with explicit error computation</li>
+<li>Model distinct error channels for different types of prediction violations</li>
+<li>Compare model predictions with neural response patterns</li>
+</ul>
+</li>
+<li>
+<p><strong>Reinforcement Learning Models</strong>:</p>
+<ul>
+<li>Implement models with prediction error as a teaching signal</li>
+<li>Focus on learning dynamics during repeated exposure to prediction violations</li>
+<li>Test whether learning rates differ across prediction types</li>
+</ul>
+</li>
+<li>
+<p><strong>Dynamical Systems Models</strong>:</p>
+<ul>
+<li>Create recurrent network models capable of generating predictions</li>
+<li>Model connectivity structures between excitatory and inhibitory neurons</li>
+<li>Determine minimal circuit requirements for different types of prediction errors</li>
+</ul>
+</li>
+</ol>
+<p>These models will provide quantitative predictions about neural activity patterns under different hypotheses, which we can test against our experimental data.</p>
+<h2 id="references">References</h2>
+<ol>
+<li><a href="https://arxiv.org/abs/2504.09614">Neural mechanisms of predictive processing: a collaborative community experiment through the OpenScope program</a></li>
+</ol>
+<h2 id="related-documents">Related Documents</h2>
+<ul>
+<li><strong><a href="../experimental-plan/">Experimental Plan</a></strong>: Overview of experimental paradigms and approaches</li>
+<li><strong><a href="../detailed-experimental-plan/">Detailed Experimental Plan</a></strong>: Comprehensive methodology and experimental design details</li>
+<li><strong><a href="../experiment-summary/">Experiment Summary</a></strong>: Overview of all conducted and planned experiments</li>
+<li><strong><a href="../project-tracking/">Project Tracking</a></strong>: Current progress and status of analysis projects</li>
+</ul>
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20analysis-plan" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../detailed-experimental-plan/" class="btn btn-neutral float-left" title="Experimental Plan"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../experiment-summary/" class="btn btn-neutral float-right" title="Experiment Summary">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../detailed-experimental-plan/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../experiment-summary/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../js/github-profiles.js"></script>
+      <script src="../js/analytics.js"></script>
+      <script src="https://www.googletagmanager.com/gtag/js?id=G-DT93KEXV5Q"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
