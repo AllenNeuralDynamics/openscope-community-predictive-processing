@@ -1358,7 +1358,9 @@ class BonsaiExperiment(object):
         to DigitalBehaviorEncoder, propagate last values for frames without events,
         and compute derived vsig and optional distance.
         """
-        wheel_pattern = re.compile(r'^Wheel-Index-(\d+)-Count-(\d+)-Deg-([0-9eE+\.-]+)$')
+        wheel_pattern = re.compile(
+            r'^Wheel-Index-(\d+)-Count-(-?\d+)-Deg-([-+\d\.eE]+)$'
+        )
         start_time_pattern = re.compile(r'^START$')
         end_time_pattern = re.compile(r'^END$')
 
