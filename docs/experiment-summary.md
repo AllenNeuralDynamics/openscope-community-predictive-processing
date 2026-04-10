@@ -38,10 +38,9 @@ The project utilizes three complementary neural recording platforms, each offeri
 <div class="discussion-link">
     <hr>
     <p>
-        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20experiment-summary" target="_blank">
-            💬 Start a discussion for this page on GitHub
+        <a href="https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/discussions/131" target="_blank">
+            💬 Join the discussion for this page on GitHub
         </a>
-        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
     </p>
 </div>
 <!-- DISCUSSION_LINK_END -->
