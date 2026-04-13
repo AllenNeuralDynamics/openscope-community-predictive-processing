@@ -40,11 +40,35 @@ nav:
     - Stream NWB from S3: notebooks/stream_nwb_from_s3.ipynb
   - Experiments:
     - allen_institute:
+      - ecephys:
+        - allen_institute_820454_2025-11-4: experiments/allen_institute/ecephys/allen_institute_820454_2025-11-4.md
+        - allen_institute_820454_2025-11-5: experiments/allen_institute/ecephys/allen_institute_820454_2025-11-5.md
+        - allen_institute_820454_2025-11-6: experiments/allen_institute/ecephys/allen_institute_820454_2025-11-6.md
+        - allen_institute_820454_2025-11-7: experiments/allen_institute/ecephys/allen_institute_820454_2025-11-7.md
+        - allen_institute_820459_2025-11-10: experiments/allen_institute/ecephys/allen_institute_820459_2025-11-10.md
+        - allen_institute_820459_2025-11-12: experiments/allen_institute/ecephys/allen_institute_820459_2025-11-12.md
+        - allen_institute_mouseID_YYYY-MM-DD: experiments/allen_institute/ecephys/allen_institute_mouseID_YYYY-MM-DD.md
       - slap2:
+        - allen_institute_776270_2025-07-02: experiments/allen_institute/slap2/allen_institute_776270_2025-07-02.md
         - allen_institute_787727_2025-03-27: experiments/allen_institute/slap2/allen_institute_787727_2025-03-27.md
         - allen_institute_794237_2025-04-03: experiments/allen_institute/slap2/allen_institute_794237_2025-04-03.md
         - allen_institute_794237_2025-04-24: experiments/allen_institute/slap2/allen_institute_794237_2025-04-24.md
         - allen_institute_794237_2025-05-08: experiments/allen_institute/slap2/allen_institute_794237_2025-05-08.md
+        - allen_institute_796630_2025_08_25: experiments/allen_institute/slap2/allen_institute_796630_2025_08_25.md
+        - allen_institute_796630_2025_08_28: experiments/allen_institute/slap2/allen_institute_796630_2025_08_28.md
+        - allen_institute_796630_2025_09_26: experiments/allen_institute/slap2/allen_institute_796630_2025_09_26.md
+        - allen_institute_796630_2025_10_01: experiments/allen_institute/slap2/allen_institute_796630_2025_10_01.md
+        - allen_institute_796632_2025_09_26: experiments/allen_institute/slap2/allen_institute_796632_2025_09_26.md
+        - allen_institute_801381_2025-05-29: experiments/allen_institute/slap2/allen_institute_801381_2025-05-29.md
+        - allen_institute_801381_2025-06-05: experiments/allen_institute/slap2/allen_institute_801381_2025-06-05.md
+        - allen_institute_801381_2025_09_26: experiments/allen_institute/slap2/allen_institute_801381_2025_09_26.md
+        - allen_institute_801381_2025_10_02: experiments/allen_institute/slap2/allen_institute_801381_2025_10_02.md
+        - allen_institute_803496_2025_07_02: experiments/allen_institute/slap2/allen_institute_803496_2025_07_02.md
+        - allen_institute_809006_2025_08_22: experiments/allen_institute/slap2/allen_institute_809006_2025_08_22.md
+        - allen_institute_820409_2025_11_11: experiments/allen_institute/slap2/allen_institute_820409_2025_11_11.md
+        - allen_institute_828408_2025_11_11: experiments/allen_institute/slap2/allen_institute_828408_2025_11_11.md
+        - allen_institute_828408_2025_11_12: experiments/allen_institute/slap2/allen_institute_828408_2025_11_12.md
+        - allen_institute_828408_2025_11_13: experiments/allen_institute/slap2/allen_institute_828408_2025_11_13.md
         - allen_institute_NA_2025-03-20: experiments/allen_institute/slap2/allen_institute_NA_2025-03-20.md
 - Project Management:
   - Team: people.md
@@ -58,6 +82,49 @@ nav:
     - '2025-04-21': meetings/2025-04-21.md
     - '2025-05-06': meetings/2025-05-06.md
     - '2025-05-13': meetings/2025-05-13.md
+    - '2025-05-20': meetings/2025-05-20.md
+    - '2025-05-27': meetings/2025-05-27.md
+    - '2025-06-03': meetings/2025-06-03.md
+    - '2025-06-10': meetings/2025-06-10.md
+    - '2025-06-17': meetings/2025-06-17.md
+    - '2025-06-24': meetings/2025-06-24.md
+    - '2025-07-01': meetings/2025-07-01.md
+    - '2025-07-08': meetings/2025-07-08.md
+    - '2025-07-15': meetings/2025-07-15.md
+    - '2025-07-22': meetings/2025-07-22.md
+    - '2025-07-29': meetings/2025-07-29.md
+    - '2025-08-05': meetings/2025-08-05.md
+    - '2025-08-12': meetings/2025-08-12.md
+    - '2025-08-19': meetings/2025-08-19.md
+    - '2025-08-26': meetings/2025-08-26.md
+    - '2025-09-02': meetings/2025-09-02.md
+    - '2025-09-09': meetings/2025-09-09.md
+    - '2025-09-16': meetings/2025-09-16.md
+    - '2025-09-23': meetings/2025-09-23.md
+    - '2025-09-30': meetings/2025-09-30.md
+    - '2025-10-03': meetings/2025-10-03.md
+    - '2025-10-07': meetings/2025-10-07.md
+    - '2025-10-14': meetings/2025-10-14.md
+    - '2025-10-20': meetings/2025-10-20.md
+    - '2025-10-28': meetings/2025-10-28.md
+    - '2025-11-18': meetings/2025-11-18.md
+    - '2025-11-25': meetings/2025-11-25.md
+    - '2025-12-09': meetings/2025-12-09.md
+    - '2025-12-16': meetings/2025-12-16.md
+    - '2025-12-23': meetings/2025-12-23.md
+    - '2026-01-06': meetings/2026-01-06.md
+    - '2026-01-13': meetings/2026-01-13.md
+    - '2026-01-20': meetings/2026-01-20.md
+    - '2026-02-03': meetings/2026-02-03.md
+    - '2026-02-10': meetings/2026-02-10.md
+    - '2026-02-17': meetings/2026-02-17.md
+    - '2026-02-24': meetings/2026-02-24.md
+    - '2026-03-03': meetings/2026-03-03.md
+    - '2026-03-17': meetings/2026-03-17.md
+    - '2026-03-24': meetings/2026-03-24.md
+    - '2026-03-31': meetings/2026-03-31.md
+    - '2026-04-07': meetings/2026-04-07.md
+    - '2026-04-14': meetings/2026-04-14.md
 - FAQ: faq.md
 theme:
   name: readthedocs
