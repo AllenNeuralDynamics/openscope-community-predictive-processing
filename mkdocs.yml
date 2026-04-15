@@ -38,6 +38,7 @@ nav:
     - DFF calculation notebook: notebooks/dff_calculation.ipynb
     - Intro to Ephys NWBs: notebooks/intro_to_ephys_nwbs.ipynb
     - Stream NWB from S3: notebooks/stream_nwb_from_s3.ipynb
+    - Examine Ophys NWB: notebooks/examine_ophys_nwb.ipynb
   - Experiments:
     - allen_institute:
       - slap2:
