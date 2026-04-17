@@ -11,7 +11,7 @@ As of April 2026, our data release is ongoing. Processed assets and partial NWB 
 | Modality | Raw Assets | Processed Assets | Partial NWBs | Complete NWBs on DANDI |
 |----------|-----------|-----------------|-------------|----------------------|
 | **Neuropixels** | ✅ Available | ✅ Spike-sorted available | ✅ In sorted assets | ⬚ In progress (pending CCF) |
-| **Mesoscope** | ✅ Available | ✅ Planar ophys, behavior, behavior videos | ✅ In ophys assets (Zarr) | ⬚ In progress |
+| **Mesoscope** | ✅ Available | ✅ Planar ophys, behavior, behavior videos | ✅ In processed assets (Zarr) | ⬚ In progress |
 | **SLAP2** | ✅ Available | ⬚ Pipeline in development | ⬚ Not yet | ⬚ Not yet |
 
 **What "partial NWB" means:** Each processed asset contains an NWB file with just that modality's data (e.g., the spike-sorted NWB has spike times + LFP but not behavior). The goal is to produce **complete NWBs** that combine behavior + recording into a single file, which will be released on DANDI with a permanent DOI.
@@ -68,27 +68,25 @@ Each experimental session produces multiple **assets** (folders) on S3. The numb
 
 ```
 ecephys_012345_2025-01-01_01-01-01                              # raw session
-ecephys_012345_2025-01-01_01-01-01_sorted_2025-02-02_02-02-02    # spike-sorted
+ecephys_012345_2025-01-01_01-01-01_sorted_2025-02-02_02-02-02   # spike-sorted
 ecephys_012345_ccf                                              # (coming soon) brain region coordinates
-ecephys_012345_2025-01-01_01-01-01_nwb_2025-03-03_03-03-03       # (coming soon) complete NWB
+ecephys_012345_2025-01-01_01-01-01_nwb_2025-03-03_03-03-03      # (coming soon) complete NWB
 ```
 
-**Mesoscope** — 4 assets (1 raw + 3 processed):
+**Mesoscope** — 4 assets (1 raw + 3 processed). A complete NWB asset will appear as it is produced:
 
 ```
-multiplane-ophys_1111111_2025-04-04_04-04-04                                # raw session
-multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-05-05_05-05-05   # processed (planar ophys, behavior, or behavior videos)
-multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-06-06_06-06-06   # processed
-multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-07-07_07-07-07   # processed
-multiplane-ophys_1111111_2025-04-04_04-04-04_nwb_2025-08-08_08-08-08         # (coming soon) complete NWB
+multiplane-ophys_1111111_2025-04-04_04-04-04                                         # raw session
+multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-05-05_05-05-05            # behavior videos (Eye, Face, etc.)
+multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-06-06_06-06-06            # behavior/timing (stimulus sync, timing QC plots, NWB)
+multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-07-07_07-07-07            # planar ophys (ΔF/F, segmentation, NWB Zarr)
+multiplane-ophys_1111111_2025-04-04_04-04-04_nwb_2025-08-08_08-08-08                  # (coming soon) complete NWB
 ```
 
-**SLAP2** — currently 1 asset (raw only, processing pipeline in development). A processed and complete NWB asset will appear as they are produced:
+**SLAP2** — currently 1 asset (raw only, processing pipeline in development). Processed and NWB assets will appear as they are produced:
 
 ```
 567890_2025-09-09_09-09-09                                      # raw session
-567890_2025-09-09_09-09-09_processed_2026-01-01_01-01-01         # (coming soon) processed
-567890_2025-09-09_09-09-09_nwb_2026-02-02_02-02-02               # (coming soon) complete NWB
 ```
 
 !!! warning
@@ -96,42 +94,58 @@ multiplane-ophys_1111111_2025-04-04_04-04-04_nwb_2025-08-08_08-08-08         # (
 
 ### Raw Session Assets
 
-All raw sessions share a common structure:
+All raw sessions share a common structure, though the exact files vary by schema version:
 
 ```
 ecephys_012345_2025-01-01_01-01-01/
-├── behavior_videos/          # MP4s of eye, face, body cameras
+├── behavior-videos/          # MP4s of eye, face, body cameras (+ JSON sidecar per video)
 ├── behavior/                 # Stimulus tables, sync data, running speed
-├── ecephys/                  # (or multiplane-ophys/, slap2/ for other modalities)
+├── ecephys/                  # Modality-specific data (see note below)
+│   ├── ecephys_clipped/
+│   └── ecephys_compressed/
+├── original_metadata/        # Original metadata from acquisition
 ├── data_description.json     # Project, funding, institution
+├── metadata.nd.json          # Consolidated metadata document
 ├── session.json              # Session metadata, start/end time, rig ID, stimulus info
 ├── subject.json              # Mouse ID, genotype, age
 ├── procedures.json           # Surgical procedures
-├── rig.json                  # Rig configuration (older sessions)
-├── instrument.json           # Instrument configuration (newer sessions)
+├── rig.json                  # Rig configuration
 └── processing.json           # Processing pipeline metadata
 ```
 
+The **modality-specific directory** differs by session type:
+
+- **Neuropixels**: `ecephys/` — contains `ecephys_clipped/` and `ecephys_compressed/`
+- **Mesoscope**: `pophys/` — contains raw imaging data
+- **SLAP2**: `slap2/` — contains `dynamic_data/` and `notes/`
+
 !!! note
-    Older sessions use `rig.json` and `session.json`; newer sessions use `instrument.json` and `acquisition.json`. The information is equivalent — the naming difference reflects updated metadata schemas.
+    Sessions collected on the **Neuropixels** and **Mesoscope** rigs use `rig.json`, `session.json`, `original_metadata/`, and `metadata.nd.json`. Sessions collected on the **SLAP2** rig use `instrument.json` and `acquisition.json` instead. The information is equivalent — the naming difference reflects updated metadata schemas.
 
 ### Neuropixels Sorted Assets
 
-The spike-sorted asset contains the processed spike sorting results and a partial NWB:
+The spike-sorted asset contains the full spike sorting pipeline output and a partial NWB:
 
 ```
 ecephys_012345_2025-01-01_01-01-01_sorted_2025-02-02_02-02-02/
-├── spikesorted/
-│   ├── ProbeA/
-│   │   └── AP_recording/     # Spike times, unit metrics
-│   ├── ProbeB/
-│   │   └── AP_recording/
-│   └── ...                   # One folder per probe
-├── NWB/                      # Partial NWB file (~250 MB)
-├── quality_control/          # Drift maps, firing rate plots, unit yield
+├── spikesorted/              # Raw spike sorting output (one folder per probe)
+│   ├── experiment1_Record Node 101#...ProbeA-AP_recording1/
+│   │   ├── properties/       # Unit properties (Amplitude.npy, KSLabel.npy, etc.)
+│   │   ├── spikes.npy        # Spike times
+│   │   └── *.json            # SpikeInterface metadata
+│   ├── ...ProbeB-AP_recording1/
+│   └── ...                   # One folder per probe (A–F)
+├── curated/                  # Post-curation spike sorting (same per-probe structure)
+├── postprocessed/            # Post-processing results (per-probe .zarr folders)
+├── preprocessed/             # Pre-processing intermediates (motion/)
+├── nwb/                      # Partial NWB file (Zarr format, ~250 MB)
+├── quality_control/          # Drift maps, firing rate plots, unit yield (per-probe)
 ├── visualization/            # Per-probe traces, drift maps
+├── original_metadata/        # Original metadata from acquisition
 ├── visualization_output.json # Links to interactive sorting summary portals
+├── quality_control.json      # QC metrics summary
 ├── data_description.json
+├── metadata.nd.json
 ├── subject.json
 ├── procedures.json
 └── processing.json
@@ -141,30 +155,61 @@ ecephys_012345_2025-01-01_01-01-01_sorted_2025-02-02_02-02-02/
 
 The three processed assets for each Mesoscope session are:
 
-**1. Planar Ophys Asset** — identifiable by having plane-named subfolders:
+**1. Planar Ophys Asset** — identifiable by having plane-named subfolders (e.g., `VISp_0/`, `VISl_4/`):
 
 ```
-multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-05-05_05-05-05/
-├── VISp0/                    # Visual cortex primary, plane 0
+multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-07-07_07-07-07/
+├── VISp_0/                   # Visual cortex primary, plane 0
 │   ├── dff/                  # ΔF/F traces
+│   ├── events/               # Event detection results
 │   ├── classification/       # Cell classification results
+│   ├── extraction/           # ROI extraction output
 │   ├── motion_correction/    # Motion correction outputs
-│   ├── d_crosstalk/          # Crosstalk correction
-│   └── movie_QC/             # QC images (z-drift, segmentation, etc.)
-├── VISp1/, VISl4/, ...       # Additional planes
-├── NWB/                      # Partial NWB file (Zarr format, .nwb.zarr)
+│   ├── decrosstalk/          # Crosstalk correction
+│   ├── movie_qc/             # QC images (z-drift, segmentation, etc.)
+│   ├── VISp_0.h5             # Raw plane data
+│   └── VISp_0_*.tif          # Depth/surface reference images
+├── VISp_1/, VISp_2/, VISp_3/ # Additional primary visual cortex planes
+├── VISl_4/, VISl_5/, ...     # Lateral visual cortex planes
+├── vasculature/              # Vasculature reference images
+├── pophys.nwb.zarr/          # Partial NWB file (Zarr format)
+├── pair0.txt … pair3.txt     # Plane pairing information
+├── stitched_full_field_img.h5  # Full-field stitched image
 ├── data_description.json
+├── quality_control.json
 ├── subject.json
 ├── procedures.json
 └── processing.json
 ```
 
-**2. Behavior Asset** — contains processed behavioral signals (running speed, stimulus sync).
+**2. Behavior Videos Asset** — identifiable by `Behavior/`, `Eye/`, `Face/`, `Nose/` folders. Contains processed average images and tracking outputs from each camera:
 
-**3. Behavior Videos Asset** — contains processed average images from eye/face/body cameras.
+```
+multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-05-05_05-05-05/
+├── Behavior/                 # Body camera tracking output
+├── Eye/                      # Eye camera tracking output (avg images)
+├── Face/                     # Face camera tracking output
+├── Nose/                     # Nose camera tracking output
+├── data_description.json
+├── quality_control.json
+└── ...                       # Standard metadata JSONs
+```
+
+**3. Behavior/Timing Asset** — identifiable by timing plot PNGs and a `.nwb/` Zarr directory. Contains processed behavioral signals (stimulus sync, running wheel, photodiode timing) and a partial NWB:
+
+```
+multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-06-06_06-06-06/
+├── multiplane-ophys_1111111_2025-04-04_04-04-04.nwb/   # Partial NWB (Zarr format)
+├── *_timing_plot.png         # Timing QC plots (photodiode, physio, eye, face, etc.)
+├── wheel_*.png               # Running wheel QC plots
+├── metrics.json              # Timing and sync metrics
+├── data_description.json
+├── quality_control.json
+└── ...                       # Standard metadata JSONs
+```
 
 !!! tip
-    To tell the assets apart: if you see plane folders like `VISp0`, `VISl4`, etc., it's the planar ophys asset. If you see `eye/`, `face/`, `body/` folders, it's the behavior videos asset.
+    To tell the processed assets apart: if you see plane folders like `VISp_0/`, `VISl_4/`, it's the **planar ophys** asset. If you see `Eye/`, `Face/`, `Behavior/`, `Nose/` folders, it's the **behavior videos** asset. If you see timing plot PNGs and a `.nwb/` directory, it's the **behavior/timing** asset.
 
 ### SLAP2 Raw Assets
 
@@ -172,11 +217,13 @@ SLAP2 sessions currently only have raw data:
 
 ```
 567890_2025-09-09_09-09-09/
-├── behavior_videos/
-├── behavior/                 # HARP-based behavior data (different structure from ephys/ophys)
+├── behavior-videos/          # Eye and face camera videos
+├── behavior/                 # HARP-based behavior data, stimulus logs
 ├── slap2/
 │   ├── dynamic_data/         # Imaging data
-│   └── static_data/          # Reference images
+│   └── notes/                # Session notes
+├── acquisition.json          # Acquisition metadata
+├── instrument.json           # Instrument configuration
 ├── data_description.json
 ├── subject.json
 ├── procedures.json
