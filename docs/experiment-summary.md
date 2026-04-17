@@ -18,12 +18,12 @@ The project utilizes three complementary neural recording platforms, each offeri
 
 ### Neuropixels Experiments
 
-*No Neuropixels experiments have been conducted yet.*
+Neuropixels sessions have been collected and processed through the spike sorting pipeline. Raw and sorted assets are available on S3, each containing a partial NWB with spike times, unit metrics, and downsampled LFP. CCF brain region coordinates are pending histology. See the [Data Access Guide](data-access.md) for how to find these files.
 
 
 ### Mesoscope Experiments
 
-*No Mesoscope experiments have been conducted yet.*
+Mesoscope sessions have been collected and processed. Each session has four assets on S3: the raw session plus three processed assets (planar ophys, behavior, and behavior videos). The planar ophys asset contains a partial NWB in Zarr format with ΔF/F, event detection, neuropil correction, and ROI segmentation per imaging plane. See the [Data Access Guide](data-access.md) for how to find these files.
 
 
 ## Related Documents

@@ -35,12 +35,15 @@ Learn more:
 ## Data and Resources
 
 ### How can I access the experimental data?
-Specific access instructions and links will be provided on this website as datasets become available.
+Our data is publicly hosted on Amazon S3 in the `aind-open-data` bucket — **no AWS account is required**. You can browse the data with [Quilt](https://open.quiltdata.com/b/aind-open-data/tree/), stream NWB files directly from S3 with Python, or download files using the AWS CLI.
 
-Access data here:
+To find a session, copy its identifier from the [tracking spreadsheet](https://docs.google.com/spreadsheets/d/1wAeloFJgvRjrseoVeNm4YQd8BezGWRon-Z-b1iJAz9c/edit?gid=970358340#gid=970358340) and search for it on Quilt.
 
-- [Experiment Summary](experiment-summary.md)
-- [OpenScope Data Portal](https://portal.brain-map.org/explore/circuits/visual-coding-neuropixels)
+For full instructions, see:
+
+- **[Data Access Guide](data-access.md)** — step-by-step guide to finding and opening files
+- [Stream NWB from S3 notebook](notebooks/stream_nwb_from_s3.ipynb) — open any NWB from S3 in one line
+- [Examine Ophys NWB notebook](notebooks/examine_ophys_nwb.ipynb) — guided walkthrough of ophys NWB contents
 
 ### What types of data are being collected?
 The project collects several types of data:
@@ -59,7 +62,13 @@ See our methods:
 Data are standardized in Neurodata Without Borders (NWB) format to ensure interoperability and ease of use across the research community.
 
 ### Are there code samples for working with the data?
-Yes, we will provide example scripts in the [`code/data-access`](https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/tree/main/code/data-access) directory of our GitHub repository. These scripts demonstrate how to load, preprocess, and visualize the data.
+Yes — we provide several notebooks on this website under [Analysis](data-access.md):
+
+- [Stream NWB from S3](notebooks/stream_nwb_from_s3.ipynb) — utility to open any NWB file directly from S3
+- [Examine Ophys NWB](notebooks/examine_ophys_nwb.ipynb) — walkthrough of ophys NWB contents (ROIs, ΔF/F, events)
+- [Intro to Ephys NWBs](notebooks/intro_to_ephys_nwbs.ipynb) — explore spike-sorted Neuropixels NWBs
+
+Additional scripts are in the [`code/data-access`](https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/tree/main/code/data-access) directory of our GitHub repository. The [OpenScope Databook](https://alleninstitute.github.io/openscope_databook/intro.html) also has extensive NWB examples, though our latest NWBs may differ slightly in key names or organization.
 
 ## Getting Involved
 

@@ -3,6 +3,7 @@ site_url: https://allenneuraldynamics.github.io/openscope-community-predictive-p
 use_directory_urls: true
 nav:
 - Home: index.md
+- Data Access: data-access.md
 - Project Plan:
   - Overview: experimental-plan.md
   - Experimental Plan: detailed-experimental-plan.md
