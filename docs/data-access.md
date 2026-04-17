@@ -94,7 +94,7 @@ multiplane-ophys_1111111_2025-04-04_04-04-04_nwb_2025-08-08_08-08-08            
 
 ### Raw Session Assets
 
-All raw sessions share a common structure, though the exact files vary by schema version:
+Across modalities, raw sessions share a common structure, though the exact files vary by schema version:
 
 ```
 ecephys_012345_2025-01-01_01-01-01/
@@ -221,6 +221,13 @@ SLAP2 sessions currently only have raw data:
 ├── behavior/                 # HARP-based behavior data, stimulus logs
 ├── slap2/
 │   ├── dynamic_data/         # Imaging data
+│   │   ├── reference_stack/  # Reference stack images per DMD
+│   │   ├── *_REGISTERED_DOWNSAMPLED-80Hz.tif  # Registered imaging TIFFs
+│   │   └── *_ALIGNMENTDATA.mat                # Alignment metadata per trial
+│   ├── static_data/          # Structure images and annotations (some sessions)
+│   │   ├── structure_*_DMD*.tif               # Structural reference images
+│   │   ├── structure_*_DMD*.annotation.json   # ROI annotations
+│   │   └── structure_*_DMD*.dat / .meta       # Raw data and metadata
 │   └── notes/                # Session notes
 ├── acquisition.json          # Acquisition metadata
 ├── instrument.json           # Instrument configuration
