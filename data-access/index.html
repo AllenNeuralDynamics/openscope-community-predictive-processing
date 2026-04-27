@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://allenneuraldynamics.github.io/openscope-community-predictive-processing/data-access/" />
+      <link rel="shortcut icon" href="../img/favicon.ico" />
+    <title>Data Access - OpenScope Community Predictive Processing</title>
+    <link rel="stylesheet" href="../css/theme.css" />
+    <link rel="stylesheet" href="../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "Data Access";
+        var mkdocs_page_input_path = "data-access.md";
+        var mkdocs_page_url = "/openscope-community-predictive-processing/data-access/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href=".." class="icon icon-home"> OpenScope Community Predictive Processing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="..">Home</a>
+                </li>
+              </ul>
+              <ul class="current">
+                <li class="toctree-l1 current"><a class="reference internal current" href="#">Data Access</a>
+    <ul class="current">
+    <li class="toctree-l2"><a class="reference internal" href="#whats-available-now">What's Available Now</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#getting-started">Getting Started</a>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#browsing-data-on-s3">Browsing Data on S3</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#using-the-quilt-viewer-no-code-required">Using the Quilt viewer (no code required)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#using-boto3-the-aws-cli-or-other-tools">Using boto3, the AWS CLI, or other tools</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#understanding-folder-structure">Understanding Folder Structure</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#session-identifiers">Session Identifiers</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#assets-per-session">Assets per Session</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#raw-session-assets">Raw Session Assets</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#neuropixels-sorted-assets">Neuropixels Sorted Assets</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#mesoscope-processed-assets">Mesoscope Processed Assets</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#slap2-raw-assets">SLAP2 Raw Assets</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#working-with-nwb-files">Working with NWB Files</a>
+        <ul>
+    <li class="toctree-l3"><a class="reference internal" href="#streaming-nwbs-from-s3-recommended">Streaming NWBs from S3 (recommended)</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#whats-in-each-nwb">What's in each NWB</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#spike-sorting-output-portal">Spike sorting output portal</a>
+    </li>
+    <li class="toctree-l3"><a class="reference internal" href="#example-notebooks">Example notebooks</a>
+    </li>
+        </ul>
+    </li>
+    <li class="toctree-l2"><a class="reference internal" href="#additional-resources">Additional Resources</a>
+    </li>
+    </ul>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Plan</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../experimental-plan/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../detailed-experimental-plan/">Experimental Plan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../analysis-plan/">Analysis Plan</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Resources</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../experiment-summary/">Experiment Summary</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Stimuli</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/bonsai_introduction/">Introduction to Bonsai</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/bonsai_instructions/">Bonsai Instructions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/bonsai_for_python_programmers/">Bonsai for Python Programmers</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/experimental-launcher/">Experimental Launcher</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/list_scripts/">List of scripts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/standard-oddball/">Standard Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/standard-oddball-jitter-random/">Standard Oddball Jitter Random</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/sensory-motor-closed-loop/">Sensory-Motor Closed-Loop</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/sensory-motor-coupling/">Sensory-Motor Coupling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/sequence-mismatch/">Sequence Mismatch</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/generic-oddball/">Generic Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../stimuli/gamma-calibration/">Gamma Calibration</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Hardware</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware-overview/">Hardware Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/behavior_training/">Behavioral</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/allen_institute_slap2_hardware/">SLAP2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/allen_institute_neuropixels_hardware/">Neuropixels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/allen_institute_mesoscope_hardware/">Mesoscope</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../hardware/wheel_encoder_plugin/">Wheel Encoder Plugin</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Templates</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../template-files/mouse_experiment_template/">Experiment Template</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../template-files/meeting_template/">Meeting Template</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Analysis</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../pilotanalysis/">SLAP2 pilot data analysis</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../notebooks/pilot_analysis_rfs/">SLAP2 pilot notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../notebooks/dff_calculation/">DFF calculation notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../notebooks/intro_to_ephys_nwbs/">Intro to Ephys NWBs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../notebooks/stream_nwb_from_s3/">Stream NWB from S3</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../notebooks/examine_ophys_nwb/">Examine Ophys NWB</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Experiments</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >allen_institute</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" >ecephys</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-4/">allen_institute_820454_2025-11-4</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-5/">allen_institute_820454_2025-11-5</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-6/">allen_institute_820454_2025-11-6</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-7/">allen_institute_820454_2025-11-7</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-10/">allen_institute_820459_2025-11-10</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-12/">allen_institute_820459_2025-11-12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/ecephys/allen_institute_mouseID_YYYY-MM-DD/">allen_institute_mouseID_YYYY-MM-DD</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >slap2</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_776270_2025-07-02/">allen_institute_776270_2025-07-02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_787727_2025-03-27/">allen_institute_787727_2025-03-27</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_794237_2025-04-03/">allen_institute_794237_2025-04-03</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_794237_2025-04-24/">allen_institute_794237_2025-04-24</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_794237_2025-05-08/">allen_institute_794237_2025-05-08</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_796630_2025_08_25/">allen_institute_796630_2025_08_25</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_796630_2025_08_28/">allen_institute_796630_2025_08_28</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_796630_2025_09_26/">allen_institute_796630_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_796630_2025_10_01/">allen_institute_796630_2025_10_01</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_796632_2025_09_26/">allen_institute_796632_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_801381_2025-05-29/">allen_institute_801381_2025-05-29</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_801381_2025-06-05/">allen_institute_801381_2025-06-05</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_801381_2025_09_26/">allen_institute_801381_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_801381_2025_10_02/">allen_institute_801381_2025_10_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_803496_2025_07_02/">allen_institute_803496_2025_07_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_809006_2025_08_22/">allen_institute_809006_2025_08_22</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_820409_2025_11_11/">allen_institute_820409_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_828408_2025_11_11/">allen_institute_828408_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_828408_2025_11_12/">allen_institute_828408_2025_11_12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_828408_2025_11_13/">allen_institute_828408_2025_11_13</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../experiments/allen_institute/slap2/allen_institute_NA_2025-03-20/">allen_institute_NA_2025-03-20</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Management</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../people/">Team</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../how_to_contribute/">How to Contribute</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../collaboration-policy/">Collaboration Policy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../project-tracking/">Project Tracking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Website Development</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../how_to_serve_locally/">Serving Locally</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../github-actions-automation/">GitHub Actions Automation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Meetings</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-04-21/">2025-04-21</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-05-06/">2025-05-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-05-13/">2025-05-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-05-20/">2025-05-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-05-27/">2025-05-27</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-06-03/">2025-06-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-06-10/">2025-06-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-06-17/">2025-06-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-06-24/">2025-06-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-07-01/">2025-07-01</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-07-08/">2025-07-08</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-07-15/">2025-07-15</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-07-22/">2025-07-22</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-07-29/">2025-07-29</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-08-05/">2025-08-05</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-08-12/">2025-08-12</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-08-19/">2025-08-19</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-08-26/">2025-08-26</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-09-02/">2025-09-02</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-09-09/">2025-09-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-09-16/">2025-09-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-09-23/">2025-09-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-09-30/">2025-09-30</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-10-03/">2025-10-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-10-07/">2025-10-07</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-10-14/">2025-10-14</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-10-20/">2025-10-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-10-28/">2025-10-28</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-11-18/">2025-11-18</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-11-25/">2025-11-25</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-12-09/">2025-12-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-12-16/">2025-12-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2025-12-23/">2025-12-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-01-06/">2026-01-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-01-13/">2026-01-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-01-20/">2026-01-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-02-03/">2026-02-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-02-10/">2026-02-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-02-17/">2026-02-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-02-24/">2026-02-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-03-03/">2026-03-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-03-17/">2026-03-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-03-24/">2026-03-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-03-31/">2026-03-31</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-04-07/">2026-04-07</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-04-14/">2026-04-14</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-04-21/">2026-04-21</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-05-19/">2026-05-19</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-05-26/">2026-05-26</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../meetings/2026-06-02/">2026-06-02</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../faq/">FAQ</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="..">OpenScope Community Predictive Processing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href=".." class="icon icon-home" aria-label="Docs"></a></li>
+      <li class="breadcrumb-item active">Data Access</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/edit/main/docs/data-access.md">Edit</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <h1 id="data-access-guide">Data Access Guide</h1>
+<p>This page explains how to find, browse, and open the Predictive Processing data that is publicly available on Amazon S3. <strong>No AWS account is required.</strong></p>
+<p>For a walkthrough of everything on this page, see the <a href="https://docs.google.com/presentation/d/16pukgoNJ8y2fFwfE9ErGTLTxn81HCSLickkPncqPWb0/edit?slide=id.g3de82949ca6_2_176#slide=id.g3de82949ca6_2_176">presentation slides</a> from our April 14, 2026 community meeting.</p>
+<h2 id="whats-available-now">What's Available Now</h2>
+<p>As of April 2026, our data release is ongoing. Processed assets and partial NWB files are available on S3 for most sessions. Complete NWB files combining all modalities per session will be uploaded to <a href="https://dandiarchive.org/">DANDI</a> as they are finalized.</p>
+<table>
+<thead>
+<tr>
+<th>Modality</th>
+<th>Raw Assets</th>
+<th>Processed Assets</th>
+<th>Partial NWBs</th>
+<th>Complete NWBs on DANDI</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Neuropixels</strong></td>
+<td>✅ Available</td>
+<td>✅ Spike-sorted available</td>
+<td>✅ In sorted assets</td>
+<td>⬚ In progress (pending CCF)</td>
+</tr>
+<tr>
+<td><strong>Mesoscope</strong></td>
+<td>✅ Available</td>
+<td>✅ Planar ophys, behavior, behavior videos</td>
+<td>✅ In processed assets (Zarr)</td>
+<td>⬚ In progress</td>
+</tr>
+<tr>
+<td><strong>SLAP2</strong></td>
+<td>✅ Available</td>
+<td>⬚ Pipeline in development</td>
+<td>⬚ Not yet</td>
+<td>⬚ Not yet</td>
+</tr>
+</tbody>
+</table>
+<p><strong>What "partial NWB" means:</strong> Each processed asset contains an NWB file with just that modality's data (e.g., the spike-sorted NWB has spike times + LFP but not behavior). The goal is to produce <strong>complete NWBs</strong> that combine behavior + recording into a single file, which will be released on DANDI with a permanent DOI.</p>
+<p><strong>QC is ongoing.</strong> Some assets may be reprocessed as quality control continues. You can check the QC status of individual sessions in the tracking spreadsheet. If you spot issues, please let us know via <a href="https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/discussions">GitHub Discussions</a>.</p>
+<h2 id="getting-started">Getting Started</h2>
+<p>The fastest path from zero to data:</p>
+<ol>
+<li>
+<p><strong>Find your session</strong> in the <a href="https://docs.google.com/spreadsheets/d/1wAeloFJgvRjrseoVeNm4YQd8BezGWRon-Z-b1iJAz9c/edit?gid=970358340#gid=970358340">data tracking spreadsheet</a>. Column H ("New Session id (Code Ocean)") contains the session identifier — this is also the <strong>folder name on S3</strong>.</p>
+</li>
+<li>
+<p><strong>Search for it on S3.</strong> Go to the <a href="https://open.quiltdata.com/b/aind-open-data/tree/">Quilt S3 viewer</a>, make sure you are inside the <code>aind-open-data</code> bucket, and paste the session identifier into the search bar.</p>
+</li>
+<li>
+<p><strong>Open the NWB.</strong> Use our <a href="../notebooks/stream_nwb_from_s3/">Stream NWB from S3</a> notebook to open any NWB file directly from S3 — no download required.</p>
+</li>
+</ol>
+<p>The sections below explain each step in more detail.</p>
+<h2 id="browsing-data-on-s3">Browsing Data on S3</h2>
+<p>All data lives in the public S3 bucket <strong><code>s3://aind-open-data</code></strong>, hosted by AWS Open Data and funded by Amazon to support open science. You can browse it with any S3-compatible tool — no sign-in required.</p>
+<h3 id="using-the-quilt-viewer-no-code-required">Using the Quilt viewer (no code required)</h3>
+<ol>
+<li>Go to <a href="https://open.quiltdata.com/b/aind-open-data/tree/">open.quiltdata.com/b/aind-open-data</a></li>
+<li>Make sure you are <strong>inside the bucket</strong> (the breadcrumb should show <code>s3 / aind-open-data</code>)</li>
+<li>Use the search bar within the bucket to paste a session identifier from the spreadsheet</li>
+<li>Click into folders to browse files, view images, and inspect metadata</li>
+</ol>
+<h3 id="using-boto3-the-aws-cli-or-other-tools">Using boto3, the AWS CLI, or other tools</h3>
+<p>Since the bucket is public, you can use any S3-compatible tool with anonymous access — including <code>boto3</code>, the AWS CLI (<code>--no-sign-request</code>), or libraries like <code>s3fs</code>. No credentials are needed. Our <a href="../notebooks/stream_nwb_from_s3/">Stream NWB from S3</a> notebook demonstrates this with <code>boto3</code>. You can also download files directly with <code>aws s3 cp --no-sign-request</code>.</p>
+<p>!!! note
+    Raw Neuropixels sessions can be very large. If you only need spike times, we recommend streaming the NWB rather than downloading the full raw data.</p>
+<h2 id="understanding-folder-structure">Understanding Folder Structure</h2>
+<h3 id="session-identifiers">Session Identifiers</h3>
+<p>Session identifiers (from the <a href="#getting-started">Getting Started</a> section above) follow the pattern <code>&lt;modality&gt;_&lt;mouse_id&gt;_&lt;session_datetime&gt;</code>, for example:</p>
+<ul>
+<li><code>ecephys_012345_2025-01-01_01-01-01</code></li>
+<li><code>multiplane-ophys_1111111_2025-04-04_04-04-04</code></li>
+</ul>
+<p>!!! note
+    Some newer sessions (particularly SLAP2) omit the modality prefix — this is due to a schema change and does not affect access. For example, a SLAP2 session might simply be <code>567890_2025-09-09_09-09-09</code>.</p>
+<h3 id="assets-per-session">Assets per Session</h3>
+<p>Each experimental session produces multiple <strong>assets</strong> (folders) on S3. The number depends on the modality. Searching for a session identifier on S3 will show all associated assets:</p>
+<p><strong>Neuropixels</strong> — currently 2 assets on S3 (1 raw + 1 spike-sorted). Additional CCF and complete NWB assets will appear here as they are produced:</p>
+<pre><code>ecephys_012345_2025-01-01_01-01-01                              # raw session
+ecephys_012345_2025-01-01_01-01-01_sorted_2025-02-02_02-02-02   # spike-sorted
+ecephys_012345_ccf                                              # (coming soon) brain region coordinates
+ecephys_012345_2025-01-01_01-01-01_nwb_2025-03-03_03-03-03      # (coming soon) complete NWB
+</code></pre>
+<p><strong>Mesoscope</strong> — 4 assets (1 raw + 3 processed). A complete NWB asset will appear as it is produced:</p>
+<pre><code>multiplane-ophys_1111111_2025-04-04_04-04-04                                         # raw session
+multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-05-05_05-05-05            # behavior videos (Eye, Face, etc.)
+multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-06-06_06-06-06            # behavior/timing (stimulus sync, timing QC plots, NWB)
+multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-07-07_07-07-07            # planar ophys (ΔF/F, segmentation, NWB Zarr)
+multiplane-ophys_1111111_2025-04-04_04-04-04_nwb_2025-08-08_08-08-08                  # (coming soon) complete NWB
+</code></pre>
+<p><strong>SLAP2</strong> — currently 1 asset (raw only, processing pipeline in development). Processed and NWB assets will appear as they are produced:</p>
+<pre><code>567890_2025-09-09_09-09-09                                      # raw session
+</code></pre>
+<p>!!! warning
+    The three Mesoscope processed assets all contain <code>_processed_</code> in the name and <strong>cannot be distinguished by name alone</strong> — they differ only by the processing timestamp. You need to look inside the folder to determine which is which (see below).</p>
+<h3 id="raw-session-assets">Raw Session Assets</h3>
+<p>Across modalities, raw sessions share a common structure, though the exact files vary by schema version:</p>
+<pre><code>ecephys_012345_2025-01-01_01-01-01/
+├── behavior-videos/          # MP4s of eye, face, body cameras (+ JSON sidecar per video)
+├── behavior/                 # Stimulus tables, sync data, running speed
+├── ecephys/                  # Modality-specific data (see note below)
+│   ├── ecephys_clipped/
+│   └── ecephys_compressed/
+├── original_metadata/        # Original metadata from acquisition
+├── data_description.json     # Project, funding, institution
+├── metadata.nd.json          # Consolidated metadata document
+├── session.json              # Session metadata, start/end time, rig ID, stimulus info
+├── subject.json              # Mouse ID, genotype, age
+├── procedures.json           # Surgical procedures
+├── rig.json                  # Rig configuration
+└── processing.json           # Processing pipeline metadata
+</code></pre>
+<p>The <strong>modality-specific directory</strong> differs by session type:</p>
+<ul>
+<li><strong>Neuropixels</strong>: <code>ecephys/</code> — contains <code>ecephys_clipped/</code> and <code>ecephys_compressed/</code></li>
+<li><strong>Mesoscope</strong>: <code>pophys/</code> — contains raw imaging data</li>
+<li><strong>SLAP2</strong>: <code>slap2/</code> — contains <code>dynamic_data/</code> and <code>notes/</code></li>
+</ul>
+<p>!!! note
+    Sessions collected on the <strong>Neuropixels</strong> and <strong>Mesoscope</strong> rigs use <code>rig.json</code>, <code>session.json</code>, <code>original_metadata/</code>, and <code>metadata.nd.json</code>. Sessions collected on the <strong>SLAP2</strong> rig use <code>instrument.json</code> and <code>acquisition.json</code> instead. The information is equivalent — the naming difference reflects updated metadata schemas.</p>
+<h3 id="neuropixels-sorted-assets">Neuropixels Sorted Assets</h3>
+<p>The spike-sorted asset contains the full spike sorting pipeline output and a partial NWB:</p>
+<pre><code>ecephys_012345_2025-01-01_01-01-01_sorted_2025-02-02_02-02-02/
+├── spikesorted/              # Raw spike sorting output (one folder per probe)
+│   ├── experiment1_Record Node 101#...ProbeA-AP_recording1/
+│   │   ├── properties/       # Unit properties (Amplitude.npy, KSLabel.npy, etc.)
+│   │   ├── spikes.npy        # Spike times
+│   │   └── *.json            # SpikeInterface metadata
+│   ├── ...ProbeB-AP_recording1/
+│   └── ...                   # One folder per probe (A–F)
+├── curated/                  # Post-curation spike sorting (same per-probe structure)
+├── postprocessed/            # Post-processing results (per-probe .zarr folders)
+├── preprocessed/             # Pre-processing intermediates (motion/)
+├── nwb/                      # Partial NWB file (Zarr format, ~250 MB)
+├── quality_control/          # Drift maps, firing rate plots, unit yield (per-probe)
+├── visualization/            # Per-probe traces, drift maps
+├── original_metadata/        # Original metadata from acquisition
+├── visualization_output.json # Links to interactive sorting summary portals
+├── quality_control.json      # QC metrics summary
+├── data_description.json
+├── metadata.nd.json
+├── subject.json
+├── procedures.json
+└── processing.json
+</code></pre>
+<h3 id="mesoscope-processed-assets">Mesoscope Processed Assets</h3>
+<p>The three processed assets for each Mesoscope session are:</p>
+<p><strong>1. Planar Ophys Asset</strong> — identifiable by having plane-named subfolders (e.g., <code>VISp_0/</code>, <code>VISl_4/</code>):</p>
+<pre><code>multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-07-07_07-07-07/
+├── VISp_0/                   # Visual cortex primary, plane 0
+│   ├── dff/                  # ΔF/F traces
+│   ├── events/               # Event detection results
+│   ├── classification/       # Cell classification results
+│   ├── extraction/           # ROI extraction output
+│   ├── motion_correction/    # Motion correction outputs
+│   ├── decrosstalk/          # Crosstalk correction
+│   ├── movie_qc/             # QC images (z-drift, segmentation, etc.)
+│   ├── VISp_0.h5             # Raw plane data
+│   └── VISp_0_*.tif          # Depth/surface reference images
+├── VISp_1/, VISp_2/, VISp_3/ # Additional primary visual cortex planes
+├── VISl_4/, VISl_5/, ...     # Lateral visual cortex planes
+├── vasculature/              # Vasculature reference images
+├── pophys.nwb.zarr/          # Partial NWB file (Zarr format)
+├── pair0.txt … pair3.txt     # Plane pairing information
+├── stitched_full_field_img.h5  # Full-field stitched image
+├── data_description.json
+├── quality_control.json
+├── subject.json
+├── procedures.json
+└── processing.json
+</code></pre>
+<p><strong>2. Behavior Videos Asset</strong> — identifiable by <code>Behavior/</code>, <code>Eye/</code>, <code>Face/</code>, <code>Nose/</code> folders. Contains processed average images and tracking outputs from each camera:</p>
+<pre><code>multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-05-05_05-05-05/
+├── Behavior/                 # Body camera tracking output
+├── Eye/                      # Eye camera tracking output (avg images)
+├── Face/                     # Face camera tracking output
+├── Nose/                     # Nose camera tracking output
+├── data_description.json
+├── quality_control.json
+└── ...                       # Standard metadata JSONs
+</code></pre>
+<p><strong>3. Behavior/Timing Asset</strong> — identifiable by timing plot PNGs and a <code>.nwb/</code> Zarr directory. Contains processed behavioral signals (stimulus sync, running wheel, photodiode timing) and a partial NWB:</p>
+<pre><code>multiplane-ophys_1111111_2025-04-04_04-04-04_processed_2025-06-06_06-06-06/
+├── multiplane-ophys_1111111_2025-04-04_04-04-04.nwb/   # Partial NWB (Zarr format)
+├── *_timing_plot.png         # Timing QC plots (photodiode, physio, eye, face, etc.)
+├── wheel_*.png               # Running wheel QC plots
+├── metrics.json              # Timing and sync metrics
+├── data_description.json
+├── quality_control.json
+└── ...                       # Standard metadata JSONs
+</code></pre>
+<p>!!! tip
+    To tell the processed assets apart: if you see plane folders like <code>VISp_0/</code>, <code>VISl_4/</code>, it's the <strong>planar ophys</strong> asset. If you see <code>Eye/</code>, <code>Face/</code>, <code>Behavior/</code>, <code>Nose/</code> folders, it's the <strong>behavior videos</strong> asset. If you see timing plot PNGs and a <code>.nwb/</code> directory, it's the <strong>behavior/timing</strong> asset.</p>
+<h3 id="slap2-raw-assets">SLAP2 Raw Assets</h3>
+<p>SLAP2 sessions currently only have raw data:</p>
+<pre><code>567890_2025-09-09_09-09-09/
+├── behavior-videos/          # Eye and face camera videos
+├── behavior/                 # HARP-based behavior data, stimulus logs
+├── slap2/
+│   ├── dynamic_data/         # Imaging data
+│   │   ├── reference_stack/  # Reference stack images per DMD
+│   │   ├── *_REGISTERED_DOWNSAMPLED-80Hz.tif  # Registered imaging TIFFs
+│   │   └── *_ALIGNMENTDATA.mat                # Alignment metadata per trial
+│   ├── static_data/          # Structure images and annotations (some sessions)
+│   │   ├── structure_*_DMD*.tif               # Structural reference images
+│   │   ├── structure_*_DMD*.annotation.json   # ROI annotations
+│   │   └── structure_*_DMD*.dat / .meta       # Raw data and metadata
+│   └── notes/                # Session notes
+├── acquisition.json          # Acquisition metadata
+├── instrument.json           # Instrument configuration
+├── data_description.json
+├── subject.json
+├── procedures.json
+└── processing.json
+</code></pre>
+<h2 id="working-with-nwb-files">Working with NWB Files</h2>
+<p>Most users will want to work with the NWB files rather than browsing raw S3 folders. We provide notebooks to help with this.</p>
+<h3 id="streaming-nwbs-from-s3-recommended">Streaming NWBs from S3 (recommended)</h3>
+<p>Our <a href="../notebooks/stream_nwb_from_s3/">Stream NWB from S3</a> notebook opens any NWB file directly from S3 — no download needed. It auto-detects whether the file is HDF5 or Zarr format. Just pass a session folder name and it finds and opens the NWB for you.</p>
+<p>!!! note
+    This only works with <strong>processed</strong> assets that contain NWB files. Raw assets do not have NWBs in them.</p>
+<h3 id="whats-in-each-nwb">What's in each NWB</h3>
+<p><strong>Neuropixels NWBs</strong> contain spike times, unit quality metrics, and a downsampled version of the LFP — but <strong>not</strong> raw traces, so file sizes are manageable (~250 MB). Units are automatically classified as <strong>noise</strong>, <strong>MUA</strong> (multi-unit activity), or <strong>SUA</strong> (single-unit activity) by a pre-trained classifier from the <a href="https://github.com/AllenNeuralDynamics/aind-ephys-pipeline-kilosort25">AIBSPhase pipeline</a>. Brain region coordinates (CCF registration) are <strong>not yet available</strong> — histology/brain imaging is still in progress.</p>
+<p><strong>Mesoscope NWBs</strong> (Zarr format) contain ΔF/F traces, event detection, neuropil correction, ROI segmentation masks, and projection images for each imaging plane. For a guided tour, see: <a href="../notebooks/examine_ophys_nwb/">Examine Ophys NWB</a></p>
+<h3 id="spike-sorting-output-portal">Spike sorting output portal</h3>
+<p>To interactively explore the spike sorting results for a Neuropixels session, open the <code>visualization_output.json</code> file in the sorted asset and click the <code>sorting_summary</code> link for each probe. This launches a browser-based viewer where you can inspect individual units and their quality metrics.</p>
+<h3 id="example-notebooks">Example notebooks</h3>
+<table>
+<thead>
+<tr>
+<th>Notebook</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><a href="../notebooks/stream_nwb_from_s3/">Stream NWB from S3</a></td>
+<td>Open any NWB from S3 in one line of Python</td>
+</tr>
+<tr>
+<td><a href="../notebooks/examine_ophys_nwb/">Examine Ophys NWB</a></td>
+<td>Walkthrough of ophys NWB contents — ROIs, ΔF/F, events, multi-plane comparison</td>
+</tr>
+<tr>
+<td><a href="../notebooks/intro_to_ephys_nwbs/">Intro to Ephys NWBs</a></td>
+<td>Explore spike-sorted Neuropixels NWBs</td>
+</tr>
+</tbody>
+</table>
+<p>The <a href="https://alleninstitute.github.io/openscope_databook/intro.html">OpenScope Databook</a> also has extensive notebooks for working with NWB files from Allen Institute projects. Note that our latest NWBs may have some differences in key names or data organization compared to what the Databook shows, but the general patterns are the same.</p>
+<h2 id="additional-resources">Additional Resources</h2>
+<ul>
+<li><strong>Code Ocean</strong> — To see the actual processing pipeline code and run it in the cloud, contact <a href="mailto:jeromel@alleninstitute.org">Jerome Lecoq</a> or <a href="mailto:carter.peene@alleninstitute.org">Carter Peene</a> to request access. Code Ocean hosts all of our internal processing code, environments, and compute infrastructure.</li>
+<li><strong><a href="https://dandiarchive.org/">DANDI Archive</a></strong> — Where complete NWBs will be published with permanent DOIs for citation in publications.</li>
+</ul>
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20data-access" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href=".." class="btn btn-neutral float-left" title="Home"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../experimental-plan/" class="btn btn-neutral float-right" title="Overview">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href=".." style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../experimental-plan/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "..";</script>
+    <script src="../js/theme_extra.js"></script>
+    <script src="../js/theme.js"></script>
+      <script src="../js/github-profiles.js"></script>
+      <script src="../js/analytics.js"></script>
+      <script src="https://www.googletagmanager.com/gtag/js?id=G-DT93KEXV5Q"></script>
+      <script src="../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
