@@ -1,0 +1,482 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://allenneuraldynamics.github.io/openscope-community-predictive-processing/meetings/2026-05-05/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>2026-05-05 - OpenScope Community Predictive Processing</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "2026-05-05";
+        var mkdocs_page_input_path = "meetings/2026-05-05.md";
+        var mkdocs_page_url = "/openscope-community-predictive-processing/meetings/2026-05-05/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> OpenScope Community Predictive Processing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../data-access/">Data Access</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Plan</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../experimental-plan/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../detailed-experimental-plan/">Experimental Plan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../analysis-plan/">Analysis Plan</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Resources</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../experiment-summary/">Experiment Summary</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Stimuli</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/bonsai_introduction/">Introduction to Bonsai</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/bonsai_instructions/">Bonsai Instructions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/bonsai_for_python_programmers/">Bonsai for Python Programmers</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/experimental-launcher/">Experimental Launcher</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/list_scripts/">List of scripts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/standard-oddball/">Standard Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/standard-oddball-jitter-random/">Standard Oddball Jitter Random</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/sensory-motor-closed-loop/">Sensory-Motor Closed-Loop</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/sensory-motor-coupling/">Sensory-Motor Coupling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/sequence-mismatch/">Sequence Mismatch</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/generic-oddball/">Generic Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/gamma-calibration/">Gamma Calibration</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Hardware</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-overview/">Hardware Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/behavior_training/">Behavioral</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_slap2_hardware/">SLAP2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_neuropixels_hardware/">Neuropixels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_mesoscope_hardware/">Mesoscope</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/wheel_encoder_plugin/">Wheel Encoder Plugin</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Templates</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../template-files/mouse_experiment_template/">Experiment Template</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../template-files/meeting_template/">Meeting Template</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Analysis</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../pilotanalysis/">SLAP2 pilot data analysis</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/pilot_analysis_rfs/">SLAP2 pilot notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/dff_calculation/">DFF calculation notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/intro_to_ephys_nwbs/">Intro to Ephys NWBs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/stream_nwb_from_s3/">Stream NWB from S3</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/examine_ophys_nwb/">Examine Ophys NWB</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Experiments</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >allen_institute</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" >ecephys</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-4/">allen_institute_820454_2025-11-4</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-5/">allen_institute_820454_2025-11-5</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-6/">allen_institute_820454_2025-11-6</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-7/">allen_institute_820454_2025-11-7</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-10/">allen_institute_820459_2025-11-10</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-12/">allen_institute_820459_2025-11-12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_mouseID_YYYY-MM-DD/">allen_institute_mouseID_YYYY-MM-DD</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >slap2</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_776270_2025-07-02/">allen_institute_776270_2025-07-02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_787727_2025-03-27/">allen_institute_787727_2025-03-27</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-04-03/">allen_institute_794237_2025-04-03</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-04-24/">allen_institute_794237_2025-04-24</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-05-08/">allen_institute_794237_2025-05-08</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_08_25/">allen_institute_796630_2025_08_25</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_08_28/">allen_institute_796630_2025_08_28</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_09_26/">allen_institute_796630_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_10_01/">allen_institute_796630_2025_10_01</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796632_2025_09_26/">allen_institute_796632_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025-05-29/">allen_institute_801381_2025-05-29</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025-06-05/">allen_institute_801381_2025-06-05</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025_09_26/">allen_institute_801381_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025_10_02/">allen_institute_801381_2025_10_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_803496_2025_07_02/">allen_institute_803496_2025_07_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_809006_2025_08_22/">allen_institute_809006_2025_08_22</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_820409_2025_11_11/">allen_institute_820409_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_11/">allen_institute_828408_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_12/">allen_institute_828408_2025_11_12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_13/">allen_institute_828408_2025_11_13</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_NA_2025-03-20/">allen_institute_NA_2025-03-20</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Management</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../people/">Team</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how_to_contribute/">How to Contribute</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../collaboration-policy/">Collaboration Policy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../project-tracking/">Project Tracking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Website Development</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../how_to_serve_locally/">Serving Locally</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../github-actions-automation/">GitHub Actions Automation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Meetings</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../2025-04-21/">2025-04-21</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-05-06/">2025-05-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-05-13/">2025-05-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-05-20/">2025-05-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-05-27/">2025-05-27</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-06-03/">2025-06-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-06-10/">2025-06-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-06-17/">2025-06-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-06-24/">2025-06-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-07-01/">2025-07-01</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-07-08/">2025-07-08</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-07-15/">2025-07-15</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-07-22/">2025-07-22</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-07-29/">2025-07-29</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-08-05/">2025-08-05</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-08-12/">2025-08-12</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-08-19/">2025-08-19</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-08-26/">2025-08-26</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-09-02/">2025-09-02</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-09-09/">2025-09-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-09-16/">2025-09-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-09-23/">2025-09-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-09-30/">2025-09-30</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-10-03/">2025-10-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-10-07/">2025-10-07</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-10-14/">2025-10-14</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-10-20/">2025-10-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-10-28/">2025-10-28</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-11-18/">2025-11-18</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-11-25/">2025-11-25</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-12-09/">2025-12-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-12-16/">2025-12-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-12-23/">2025-12-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-01-06/">2026-01-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-01-13/">2026-01-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-01-20/">2026-01-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-02-03/">2026-02-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-02-10/">2026-02-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-02-17/">2026-02-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-02-24/">2026-02-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-03-03/">2026-03-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-03-17/">2026-03-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-03-24/">2026-03-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-03-31/">2026-03-31</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-04-07/">2026-04-07</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-04-14/">2026-04-14</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-04-21/">2026-04-21</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">2026-05-05</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-05-12/">2026-05-12</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-05-19/">2026-05-19</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-05-26/">2026-05-26</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-06-02/">2026-06-02</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-06-23/">2026-06-23</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../faq/">FAQ</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">OpenScope Community Predictive Processing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Project Management</li>
+          <li class="breadcrumb-item">Meetings</li>
+      <li class="breadcrumb-item active">2026-05-05</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/edit/main/docs/meetings/2026-05-05.md">Edit</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <ul>
+<li><strong>Date:</strong> 2026-05-05</li>
+<li><strong>Time:</strong> 09:00AM (PT)</li>
+<li><strong>Location:</strong> <a href="https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZDIxNjk0YTEtZTc4Ny00MGE5LWE4YmYtZmJiZDMwZmU4MGQ0%40thread.v2/0?context=%7b%22Tid%22%3a%2232669cd6-737f-4b39-8bdd-d6951120d3fc%22%2c%22Oid%22%3a%229396d18b-b5cf-4bed-98a0-1cfb7dc82663%22%7d">Teams Meeting</a></li>
+</ul>
+<h2 id="agenda">Agenda</h2>
+<ul>
+<li>Coordinating discussion on the analysis for the data release paper. </li>
+<li>Discuss Receptive field progress. </li>
+</ul>
+<h2 id="meeting-recording">Meeting Recording</h2>
+<iframe width="100%" height="450" src="https://www.youtube.com/embed/BbG8vf8_E5g" title="OpenScope Predictive Processing Weekly Meeting" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+
+<h2 id="meeting-notes">Meeting Notes</h2>
+<p><strong>Upcoming Presentations and Meeting Schedule:</strong> Jerome outlined the upcoming meeting schedule, including presentations by Sarah Ruediger's group on SLAP 2 analysis and Carter's demonstration of adapted notebooks, and mentioned future EEG data collection by Rizar and Christof, ensuring all participants are aware of the planned agenda and opportunities for collaboration. </p>
+<p>Future Meeting Dates: Jerome highlighted that meetings are scheduled for the 19th and 26th, with Sarah Ruediger and lab members presenting SLAP 2 analysis, and Carter presenting notebooks adapted from the Open Scope Data Book for predictive processing data. </p>
+<p>Upcoming Human EEG Data Collection: Jerome mentioned that Rizar and Christof are planning to collect human EEG data using the same experimental design as the Yale Institute's mouse studies, with a presentation expected at the end of June. </p>
+<p><strong>Progress on Data Release Paper and Method Description:</strong> Jerome updated the group on the ongoing progress with the data release paper, noting that the methods description is nearly complete except for the SLAP 2 methodology, and encouraged participants to provide comments and edits for clarity. </p>
+<p>Methods Description Status: Jerome reported that most sections of the methods description are complete, with only the SLAP 2 methodology pending due to the team's recent event commitments. </p>
+<p>NWB File Documentation: Carter has started documenting the content of the NWB files, and Jerome emphasized the need for further edits and collaborative input to ensure thorough documentation. </p>
+<p><strong>Receptive Field Analysis and Cross-Modality Comparisons:</strong> Jerome, Alexander, Marcel, Lucas Rudelt, and others discussed the current state and next steps for receptive field analysis, including data validation, cross-modality comparisons, and collaborative workflows, with Alexander agreeing to coordinate the group's efforts. </p>
+<p>Current Analysis Status: Alexander and Severine reviewed receptive field data, noting promising results and the ability to perform population averages due to consistent electrode placement, despite some missing information about probe locations and layers. </p>
+<p>Collaboration and Data Sharing: Alexander offered to share analysis notebooks on GitHub and the discussion board, ensuring accessibility via Google Colab, and invited others to contribute and collaborate on the analysis. </p>
+<p>Pipeline Development: Marcel described progress on the pipeline for zebra noise and receptive field extraction, with plans to compare results from different stimulus modalities and extend the analysis to all modalities. </p>
+<p>Figure Organization and Coordination: The group agreed to initially collect a wide range of plots in a shared Google Slide, deferring final figure consolidation until more data is available, with Alexander taking the lead on coordinating receptive field analysis and standardizing plotting formats. </p>
+<p>Cross-Modality Comparison Plans: Jerome and Marcel discussed the importance of comparing results across O-phys, E-phys,  with plans to analyze and compare zebra and local Gabor patch data using pipelines suggested by Alexander. </p>
+<p><strong>Data Processing and Availability for SLAP 2 and Other Modalities:</strong> Carter, Jerome, and Alexander discussed the status of SLAP 2 data processing, migration to the cloud, and anticipated timelines for processed data availability, with Carter confirming early June as a likely completion date. </p>
+<p>SLAP 2 Data Processing: Carter explained that SLAP 2 data is being migrated from a dedicated lab machine to the cloud, with the MATLAB pipeline being re-implemented online to ensure transparency and accessibility. </p>
+<p>Data Availability Timeline: Processed SLAP 2 data is expected to be available by early June, with raw data already accessible on AWS but not yet segmented or fully processed. </p>
+<p>Session Counts and Data Types: Alexander clarified that there are about 12 pilot SLAP 2 sessions with local grating receptive field mapping, and Jerome added that approximately 20 zebra sessions exist but are not yet processed. </p>
+<p><strong>Standardization and Leadership in Receptive Field Analysis:</strong> The group agreed that Alexander would lead the coordination of receptive field analysis, including standardizing plotting formats and facilitating collaboration through discussion forums and possibly new Google Workplace tools. </p>
+<p>Leadership Assignment: Jerome empowered Alexander to lead the receptive field analysis, encouraging coordination through the discussion forum and other tools as needed. </p>
+<p>Standardization of Methods: Sarah suggested aligning methods across datasets for receptive field analysis, and Alexander proposed using shared code and lookup tables, with flexibility for changes as the group converges on best practices. </p>
+<p><strong>Clarification of Mesoscope Data Coverage:</strong> Lucas Rudelt asked for clarification on the brain areas covered by the mesoscope data, and Jerome confirmed recordings from both V1 and LM, with four planes in each, and committed to ensuring this is clearly described in the methods. </p>
+<p>Recorded Areas: Jerome clarified that mesoscope data includes recordings from V1 and LM (the equivalent of V2), with four imaging planes in each area. </p>
+<p>Documentation Improvements: Jerome agreed to check with the team to ensure the manuscript methods section accurately describes the recorded areas, responding to Lucas Rudelt's feedback. </p>
+<p><strong>Depth of Receptive Field Analysis in Data Release Paper:</strong> Sarah raised the question of whether to include a comparison of receptive field features, such as synaptic size and tuning, in the data release paper, with Alexander and Jerome supporting its inclusion to highlight the value of the multimodal dataset. </p>
+<p>Feature Comparison Discussion: Sarah suggested comparing receptive field features across modalities, and Alexander supported the idea, noting the novelty of SLAP 2 data and the importance of such comparisons for the paper. </p>
+<p>Paper Scope: Jerome agreed that cross-modality feature comparisons would strengthen the paper, especially in demonstrating the value and unique insights of the multimodal dataset. </p>
+<p><strong>Unit Yield, SNR, and Stability Analysis:</strong> Jerome, Alexander, David, and others discussed approaches for analyzing unit yield, SNR, and stability across modalities, including the use of metrics from spike sorting software and the need for both qualitative and quantitative assessments. </p>
+<p>SNR and Stability Metrics: Alexander described the use of summary statistics for receptive fields, including thresholds for neuron inclusion, and discussed the need for SNR and stability metrics, possibly leveraging outputs from spike sorting tools like Kilosort and Phi. </p>
+<p>Drift and Quality Control: David shared experience with presence ratio and unit drift analysis, and the group discussed the importance of assessing stability both within and across sessions, with reference to established quality control practices. </p>
+<p>Cross-Modality Considerations: The group considered including discussions of photo bleaching and SNR issues for mesoscope and SLAP 2 data, with Jerome noting that bleaching is a greater concern for SLAP 2 and that metrics for drift and stability are available for both two-photon and E-phys data. </p>
+<p>Visualization and Metrics: Lucas Rudelt and Jerome discussed possible visualization strategies for stability, such as plotting unit traces and population averages, and agreed on the need for multiple metrics to capture different aspects of stability. </p>
+<p><strong>Status and Analysis of Voltage Imaging Data:</strong> Lucas Rudelt inquired about the SLAP 2 voltage imaging data, and Jerome explained that additional experiments are ongoing, with some data already on AWS but requiring further processing and custom analysis pipelines. </p>
+<p>Voltage Imaging Experiments: Jerome reported that Maedeh is conducting additional voltage imaging experiments, with data collected from soma and dendrites at kilohertz speeds, and some datasets already available on AWS. </p>
+<p>Analysis Pipeline Needs: Jerome emphasized that voltage imaging data requires a distinct analysis pipeline due to its complexity and differences from glutamate imaging, and that processing is ongoing. </p>
+<p>Inclusion in Data Release: Jerome stated the intention to include voltage imaging data in the release, but noted that if analysis is delayed, its inclusion may be reconsidered. </p>
+<p><strong>CCF Annotation and Data Release Logistics:</strong> Alexander asked about the timeline and logistics for CCF annotation, with Ryan and Casey explaining that they are prioritizing precision and expect to have most brains annotated soon, and Carter confirming that updated NWB files will be re-uploaded as annotations are completed. </p>
+<p>CCF Annotation Progress: Ryan explained that the team is focused on precise area alignment for CCF annotation, with most brains expected to be processed within a few weeks, though some post-processing may be required. </p>
+<p>Data Release Updates: Carter confirmed that once CCF annotation is complete, updated NWB files will be re-uploaded to DANDI and AWS, with the latest versions containing the CCF data. </p>
+<p>Visualization Plans: Jerome noted that a dedicated figure will be created to show probe locations once CCF annotation is available. </p>
+<p><strong>Next Steps and Upcoming Topics:</strong> Jerome concluded the meeting by outlining next steps, including reaching out to Karim and Nicholas for a future discussion on behavior analysis, and mentioning an upcoming presentation by Pavi from AI2 on the Asta tool for data exploration. </p>
+<p>Behavior Analysis Planning: Jerome plans to invite Karim and Nicholas to join the next meeting for a discussion focused on behavior analysis, allowing the receptive field group to continue their work. </p>
+<p>Asta Tool Presentation: Jerome mentioned that Pavi from AI2 will soon present the Asta tool, which has been used to explore the dataset and may provide additional insights for the group. </p>
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/discussions/new?category=q-a&title=Discussion%3A%20meetings/2026-05-05" target="_blank">
+            💬 Start a discussion for this page on GitHub
+        </a>
+        <span class="note">(A GitHub account is required to create or participate in discussions)</span>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../2026-04-21/" class="btn btn-neutral float-left" title="2026-04-21"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../2026-05-12/" class="btn btn-neutral float-right" title="2026-05-12">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../2026-04-21/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../2026-05-12/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../js/github-profiles.js"></script>
+      <script src="../../js/analytics.js"></script>
+      <script src="https://www.googletagmanager.com/gtag/js?id=G-DT93KEXV5Q"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
