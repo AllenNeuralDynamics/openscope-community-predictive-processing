@@ -25,21 +25,39 @@
   }
   #app {
     display: grid;
-    grid-template-rows: auto 30px 1fr 90px auto auto;
+    grid-template-rows: auto auto 1fr 100px auto auto;
     gap: 6px;
     height: 100vh;
     padding: 14px 18px;
   }
   header {
-    display: flex; justify-content: space-between; align-items: baseline;
+    display: flex; justify-content: space-between; align-items: flex-start;
     color: var(--dim);
+    gap: 24px;
   }
   header h1 {
-    margin: 0; font-size: 14px; font-weight: 500; color: var(--fg);
+    margin: 0; font-size: 15px; font-weight: 500; color: var(--fg);
     letter-spacing: 0.04em;
   }
-  header .meta { font-size: 11px; }
+  header .tagline {
+    margin-top: 4px;
+    font-size: 11.5px; color: var(--dim);
+    line-height: 1.55;
+    max-width: 720px;
+  }
+  header .meta { font-size: 11px; text-align: right; flex-shrink: 0; padding-top: 3px; }
   header .meta span { color: var(--fg); }
+
+  #stim-strip-wrap { display: grid; grid-template-rows: auto 30px; gap: 4px; }
+  #stim-strip-wrap canvas { width: 100%; height: 100%; background: var(--panel-2); border-radius: 4px; }
+
+  .pane-label {
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.03em;
+  }
+  .pane-label .pane-title { color: var(--fg); font-weight: 500; }
+  .pane-label .pane-hint { color: var(--dim); }
 
   canvas { display: block; }
   #stim-canvas, #probs-canvas { width: 100%; height: 100%; background: var(--panel-2); border-radius: 4px; }
@@ -55,11 +73,16 @@
   }
   #brain-overlay {
     position: absolute; inset: 0; pointer-events: none;
-    font-size: 10px; color: var(--dim);
-    padding: 8px 10px;
+    font-size: 11px; color: var(--dim);
+  }
+  #brain-overlay > div:first-child {
+    position: absolute; left: 12px; bottom: 26px;
+    max-width: 56%;
+    line-height: 1.55;
   }
   #brain-overlay .corner {
-    position: absolute; padding: 8px 10px;
+    position: absolute; padding: 8px 12px;
+    font-size: 10px;
   }
   #brain-overlay .corner.br { right: 0; bottom: 0; text-align: right; }
   #brain-overlay .corner.tr { right: 0; top: 0; text-align: right; color: var(--fg); }
@@ -132,16 +155,27 @@
 <body>
 <div id="app">
   <header>
-    <h1>watch the mouse think</h1>
+    <div>
+      <h1>watch the mouse think</h1>
+      <div class="tagline">
+        a real mouse sees a pattern · 1,200 of its neurons fire ·
+        a computer tries to guess the pattern from the firing alone
+      </div>
+    </div>
     <div class="meta">
-      DANDI <span id="dandiset">—</span> &nbsp;·&nbsp;
-      <span id="n-units">—</span> units &nbsp;·&nbsp;
-      <span id="n-regions">—</span> regions &nbsp;·&nbsp;
-      <span id="bin-size">—</span> ms bins
+      <span id="n-units">—</span> neurons across
+      <span id="n-regions">—</span> brain regions
+      &nbsp;·&nbsp; DANDI <span id="dandiset">—</span>
     </div>
   </header>
 
-  <canvas id="stim-canvas"></canvas>
+  <div id="stim-strip-wrap">
+    <div class="pane-label">
+      <span class="pane-title">stimulus timeline</span>
+      <span class="pane-hint">— what the mouse is being shown, second by second. the white line is now.</span>
+    </div>
+    <canvas id="stim-canvas"></canvas>
+  </div>
 
   <div id="middle">
     <div id="brain-host">
@@ -150,7 +184,11 @@
         <canvas id="mouse-view" width="264" height="264"></canvas>
       </div>
       <div id="brain-overlay">
-        <div>real brain — Allen CCF, units + regions at true 3D coords</div>
+        <div>
+          <span class="pane-title">the mouse's brain</span>
+          <span class="pane-hint">— regions glow when their neurons fire more than usual.
+          the 5 faint lines through the glow are the silicon probes inserted into the brain.</span>
+        </div>
         <div class="corner br">drag to orbit · scroll to zoom</div>
       </div>
     </div>
@@ -172,9 +210,9 @@
   </div>
 
   <div id="legend">
-    <div class="chip"><span class="swatch" style="background:#9bd8ff"></span>spiking neuron</div>
-    <div class="chip"><span class="swatch" style="background:#ffd166"></span>decoder top class</div>
-    <div class="chip"><span class="swatch" style="background:#ff4d6d"></span>sequence surprise</div>
+    <div class="chip"><span class="swatch" style="background:#ffd166"></span>brain's guess (decoder top bar)</div>
+    <div class="chip"><span class="swatch" style="background:#5be37a"></span>guess matched the truth</div>
+    <div class="chip"><span class="swatch" style="background:#ff4d6d"></span>model was surprised</div>
     <div class="chip" id="region-key"></div>
   </div>
 </div>
@@ -537,17 +575,44 @@ class Viewer {
     this.regionOrder = manifest.region_activity_order;
     this.palette = trialPalette(manifest.vocab);
 
-    this.t = 0;
+    // URL params let an external recorder jump to a chosen timestamp:
+    //   ?t=100.82  start playhead at this many seconds
+    //   ?play=1    autostart playback on load
+    //   ?speed=2   playback speed
+    const qp = new URLSearchParams(window.location.search);
+    const qpT = parseFloat(qp.get("t"));
+    const qpSpeed = parseFloat(qp.get("speed"));
+    const qpPlay = qp.get("play") === "1";
+
+    this.t = Number.isFinite(qpT) ? qpT : 0;
     this.playing = false;
-    this.speed = 1.0;
+    this.speed = Number.isFinite(qpSpeed) ? qpSpeed : 1.0;
     this.windowSeconds = 8.0;
     this.lastFrameTime = null;
+    this._qpPlay = qpPlay;
+    this._qpSpeed = this.speed;
 
     this.unitEMA = new Float32Array(manifest.n_units);
     this.lastBin = -1;
     this.probsEMA = new Float32Array(manifest.n_classes);
     this.surpriseEMA = 0;
     this.regionEMA = new Float32Array(this.regionOrder.length);
+
+    // Precompute per-bin "true class index in the decoder's column space"
+    // so drawProbs can mark the correct bar + compute rolling accuracy
+    // without scanning the intervals list each frame.
+    // manifest.classes is the ordered list of trial-type strings the decoder
+    // was actually trained on (a subset of vocab if some classes never appeared).
+    const nB = manifest.n_bins;
+    const binS = manifest.bin_size_s;
+    this.actualBinClass = new Int16Array(nB).fill(-1);
+    for (const iv of manifest.intervals) {
+      const i0 = Math.max(0, Math.floor(iv.start / binS));
+      const i1 = Math.min(nB, Math.ceil(iv.stop / binS));
+      const col = manifest.classes.indexOf(iv.type);
+      if (col < 0) continue;
+      for (let b = i0; b < i1; b++) this.actualBinClass[b] = col;
+    }
 
     this.scrub = document.getElementById("scrub");
     this.playBtn = document.getElementById("playpause");
@@ -571,7 +636,6 @@ class Viewer {
     document.getElementById("dandiset").textContent = manifest.dandiset;
     document.getElementById("n-units").textContent = manifest.n_units;
     document.getElementById("n-regions").textContent = manifest.regions.length;
-    document.getElementById("bin-size").textContent = Math.round(manifest.bin_size_s * 1000);
     document.getElementById("region-key").innerHTML =
       "regions: " + manifest.regions.map(r => {
         const c = regionColor(r);
@@ -580,6 +644,18 @@ class Viewer {
       }).join("  ");
 
     this.duration = manifest.n_bins * manifest.bin_size_s;
+
+    // Apply URL-param overrides AFTER DOM hookups so the UI matches state.
+    if (Number.isFinite(this._qpSpeed)) {
+      const opts = ["0.5", "1", "2", "4"];
+      this.speedSel.value = opts.includes(String(this._qpSpeed))
+        ? String(this._qpSpeed) : "1";
+    }
+    if (this.t > 0) this.scrub.value = (this.t / this.duration) * 1000;
+    if (this._qpPlay) {
+      this.playing = true;
+      this.playBtn.textContent = "pause";
+    }
 
     this.brain = new BrainScene(
       document.getElementById("brain-host"), brainMesh, manifest, ccfCoords,
@@ -811,11 +887,13 @@ class Viewer {
     ctx.fillStyle = "#0a0b13"; ctx.fillRect(0, 0, w, h);
     const pad = 14;
 
+    ctx.fillStyle = "#e6e8ef"; ctx.font = "11px ui-monospace, monospace";
+    ctx.fillText("what the math expects next", pad, 13);
     ctx.fillStyle = "#6e7280"; ctx.font = "10px ui-monospace, monospace";
-    ctx.fillText("stimulus statistics — 3-gram model over orientation sequence", pad, 12);
+    ctx.fillText("no brain info — just learns the pattern of trials over time", pad, 26);
 
-    let y = pad + 14;
-    ctx.fillStyle = "#e6e8ef"; ctx.fillText("last trials", pad, y); y += 8;
+    let y = pad + 28;
+    ctx.fillStyle = "#e6e8ef"; ctx.fillText("the last 5 trials", pad, y); y += 8;
     const recent = this.recentTrials(this.t, 5);
     const chipW = (w - pad * 2 - 4 * 4) / 5;
     for (let i = 0; i < 5; i++) {
@@ -827,7 +905,7 @@ class Viewer {
     }
     y += 30;
 
-    ctx.fillStyle = "#e6e8ef"; ctx.fillText("p(next | last 3)", pad, y); y += 8;
+    ctx.fillStyle = "#e6e8ef"; ctx.fillText("guesses next trial", pad, y); y += 8;
     const pred = this.predictionAt(this.t);
     const nC = this.m.n_classes;
     const barAreaH = Math.max(40, h - y - 90);
@@ -850,7 +928,7 @@ class Viewer {
     ctx.beginPath(); ctx.moveTo(pad, y + barAreaH); ctx.lineTo(w - pad, y + barAreaH); ctx.stroke();
     y += barAreaH + 14;
 
-    ctx.fillStyle = "#e6e8ef"; ctx.fillText("sequence surprise (bits)", pad, y); y += 8;
+    ctx.fillStyle = "#e6e8ef"; ctx.fillText("how surprised it was", pad, y); y += 8;
     const maxBits = 4.0;
     const sFrac = Math.min(1, this.surpriseEMA / maxBits);
     const meterH = 28;
@@ -876,17 +954,24 @@ class Viewer {
     const { ctx, w, h } = fit2DCanvas(c);
     ctx.fillStyle = "#11131c"; ctx.fillRect(0, 0, w, h);
     const { n_classes, classes } = this.m;
-    const padX = 14, padY = 22;
+    const padX = 14;
+    const padTop = 36;
+    const padBottom = 22;
     const innerW = w - padX * 2;
-    const innerH = h - padY * 2;
+    const innerH = h - padTop - padBottom;
     const barW = innerW / n_classes;
 
     ctx.strokeStyle = "#1a1c25";
-    ctx.beginPath(); ctx.moveTo(padX, h - padY); ctx.lineTo(w - padX, h - padY); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(padX, h - padBottom); ctx.lineTo(w - padX, h - padBottom); ctx.stroke();
 
     let topIdx = 0, topVal = -1;
     for (let i = 0; i < n_classes; i++)
       if (this.probsEMA[i] > topVal) { topVal = this.probsEMA[i]; topIdx = i; }
+
+    const curBin = this.currentBin();
+    const actualCol = curBin >= 0 ? this.actualBinClass[curBin] : -1;
+    const isCorrect = actualCol >= 0 && actualCol === topIdx;
+
     ctx.font = "10px ui-monospace, monospace";
     ctx.textAlign = "center";
     for (let i = 0; i < n_classes; i++) {
@@ -896,14 +981,71 @@ class Viewer {
       const bh = p * innerH;
       const tt = classes[i];
       ctx.fillStyle = i === topIdx ? "#ffd166" : (this.palette[tt] || "#444");
-      ctx.fillRect(x, h - padY - bh, bw, bh);
+      ctx.fillRect(x, h - padBottom - bh, bw, bh);
+
+      // Mark the bar that matches the ACTUAL current trial: full-height
+      // outline + small "actual" tag above. Green when the top guess (gold
+      // fill) lands on the same bar, white otherwise.
+      if (i === actualCol) {
+        ctx.strokeStyle = isCorrect ? "#5be37a" : "#cfd4e2";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x - 0.5, h - padBottom - innerH + 0.5, bw + 1, innerH - 1);
+        ctx.fillStyle = isCorrect ? "#5be37a" : "#cfd4e2";
+        ctx.font = "9px ui-monospace, monospace";
+        ctx.fillText("actual", x + bw * 0.5, h - padBottom - innerH - 4);
+        ctx.font = "10px ui-monospace, monospace";
+      }
+
       ctx.fillStyle = i === topIdx ? "#e6e8ef" : "#6e7280";
       ctx.fillText(tt, x + bw * 0.5, h - 6);
-      ctx.fillText(p.toFixed(2), x + bw * 0.5, h - padY - bh - 4);
+      ctx.fillText(p.toFixed(2), x + bw * 0.5, h - padBottom - bh - 4);
     }
     ctx.textAlign = "left";
-    ctx.fillStyle = "#6e7280";
-    ctx.fillText("decoder readout — P(orientation | population activity)", padX, 12);
+
+    // Header: title (left) + correctness indicator + rolling accuracy (right).
+    ctx.fillStyle = "#e6e8ef"; ctx.font = "11px ui-monospace, monospace";
+    ctx.fillText("reading the mind", padX, 13);
+    ctx.fillStyle = "#6e7280"; ctx.font = "10px ui-monospace, monospace";
+    ctx.fillText("gold = brain's guess · outline = the actual stimulus · green when they match",
+      padX, 26);
+
+    if (actualCol >= 0) {
+      const acc = this.rollingAccuracy(curBin, 250); // last ~5s @ 20ms bins
+      ctx.textAlign = "right";
+      ctx.font = "11px ui-monospace, monospace";
+      ctx.fillStyle = isCorrect ? "#5be37a" : "#ff6b6b";
+      const mark = isCorrect ? "✓ correct" : "✗ mismatch";
+      ctx.fillText(mark, w - padX, 13);
+      if (acc !== null) {
+        ctx.fillStyle = "#6e7280";
+        ctx.font = "10px ui-monospace, monospace";
+        const accW = ctx.measureText(mark).width + 14;
+        ctx.fillText(`${(acc * 100).toFixed(0)}% correct over last 5s`,
+          w - padX - accW, 13);
+      }
+      ctx.textAlign = "left";
+    }
+  }
+
+  rollingAccuracy(curBin, nBack) {
+    if (curBin < 0) return null;
+    const { n_classes, n_bins } = this.m;
+    const from = Math.max(0, curBin - nBack + 1);
+    let correct = 0, total = 0;
+    for (let b = from; b <= curBin && b < n_bins; b++) {
+      const actual = this.actualBinClass[b];
+      if (actual < 0) continue;
+      // argmax over decoder probs for bin b
+      const off = b * n_classes;
+      let bestC = 0, bestV = -1;
+      for (let c = 0; c < n_classes; c++) {
+        const v = this.probs[off + c];
+        if (v > bestV) { bestV = v; bestC = c; }
+      }
+      if (bestC === actual) correct++;
+      total++;
+    }
+    return total > 0 ? correct / total : null;
   }
 }
 
