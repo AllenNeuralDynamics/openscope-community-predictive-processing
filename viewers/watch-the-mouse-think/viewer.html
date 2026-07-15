@@ -1,0 +1,1085 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>watch the mouse think</title>
+<style>
+  :root {
+    --bg: #07080d;
+    --panel: #0a0b13;
+    --panel-2: #11131c;
+    --fg: #e6e8ef;
+    --dim: #6e7280;
+    --accent: #9bd8ff;
+    --hot: #ffd166;
+    --deviant: #ff4d6d;
+    --grid: #1a1c25;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--fg);
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+    font-size: 13px;
+    overflow: hidden;
+  }
+  #app {
+    display: grid;
+    grid-template-rows: auto auto 1fr 100px auto auto;
+    gap: 6px;
+    height: 100vh;
+    padding: 14px 18px;
+  }
+  header {
+    display: flex; justify-content: space-between; align-items: flex-start;
+    color: var(--dim);
+    gap: 24px;
+  }
+  header h1 {
+    margin: 0; font-size: 15px; font-weight: 500; color: var(--fg);
+    letter-spacing: 0.04em;
+  }
+  header .tagline {
+    margin-top: 4px;
+    font-size: 11.5px; color: var(--dim);
+    line-height: 1.55;
+    max-width: 720px;
+  }
+  header .meta { font-size: 11px; text-align: right; flex-shrink: 0; padding-top: 3px; }
+  header .meta span { color: var(--fg); }
+
+  #stim-strip-wrap { display: grid; grid-template-rows: auto 30px; gap: 4px; }
+  #stim-strip-wrap canvas { width: 100%; height: 100%; background: var(--panel-2); border-radius: 4px; }
+
+  .pane-label {
+    font-size: 11px;
+    color: var(--dim);
+    letter-spacing: 0.03em;
+  }
+  .pane-label .pane-title { color: var(--fg); font-weight: 500; }
+  .pane-label .pane-hint { color: var(--dim); }
+
+  canvas { display: block; }
+  #stim-canvas, #probs-canvas { width: 100%; height: 100%; background: var(--panel-2); border-radius: 4px; }
+  #model-canvas { width: 100%; height: 100%; background: var(--panel); border-radius: 4px; }
+  #brain-host {
+    position: relative;
+    background: var(--panel);
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  #brain-host > canvas:not(#mouse-view) {
+    width: 100% !important; height: 100% !important; display: block;
+  }
+  #brain-overlay {
+    position: absolute; inset: 0; pointer-events: none;
+    font-size: 11px; color: var(--dim);
+  }
+  #brain-overlay > div:first-child {
+    position: absolute; left: 12px; bottom: 26px;
+    max-width: 56%;
+    line-height: 1.55;
+  }
+  #brain-overlay .corner {
+    position: absolute; padding: 8px 12px;
+    font-size: 10px;
+  }
+  #brain-overlay .corner.br { right: 0; bottom: 0; text-align: right; }
+  #brain-overlay .corner.tr { right: 0; top: 0; text-align: right; color: var(--fg); }
+  #brain-overlay .corner.tr .lbl { color: var(--dim); }
+
+  /* "What the mouse sees" — small live grating overlay, top-left of brain pane */
+  #mouse-view-wrap {
+    position: absolute; top: 10px; left: 10px;
+    width: 132px;
+    pointer-events: none;
+    z-index: 2;
+  }
+  #mouse-view-wrap .label {
+    font-size: 10px; color: var(--dim); margin-bottom: 4px;
+    text-transform: lowercase; letter-spacing: 0.05em;
+  }
+  #mouse-view-wrap .label .meta { color: var(--fg); margin-left: 4px; }
+  #mouse-view {
+    width: 132px; height: 132px;
+    display: block;
+    border-radius: 50%;
+    background: #111319;
+    box-shadow: 0 0 0 1px #2c3145, 0 0 16px rgba(0,0,0,0.4);
+  }
+
+  #middle {
+    display: grid;
+    grid-template-columns: 1.9fr 1fr;
+    gap: 6px;
+    min-height: 0;
+  }
+
+  #controls {
+    display: flex; align-items: center; gap: 12px;
+    color: var(--dim);
+  }
+  #controls button {
+    background: #1a1c25; color: var(--fg);
+    border: 1px solid #2a2d3a; border-radius: 3px;
+    padding: 4px 12px; cursor: pointer; font-family: inherit; font-size: 12px;
+  }
+  #controls button:hover { border-color: var(--accent); color: var(--accent); }
+  #controls input[type=range] { flex: 1; accent-color: var(--accent); }
+  #controls .time {
+    min-width: 110px; text-align: right; color: var(--fg);
+    font-variant-numeric: tabular-nums;
+  }
+  #controls select {
+    background: #1a1c25; color: var(--fg); border: 1px solid #2a2d3a;
+    border-radius: 3px; padding: 3px 6px; font-family: inherit;
+  }
+
+  #legend {
+    display: flex; gap: 14px; flex-wrap: wrap;
+    color: var(--dim); font-size: 11px;
+  }
+  #legend .chip { display: inline-flex; align-items: center; gap: 5px; }
+  #legend .swatch { width: 10px; height: 10px; border-radius: 2px; display: inline-block; }
+  .err { color: var(--deviant); padding: 24px; font-size: 13px; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "three": "https://unpkg.com/three@0.158.0/build/three.module.js",
+    "three/addons/": "https://unpkg.com/three@0.158.0/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<div id="app">
+  <header>
+    <div>
+      <h1>watch the mouse think</h1>
+      <div class="tagline">
+        a real mouse sees a pattern · 1,200 of its neurons fire ·
+        a computer tries to guess the pattern from the firing alone
+      </div>
+    </div>
+    <div class="meta">
+      <span id="n-units">—</span> neurons across
+      <span id="n-regions">—</span> brain regions
+      &nbsp;·&nbsp; DANDI <span id="dandiset">—</span>
+    </div>
+  </header>
+
+  <div id="stim-strip-wrap">
+    <div class="pane-label">
+      <span class="pane-title">stimulus timeline</span>
+      <span class="pane-hint">— what the mouse is being shown, second by second. the white line is now.</span>
+    </div>
+    <canvas id="stim-canvas"></canvas>
+  </div>
+
+  <div id="middle">
+    <div id="brain-host">
+      <div id="mouse-view-wrap">
+        <div class="label">what the mouse sees<span class="meta" id="mouse-view-meta">—</span></div>
+        <canvas id="mouse-view" width="264" height="264"></canvas>
+      </div>
+      <div id="brain-overlay">
+        <div>
+          <span class="pane-title">the mouse's brain</span>
+          <span class="pane-hint">— regions glow when their neurons fire more than usual.
+          the 5 faint lines through the glow are the silicon probes inserted into the brain.</span>
+        </div>
+        <div class="corner br">drag to orbit · scroll to zoom</div>
+      </div>
+    </div>
+    <canvas id="model-canvas"></canvas>
+  </div>
+
+  <canvas id="probs-canvas"></canvas>
+
+  <div id="controls">
+    <button id="playpause">play</button>
+    <input id="scrub" type="range" min="0" max="1000" value="0" />
+    <span class="time" id="time-readout">0.00 / 0.00 s</span>
+    <select id="speed">
+      <option value="0.5">0.5x</option>
+      <option value="1" selected>1x</option>
+      <option value="2">2x</option>
+      <option value="4">4x</option>
+    </select>
+  </div>
+
+  <div id="legend">
+    <div class="chip"><span class="swatch" style="background:#ffd166"></span>brain's guess (decoder top bar)</div>
+    <div class="chip"><span class="swatch" style="background:#5be37a"></span>guess matched the truth</div>
+    <div class="chip"><span class="swatch" style="background:#ff4d6d"></span>model was surprised</div>
+    <div class="chip" id="region-key"></div>
+  </div>
+</div>
+
+<script type="module">
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
+import { mergeVertices } from "three/addons/utils/BufferGeometryUtils.js";
+
+const MANIFEST_URL = "out/session.json";
+const EMA_HALFLIFE_S = 0.18;
+
+const PANEL_BG = 0x0a0b13;
+
+// Visual-system regions get a tasteful blue/purple ramp; everything else dim.
+function regionColor(region) {
+  const palette = {
+    VISp:  "#9bd8ff",
+    VISl:  "#7cc7ff",
+    VISal: "#a3b6ff",
+    VISpm: "#c0a8ff",
+    VISrl: "#85d0c5",
+    VISam: "#b9a6ff",
+    LGd:   "#ffd166",
+    LP:    "#ffb466",
+    CA1:   "#ff8da3",
+    CA3:   "#ff7090",
+    DG:    "#ff5b80",
+    APN:   "#88f0c0",
+    PO:    "#8ed6ff",
+    PoT:   "#86c8ff",
+    MB:    "#c8b88c",
+    grey:  "#5a6378",
+  };
+  return new THREE.Color(palette[region] || "#5a6378");
+}
+
+function trialPalette(vocab) {
+  const map = {};
+  vocab.forEach((t, i) => {
+    if (t === "blank") map[t] = "#3a4055";
+    else {
+      const hue = (i * 43 + 200) % 360;
+      map[t] = `hsl(${hue} 60% 55%)`;
+    }
+  });
+  return map;
+}
+
+async function loadBinary(path, type) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error(`fetch ${path}: ${r.status}`);
+  const buf = await r.arrayBuffer();
+  if (type === "u8") return new Uint8Array(buf);
+  if (type === "u32") return new Uint32Array(buf);
+  if (type === "f32") return new Float32Array(buf);
+  throw new Error("unknown type");
+}
+
+async function loadBrainMesh(path) {
+  const r = await fetch(path);
+  if (!r.ok) throw new Error(`fetch ${path}: ${r.status}`);
+  const buf = await r.arrayBuffer();
+  const hdr = new Uint32Array(buf, 0, 2);
+  const [nV, nI] = [hdr[0], hdr[1]];
+  const vertOff = 8;
+  const verts = new Float32Array(buf, vertOff, nV * 3);
+  const indices = new Uint32Array(buf, vertOff + nV * 3 * 4, nI);
+  return { verts, indices, nV, nI };
+}
+
+function fit2DCanvas(canvas) {
+  const r = canvas.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.max(1, Math.floor(r.width * dpr));
+  canvas.height = Math.max(1, Math.floor(r.height * dpr));
+  const ctx = canvas.getContext("2d");
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+  return { ctx, w: r.width, h: r.height };
+}
+
+// ---------------- 3D scene -------------------
+class BrainScene {
+  constructor(host, mesh, manifest, ccfCoords, regionMeshes, regionsIndex) {
+    this.host = host;
+    this.manifest = manifest;
+    this.n = manifest.n_units;
+    // Map of acronym -> { mesh: THREE.Mesh, material: ShaderMaterial }
+    this.regionObjects = {};
+
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, alpha: false });
+    this.renderer.setPixelRatio(window.devicePixelRatio || 1);
+    this.renderer.setClearColor(PANEL_BG, 1);
+    host.appendChild(this.renderer.domElement);
+
+    this.scene = new THREE.Scene();
+
+    // Camera framed on the brain bbox.
+    const bb = this.bbox(mesh.verts);
+    const center = [
+      (bb.min[0] + bb.max[0]) / 2,
+      (bb.min[1] + bb.max[1]) / 2,
+      (bb.min[2] + bb.max[2]) / 2,
+    ];
+    const extent = Math.max(
+      bb.max[0] - bb.min[0], bb.max[1] - bb.min[1], bb.max[2] - bb.min[2]);
+    this.center = new THREE.Vector3(...center);
+
+    this.camera = new THREE.PerspectiveCamera(35, 1, 100, extent * 6);
+    // Start: side view (looking from the left side of the mouse).
+    this.camera.position.set(
+      center[0], center[1] - extent * 1.15, center[2] + extent * 1.6);
+    this.camera.up.set(0, -1, 0);  // CCF has y growing downward
+    this.camera.lookAt(this.center);
+
+    this.controls = new OrbitControls(this.camera, this.renderer.domElement);
+    this.controls.target.copy(this.center);
+    this.controls.enableDamping = true;
+    this.controls.dampingFactor = 0.08;
+    this.controls.rotateSpeed = 0.7;
+    this.controls.zoomSpeed = 0.8;
+    this.controls.minDistance = extent * 0.4;
+    this.controls.maxDistance = extent * 4;
+
+    // Brain mesh material — translucent grey shell, two-sided, depth write off
+    // so points inside are always visible from any angle.
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute("position", new THREE.BufferAttribute(mesh.verts, 3));
+    geom.setIndex(new THREE.BufferAttribute(mesh.indices, 1));
+    geom.computeVertexNormals();
+
+    const meshMat = new THREE.MeshBasicMaterial({
+      color: 0x9bb0d0,
+      transparent: true,
+      opacity: 0.04,
+      side: THREE.DoubleSide,
+      depthWrite: false,
+    });
+    this.brainMesh = new THREE.Mesh(geom, meshMat);
+    this.scene.add(this.brainMesh);
+
+    // Wireframe overlay — sparse, dim.
+    const wireMat = new THREE.MeshBasicMaterial({
+      color: 0x2a3045,
+      transparent: true,
+      opacity: 0.10,
+      wireframe: true,
+      depthWrite: false,
+    });
+    this.brainWire = new THREE.Mesh(geom, wireMat);
+    this.scene.add(this.brainWire);
+
+    // --- Per-region meshes: glow with aggregated activity ---
+    for (const [acro, info] of Object.entries(regionsIndex)) {
+      if (acro === "root") continue;
+      const rm = regionMeshes[acro];
+      if (!rm) continue;
+      let rg = new THREE.BufferGeometry();
+      rg.setAttribute("position", new THREE.BufferAttribute(rm.verts, 3));
+      rg.setIndex(new THREE.BufferAttribute(rm.indices, 1));
+      // Merge co-located verts (OBJs from Allen sometimes ship un-welded)
+      // so vertex normals are shared across faces → smooth shading.
+      rg = mergeVertices(rg, 1.0);
+      rg.computeVertexNormals();
+      const baseCol = new THREE.Color(info.color);
+      const mat = new THREE.ShaderMaterial({
+        transparent: true,
+        depthWrite: false,
+        side: THREE.DoubleSide,
+        blending: THREE.AdditiveBlending,
+        uniforms: {
+          uColor: { value: new THREE.Vector3(baseCol.r, baseCol.g, baseCol.b) },
+          uActivity: { value: 0.0 },
+          uBase: { value: 0.04 },
+        },
+        vertexShader: `
+          varying vec3 vNormal;
+          varying vec3 vViewDir;
+          void main() {
+            vec4 mv = modelViewMatrix * vec4(position, 1.0);
+            vNormal = normalize(normalMatrix * normal);
+            vViewDir = normalize(-mv.xyz);
+            gl_Position = projectionMatrix * mv;
+          }
+        `,
+        fragmentShader: `
+          uniform vec3 uColor;
+          uniform float uActivity;   // 0..1+
+          uniform float uBase;       // resting opacity
+          varying vec3 vNormal;
+          varying vec3 vViewDir;
+          void main() {
+            // Fresnel-style edge glow: brighter at silhouette.
+            float fres = pow(1.0 - max(dot(vNormal, vViewDir), 0.0), 2.0);
+            float intensity = uBase + uActivity * (0.35 + 0.55 * fres);
+            vec3 col = uColor * (0.55 + uActivity * 1.4);
+            gl_FragColor = vec4(col, clamp(intensity, 0.0, 0.9));
+          }
+        `,
+      });
+      const m = new THREE.Mesh(rg, mat);
+      m.renderOrder = 1;
+      this.scene.add(m);
+      this.regionObjects[acro] = { mesh: m, material: mat };
+    }
+
+    // ---- Probe shanks as thin grey lines ----
+    // Each probe is a real silicon shank. Without drawing them, the units
+    // (which sit along the shanks) read as floating vertical streaks.
+    const probeGeom = manifest.probes_geometry || {};
+    for (const [probeName, endpts] of Object.entries(probeGeom)) {
+      if (!endpts || endpts.length !== 2) continue;
+      const [a, b] = endpts;
+      const g = new THREE.BufferGeometry();
+      g.setAttribute("position", new THREE.BufferAttribute(
+        new Float32Array([a[0], a[1], a[2], b[0], b[1], b[2]]), 3));
+      const m = new THREE.LineBasicMaterial({
+        color: 0x5a6378, transparent: true, opacity: 0.55, depthWrite: false,
+      });
+      const line = new THREE.Line(g, m);
+      line.renderOrder = 1.5;
+      this.scene.add(line);
+    }
+
+    // ---- Units as a single Points object with custom shader ----
+    const posArr = new Float32Array(this.n * 3);
+    const baseColor = new Float32Array(this.n * 3);
+    const emaArr = new Float32Array(this.n);
+    for (let i = 0; i < this.n; i++) {
+      posArr[3 * i] = ccfCoords[3 * i];
+      posArr[3 * i + 1] = ccfCoords[3 * i + 1];
+      posArr[3 * i + 2] = ccfCoords[3 * i + 2];
+      const c = regionColor(manifest.units[i].region);
+      baseColor[3 * i] = c.r;
+      baseColor[3 * i + 1] = c.g;
+      baseColor[3 * i + 2] = c.b;
+      emaArr[i] = 0;
+    }
+    const pgeom = new THREE.BufferGeometry();
+    pgeom.setAttribute("position", new THREE.BufferAttribute(posArr, 3));
+    pgeom.setAttribute("baseColor", new THREE.BufferAttribute(baseColor, 3));
+    pgeom.setAttribute("ema", new THREE.BufferAttribute(emaArr, 1));
+
+    this.emaAttr = pgeom.getAttribute("ema");
+
+    const pmat = new THREE.ShaderMaterial({
+      transparent: true,
+      depthTest: true,
+      depthWrite: false,
+      blending: THREE.AdditiveBlending,
+      uniforms: {
+        uPixelRatio: { value: window.devicePixelRatio || 1 },
+        uBaseSize: { value: 4.0 },
+        uTime: { value: 0.0 },
+      },
+      vertexShader: `
+        attribute vec3 baseColor;
+        attribute float ema;
+        uniform float uPixelRatio;
+        uniform float uBaseSize;
+        varying vec3 vColor;
+        varying float vEma;
+        void main() {
+          vEma = ema;
+          vec3 hot = vec3(1.0, 0.82, 0.40);
+          vColor = mix(baseColor, hot, clamp(ema * 0.8, 0.0, 0.85));
+          vec4 mv = modelViewMatrix * vec4(position, 1.0);
+          float size = uBaseSize + ema * 16.0;
+          gl_PointSize = size * uPixelRatio * (320.0 / -mv.z);
+          gl_Position = projectionMatrix * mv;
+        }
+      `,
+      fragmentShader: `
+        varying vec3 vColor;
+        varying float vEma;
+        void main() {
+          vec2 d = gl_PointCoord - vec2(0.5);
+          float r = length(d) * 2.0;
+          if (r > 1.0) discard;
+          float core = smoothstep(1.0, 0.0, r);
+          float glow = pow(core, 1.6);
+          float baseA = 0.16 + clamp(vEma * 0.9, 0.0, 0.85);
+          gl_FragColor = vec4(vColor, glow * baseA);
+        }
+      `,
+    });
+
+    this.points = new THREE.Points(pgeom, pmat);
+    this.points.renderOrder = 2;
+    this.scene.add(this.points);
+
+    // Auto-rotation when not interacted with.
+    this.autoRotate = true;
+    this.controls.addEventListener("start", () => { this.autoRotate = false; });
+
+    this.resize();
+    new ResizeObserver(() => this.resize()).observe(host);
+  }
+
+  bbox(verts) {
+    let mnx = Infinity, mny = Infinity, mnz = Infinity;
+    let mxx = -Infinity, mxy = -Infinity, mxz = -Infinity;
+    for (let i = 0; i < verts.length; i += 3) {
+      if (verts[i] < mnx) mnx = verts[i]; if (verts[i] > mxx) mxx = verts[i];
+      if (verts[i+1] < mny) mny = verts[i+1]; if (verts[i+1] > mxy) mxy = verts[i+1];
+      if (verts[i+2] < mnz) mnz = verts[i+2]; if (verts[i+2] > mxz) mxz = verts[i+2];
+    }
+    return { min: [mnx, mny, mnz], max: [mxx, mxy, mxz] };
+  }
+
+  resize() {
+    const r = this.host.getBoundingClientRect();
+    this.renderer.setSize(r.width, r.height, false);
+    this.camera.aspect = r.width / Math.max(1, r.height);
+    this.camera.updateProjectionMatrix();
+  }
+
+  updateEma(ema) {
+    this.emaAttr.array.set(ema);
+    this.emaAttr.needsUpdate = true;
+  }
+
+  updateRegionActivity(activityByName) {
+    // activityByName: { acronym: zscored_value }
+    for (const [acro, obj] of Object.entries(this.regionObjects)) {
+      const z = activityByName[acro];
+      if (z == null) continue;
+      // Clip z-score into [0, 1] for shader; negative = below baseline → 0.
+      const v = Math.max(0, Math.min(1.4, z / 2.5));
+      obj.material.uniforms.uActivity.value = v;
+    }
+  }
+
+  render(dt) {
+    if (this.autoRotate) {
+      // Slow turntable around the brain's vertical axis.
+      const angle = dt * 0.08;
+      const offs = new THREE.Vector3().subVectors(this.camera.position, this.center);
+      const yAxis = new THREE.Vector3(0, 1, 0);
+      offs.applyAxisAngle(yAxis, angle);
+      this.camera.position.copy(this.center).add(offs);
+      this.camera.lookAt(this.center);
+    }
+    this.controls.update();
+    this.points.material.uniforms.uTime.value += dt;
+    this.renderer.render(this.scene, this.camera);
+  }
+}
+
+// ---------------- Viewer (orchestrator) -------------------
+class Viewer {
+  constructor(manifest, raster, probs, mPreds, mSurprise, ccfCoords,
+              brainMesh, regionMeshes, regionsIndex, regionActivity) {
+    this.m = manifest;
+    this.raster = raster;
+    this.probs = probs;
+    this.markovPreds = mPreds;
+    this.markovSurprise = mSurprise;
+    this.regionActivity = regionActivity;   // Float32 [n_regions * n_bins]
+    this.regionOrder = manifest.region_activity_order;
+    this.palette = trialPalette(manifest.vocab);
+
+    // URL params let an external recorder jump to a chosen timestamp:
+    //   ?t=100.82  start playhead at this many seconds
+    //   ?play=1    autostart playback on load
+    //   ?speed=2   playback speed
+    const qp = new URLSearchParams(window.location.search);
+    const qpT = parseFloat(qp.get("t"));
+    const qpSpeed = parseFloat(qp.get("speed"));
+    const qpPlay = qp.get("play") === "1";
+
+    this.t = Number.isFinite(qpT) ? qpT : 0;
+    this.playing = false;
+    this.speed = Number.isFinite(qpSpeed) ? qpSpeed : 1.0;
+    this.windowSeconds = 8.0;
+    this.lastFrameTime = null;
+    this._qpPlay = qpPlay;
+    this._qpSpeed = this.speed;
+
+    this.unitEMA = new Float32Array(manifest.n_units);
+    this.lastBin = -1;
+    this.probsEMA = new Float32Array(manifest.n_classes);
+    this.surpriseEMA = 0;
+    this.regionEMA = new Float32Array(this.regionOrder.length);
+
+    // Precompute per-bin "true class index in the decoder's column space"
+    // so drawProbs can mark the correct bar + compute rolling accuracy
+    // without scanning the intervals list each frame.
+    // manifest.classes is the ordered list of trial-type strings the decoder
+    // was actually trained on (a subset of vocab if some classes never appeared).
+    const nB = manifest.n_bins;
+    const binS = manifest.bin_size_s;
+    this.actualBinClass = new Int16Array(nB).fill(-1);
+    for (const iv of manifest.intervals) {
+      const i0 = Math.max(0, Math.floor(iv.start / binS));
+      const i1 = Math.min(nB, Math.ceil(iv.stop / binS));
+      const col = manifest.classes.indexOf(iv.type);
+      if (col < 0) continue;
+      for (let b = i0; b < i1; b++) this.actualBinClass[b] = col;
+    }
+
+    this.scrub = document.getElementById("scrub");
+    this.playBtn = document.getElementById("playpause");
+    this.speedSel = document.getElementById("speed");
+    this.timeReadout = document.getElementById("time-readout");
+
+    this.scrub.addEventListener("input", () => {
+      this.t = (this.scrub.value / 1000) * this.duration;
+      this.unitEMA.fill(0);
+      this.lastBin = -1;
+    });
+    this.playBtn.addEventListener("click", () => this.togglePlay());
+    this.speedSel.addEventListener("change", () => {
+      this.speed = parseFloat(this.speedSel.value);
+    });
+    window.addEventListener("keydown", (e) => {
+      if (e.code === "Space") { e.preventDefault(); this.togglePlay(); }
+    });
+    window.addEventListener("resize", () => this.draw2D());
+
+    document.getElementById("dandiset").textContent = manifest.dandiset;
+    document.getElementById("n-units").textContent = manifest.n_units;
+    document.getElementById("n-regions").textContent = manifest.regions.length;
+    document.getElementById("region-key").innerHTML =
+      "regions: " + manifest.regions.map(r => {
+        const c = regionColor(r);
+        const hex = "#" + c.getHexString();
+        return `<span style="color:${hex}">${r}</span>`;
+      }).join("  ");
+
+    this.duration = manifest.n_bins * manifest.bin_size_s;
+
+    // Apply URL-param overrides AFTER DOM hookups so the UI matches state.
+    if (Number.isFinite(this._qpSpeed)) {
+      const opts = ["0.5", "1", "2", "4"];
+      this.speedSel.value = opts.includes(String(this._qpSpeed))
+        ? String(this._qpSpeed) : "1";
+    }
+    if (this.t > 0) this.scrub.value = (this.t / this.duration) * 1000;
+    if (this._qpPlay) {
+      this.playing = true;
+      this.playBtn.textContent = "pause";
+    }
+
+    this.brain = new BrainScene(
+      document.getElementById("brain-host"), brainMesh, manifest, ccfCoords,
+      regionMeshes, regionsIndex);
+
+    this.prevTs = null;
+    requestAnimationFrame((ts) => this.frame(ts));
+  }
+
+  togglePlay() {
+    this.playing = !this.playing;
+    this.playBtn.textContent = this.playing ? "pause" : "play";
+    this.lastFrameTime = null;
+  }
+
+  currentBin() {
+    const { bin_size_s, n_bins } = this.m;
+    return Math.max(0, Math.min(n_bins - 1, Math.floor(this.t / bin_size_s)));
+  }
+
+  updateEMA(dt) {
+    if (dt <= 0) return;
+    const decay = Math.pow(0.5, dt / EMA_HALFLIFE_S);
+    for (let i = 0; i < this.unitEMA.length; i++) this.unitEMA[i] *= decay;
+    for (let i = 0; i < this.probsEMA.length; i++) this.probsEMA[i] *= decay;
+    this.surpriseEMA *= decay;
+
+    const targetBin = this.currentBin();
+    const { n_bins, n_units, n_classes } = this.m;
+    if (this.lastBin < 0 || targetBin < this.lastBin) {
+      this.lastBin = Math.max(0, targetBin - 1);
+    }
+    for (let b = this.lastBin + 1; b <= targetBin && b < n_bins; b++) {
+      for (let u = 0; u < n_units; u++) {
+        const v = this.raster[u * n_bins + b];
+        if (v) this.unitEMA[u] += v;
+      }
+    }
+    this.lastBin = targetBin;
+
+    const base = targetBin * n_classes;
+    const blend = 1 - Math.pow(0.5, dt / 0.12);
+    for (let c = 0; c < n_classes; c++) {
+      this.probsEMA[c] += (this.probs[base + c] - this.probsEMA[c]) * blend;
+    }
+    const surp = this.surpriseAt(this.t);
+    this.surpriseEMA += (surp - this.surpriseEMA) * Math.min(1, blend * 1.6);
+
+    // Region activity EMA: smoother than per-bin so meshes pulse, not strobe.
+    const rBlend = 1 - Math.pow(0.5, dt / 0.20);
+    const nR = this.regionOrder.length;
+    for (let r = 0; r < nR; r++) {
+      const v = this.regionActivity[r * n_bins + targetBin];
+      this.regionEMA[r] += (v - this.regionEMA[r]) * rBlend;
+    }
+  }
+
+  surpriseAt(t) {
+    const { starts, stops } = this.m.markov;
+    for (let i = 0; i < starts.length; i++)
+      if (starts[i] <= t && t < stops[i]) return this.markovSurprise[i];
+    return 0;
+  }
+
+  predictionAt(t) {
+    const { starts, stops } = this.m.markov;
+    const nc = this.m.n_classes;
+    for (let i = 0; i < starts.length; i++) {
+      if (starts[i] <= t && t < stops[i])
+        return this.markovPreds.subarray(i * nc, i * nc + nc);
+    }
+    return null;
+  }
+
+  recentTrials(t, n = 4) {
+    const out = [];
+    const { starts, stops, types_idx } = this.m.markov;
+    for (let i = 0; i < starts.length && out.length < n; i++) {
+      if (stops[i] <= t) out.push(types_idx[i]); else break;
+    }
+    return out.slice(-n);
+  }
+
+  intervalAt(t) {
+    for (const iv of this.m.intervals)
+      if (iv.start <= t && t < iv.stop) return iv;
+    return null;
+  }
+
+  frame(ts) {
+    let realDt = this.prevTs == null ? 0 : (ts - this.prevTs) / 1000;
+    this.prevTs = ts;
+
+    if (this.playing) {
+      let dt = 0;
+      if (this.lastFrameTime != null) {
+        dt = ((ts - this.lastFrameTime) / 1000) * this.speed;
+        this.t += dt;
+        if (this.t >= this.duration) {
+          this.t = this.duration; this.playing = false;
+          this.playBtn.textContent = "play";
+        }
+      }
+      this.lastFrameTime = ts;
+      this.scrub.value = (this.t / this.duration) * 1000;
+      this.updateEMA(dt);
+    } else {
+      this.lastFrameTime = null;
+      this.updateEMA(0.016);
+    }
+
+    this.brain.updateEma(this.unitEMA);
+    const byName = {};
+    for (let r = 0; r < this.regionOrder.length; r++) {
+      byName[this.regionOrder[r]] = this.regionEMA[r];
+    }
+    this.brain.updateRegionActivity(byName);
+    this.brain.render(realDt);
+    this.draw2D();
+    requestAnimationFrame((ts2) => this.frame(ts2));
+  }
+
+  // ---- 2D panels ----
+  draw2D() {
+    this.timeReadout.textContent =
+      `${this.t.toFixed(2)} / ${this.duration.toFixed(2)} s`;
+    this.drawStim();
+    this.drawMouseView();
+    this.drawModel();
+    this.drawProbs();
+  }
+
+  // Render the literal visual stimulus the mouse is being shown at time t.
+  // Drifting sinusoidal grating: orientation θ, temporal frequency tf Hz,
+  // spatial frequency tuned for visibility in a small patch.
+  drawMouseView() {
+    const canvas = document.getElementById("mouse-view");
+    const meta = document.getElementById("mouse-view-meta");
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d", { willReadFrequently: false });
+    const W = canvas.width, H = canvas.height;
+    const cur = this.intervalAt(this.t);
+
+    // Blank trial or no current trial → uniform grey, no label noise.
+    const isBlank = !cur || cur.type === "blank" || cur.ori == null || cur.tf == null;
+
+    if (isBlank) {
+      ctx.fillStyle = "#1a1c25";
+      ctx.fillRect(0, 0, W, H);
+      meta.textContent = cur ? "blank" : "—";
+      return;
+    }
+
+    const ori = cur.ori;                 // degrees
+    const tf  = cur.tf;                  // cycles per second
+    const tIntoTrial = this.t - cur.start;
+    // Spatial frequency tuned to display ~4 cycles across the patch.
+    const cyclesPerPx = 4.0 / W;
+    const theta = (ori * Math.PI) / 180;
+    const cosT = Math.cos(theta), sinT = Math.sin(theta);
+    const phase = 2 * Math.PI * tf * tIntoTrial;
+
+    // Render via ImageData (fast enough for 264x264 at 60fps).
+    const img = ctx.createImageData(W, H);
+    const data = img.data;
+    const cx = W * 0.5, cy = H * 0.5;
+    const r2max = (W * 0.5) * (W * 0.5);
+    const contrast = 0.85;
+
+    for (let y = 0; y < H; y++) {
+      const dy = y - cy;
+      for (let x = 0; x < W; x++) {
+        const dx = x - cx;
+        const r2 = dx * dx + dy * dy;
+        const i = (y * W + x) * 4;
+        if (r2 > r2max) {
+          // Outside the aperture: panel background.
+          data[i] = 26; data[i+1] = 28; data[i+2] = 37; data[i+3] = 0;
+          continue;
+        }
+        // Rotated coordinate for grating direction.
+        const rx = dx * cosT + dy * sinT;
+        const s = Math.sin(2 * Math.PI * cyclesPerPx * rx - phase);
+        let v = 0.5 + 0.5 * contrast * s;
+        // Soft edge falloff over outer 10% so the aperture isn't harsh.
+        const edge = Math.sqrt(r2) / (W * 0.5);
+        const aperture = edge < 0.9 ? 1.0 : Math.max(0, 1 - (edge - 0.9) / 0.1);
+        v = v * aperture + (1 - aperture) * 0.10;
+        const lum = Math.max(0, Math.min(255, Math.round(v * 255)));
+        data[i] = lum; data[i+1] = lum; data[i+2] = lum; data[i+3] = 255;
+      }
+    }
+    ctx.putImageData(img, 0, 0);
+
+    meta.textContent = `${ori.toFixed(0)}° @ ${tf.toFixed(0)}Hz`;
+  }
+
+  drawStim() {
+    const c = document.getElementById("stim-canvas");
+    const { ctx, w, h } = fit2DCanvas(c);
+    ctx.fillStyle = "#11131c"; ctx.fillRect(0, 0, w, h);
+
+    const tStart = this.t - this.windowSeconds * 0.5;
+    for (const iv of this.m.intervals) {
+      if (iv.stop < tStart || iv.start > tStart + this.windowSeconds) continue;
+      const x0 = ((iv.start - tStart) / this.windowSeconds) * w;
+      const x1 = ((iv.stop - tStart) / this.windowSeconds) * w;
+      ctx.fillStyle = this.palette[iv.type] || "#444";
+      ctx.fillRect(x0, 3, Math.max(1, x1 - x0), h - 6);
+    }
+    const xPlay = w * 0.5;
+    ctx.strokeStyle = "#fff"; ctx.lineWidth = 1;
+    ctx.beginPath(); ctx.moveTo(xPlay, 0); ctx.lineTo(xPlay, h); ctx.stroke();
+
+    const cur = this.intervalAt(this.t);
+    if (cur) {
+      ctx.font = "11px ui-monospace, monospace";
+      const tw = ctx.measureText(cur.type).width;
+      ctx.fillStyle = "rgba(0,0,0,0.6)";
+      ctx.fillRect(xPlay + 6, h * 0.5 - 9, tw + 10, 18);
+      ctx.fillStyle = "#e6e8ef";
+      ctx.fillText(cur.type, xPlay + 11, h * 0.5 + 4);
+    }
+  }
+
+  drawModel() {
+    const c = document.getElementById("model-canvas");
+    const { ctx, w, h } = fit2DCanvas(c);
+    ctx.fillStyle = "#0a0b13"; ctx.fillRect(0, 0, w, h);
+    const pad = 14;
+
+    ctx.fillStyle = "#e6e8ef"; ctx.font = "11px ui-monospace, monospace";
+    ctx.fillText("what the math expects next", pad, 13);
+    ctx.fillStyle = "#6e7280"; ctx.font = "10px ui-monospace, monospace";
+    ctx.fillText("no brain info — just learns the pattern of trials over time", pad, 26);
+
+    let y = pad + 28;
+    ctx.fillStyle = "#e6e8ef"; ctx.fillText("the last 5 trials", pad, y); y += 8;
+    const recent = this.recentTrials(this.t, 5);
+    const chipW = (w - pad * 2 - 4 * 4) / 5;
+    for (let i = 0; i < 5; i++) {
+      const x = pad + i * (chipW + 4);
+      if (i < recent.length) {
+        ctx.fillStyle = this.palette[this.m.vocab[recent[i]]] || "#1a1c25";
+      } else ctx.fillStyle = "#1a1c25";
+      ctx.fillRect(x, y, chipW, 22);
+    }
+    y += 30;
+
+    ctx.fillStyle = "#e6e8ef"; ctx.fillText("guesses next trial", pad, y); y += 8;
+    const pred = this.predictionAt(this.t);
+    const nC = this.m.n_classes;
+    const barAreaH = Math.max(40, h - y - 90);
+    const barW = (w - pad * 2 - (nC - 1) * 3) / nC;
+    let topIdx = 0;
+    if (pred) {
+      let topVal = -1;
+      for (let i = 0; i < nC; i++) if (pred[i] > topVal) { topVal = pred[i]; topIdx = i; }
+    }
+    for (let i = 0; i < nC; i++) {
+      const x = pad + i * (barW + 3);
+      const p = pred ? pred[i] : 0;
+      const bh = p * barAreaH;
+      ctx.fillStyle = this.palette[this.m.vocab[i]] || "#444";
+      ctx.globalAlpha = (i === topIdx) ? 1 : 0.55;
+      ctx.fillRect(x, y + barAreaH - bh, barW, bh);
+      ctx.globalAlpha = 1;
+    }
+    ctx.strokeStyle = "#1a1c25";
+    ctx.beginPath(); ctx.moveTo(pad, y + barAreaH); ctx.lineTo(w - pad, y + barAreaH); ctx.stroke();
+    y += barAreaH + 14;
+
+    ctx.fillStyle = "#e6e8ef"; ctx.fillText("how surprised it was", pad, y); y += 8;
+    const maxBits = 4.0;
+    const sFrac = Math.min(1, this.surpriseEMA / maxBits);
+    const meterH = 28;
+    ctx.fillStyle = "#15182240"; ctx.fillRect(pad, y, w - pad * 2, meterH);
+    const fillW = (w - pad * 2) * sFrac;
+    const grad = ctx.createLinearGradient(pad, 0, pad + (w - pad * 2), 0);
+    grad.addColorStop(0, "#7c95c7"); grad.addColorStop(0.5, "#ffd166"); grad.addColorStop(1, "#ff4d6d");
+    ctx.fillStyle = grad; ctx.fillRect(pad, y, fillW, meterH);
+    ctx.fillStyle = "#e6e8ef"; ctx.font = "14px ui-monospace, monospace";
+    ctx.textAlign = "right";
+    ctx.fillText(this.surpriseEMA.toFixed(2), w - pad - 6, y + 19);
+    ctx.textAlign = "left";
+
+    if (this.surpriseEMA > 2.0) {
+      const a = Math.min(0.30, (this.surpriseEMA - 2.0) / 3);
+      ctx.fillStyle = `rgba(255,77,109,${a})`;
+      ctx.fillRect(0, 0, w, h);
+    }
+  }
+
+  drawProbs() {
+    const c = document.getElementById("probs-canvas");
+    const { ctx, w, h } = fit2DCanvas(c);
+    ctx.fillStyle = "#11131c"; ctx.fillRect(0, 0, w, h);
+    const { n_classes, classes } = this.m;
+    const padX = 14;
+    const padTop = 36;
+    const padBottom = 22;
+    const innerW = w - padX * 2;
+    const innerH = h - padTop - padBottom;
+    const barW = innerW / n_classes;
+
+    ctx.strokeStyle = "#1a1c25";
+    ctx.beginPath(); ctx.moveTo(padX, h - padBottom); ctx.lineTo(w - padX, h - padBottom); ctx.stroke();
+
+    let topIdx = 0, topVal = -1;
+    for (let i = 0; i < n_classes; i++)
+      if (this.probsEMA[i] > topVal) { topVal = this.probsEMA[i]; topIdx = i; }
+
+    const curBin = this.currentBin();
+    const actualCol = curBin >= 0 ? this.actualBinClass[curBin] : -1;
+    const isCorrect = actualCol >= 0 && actualCol === topIdx;
+
+    ctx.font = "10px ui-monospace, monospace";
+    ctx.textAlign = "center";
+    for (let i = 0; i < n_classes; i++) {
+      const p = this.probsEMA[i];
+      const x = padX + i * barW + 4;
+      const bw = barW - 8;
+      const bh = p * innerH;
+      const tt = classes[i];
+      ctx.fillStyle = i === topIdx ? "#ffd166" : (this.palette[tt] || "#444");
+      ctx.fillRect(x, h - padBottom - bh, bw, bh);
+
+      // Mark the bar that matches the ACTUAL current trial: full-height
+      // outline + small "actual" tag above. Green when the top guess (gold
+      // fill) lands on the same bar, white otherwise.
+      if (i === actualCol) {
+        ctx.strokeStyle = isCorrect ? "#5be37a" : "#cfd4e2";
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(x - 0.5, h - padBottom - innerH + 0.5, bw + 1, innerH - 1);
+        ctx.fillStyle = isCorrect ? "#5be37a" : "#cfd4e2";
+        ctx.font = "9px ui-monospace, monospace";
+        ctx.fillText("actual", x + bw * 0.5, h - padBottom - innerH - 4);
+        ctx.font = "10px ui-monospace, monospace";
+      }
+
+      ctx.fillStyle = i === topIdx ? "#e6e8ef" : "#6e7280";
+      ctx.fillText(tt, x + bw * 0.5, h - 6);
+      ctx.fillText(p.toFixed(2), x + bw * 0.5, h - padBottom - bh - 4);
+    }
+    ctx.textAlign = "left";
+
+    // Header: title (left) + correctness indicator + rolling accuracy (right).
+    ctx.fillStyle = "#e6e8ef"; ctx.font = "11px ui-monospace, monospace";
+    ctx.fillText("reading the mind", padX, 13);
+    ctx.fillStyle = "#6e7280"; ctx.font = "10px ui-monospace, monospace";
+    ctx.fillText("gold = brain's guess · outline = the actual stimulus · green when they match",
+      padX, 26);
+
+    if (actualCol >= 0) {
+      const acc = this.rollingAccuracy(curBin, 250); // last ~5s @ 20ms bins
+      ctx.textAlign = "right";
+      ctx.font = "11px ui-monospace, monospace";
+      ctx.fillStyle = isCorrect ? "#5be37a" : "#ff6b6b";
+      const mark = isCorrect ? "✓ correct" : "✗ mismatch";
+      ctx.fillText(mark, w - padX, 13);
+      if (acc !== null) {
+        ctx.fillStyle = "#6e7280";
+        ctx.font = "10px ui-monospace, monospace";
+        const accW = ctx.measureText(mark).width + 14;
+        ctx.fillText(`${(acc * 100).toFixed(0)}% correct over last 5s`,
+          w - padX - accW, 13);
+      }
+      ctx.textAlign = "left";
+    }
+  }
+
+  rollingAccuracy(curBin, nBack) {
+    if (curBin < 0) return null;
+    const { n_classes, n_bins } = this.m;
+    const from = Math.max(0, curBin - nBack + 1);
+    let correct = 0, total = 0;
+    for (let b = from; b <= curBin && b < n_bins; b++) {
+      const actual = this.actualBinClass[b];
+      if (actual < 0) continue;
+      // argmax over decoder probs for bin b
+      const off = b * n_classes;
+      let bestC = 0, bestV = -1;
+      for (let c = 0; c < n_classes; c++) {
+        const v = this.probs[off + c];
+        if (v > bestV) { bestV = v; bestC = c; }
+      }
+      if (bestC === actual) correct++;
+      total++;
+    }
+    return total > 0 ? correct / total : null;
+  }
+}
+
+(async function main() {
+  try {
+    const manifest = await (await fetch(MANIFEST_URL)).json();
+    const regionsIndex = await (await fetch(manifest.files.regions_index)).json();
+    // Load all region meshes (drop "root" — we use that as the shell already).
+    const regionAcros = Object.keys(regionsIndex).filter(a => a !== "root");
+    const regionMeshArr = await Promise.all(
+      regionAcros.map(a => loadBrainMesh(regionsIndex[a].file))
+    );
+    const regionMeshes = {};
+    regionAcros.forEach((a, i) => { regionMeshes[a] = regionMeshArr[i]; });
+
+    const [raster, probs, mPreds, mSurprise, ccfCoords, brainMesh, regionAct] = await Promise.all([
+      loadBinary(manifest.files.raster, "u8"),
+      loadBinary(manifest.files.probs, "f32"),
+      loadBinary(manifest.files.markov_preds, "f32"),
+      loadBinary(manifest.files.markov_surprise, "f32"),
+      loadBinary(manifest.files.ccf_xyz, "f32"),
+      loadBrainMesh(manifest.files.brain_mesh),
+      loadBinary(manifest.files.region_activity, "f32"),
+    ]);
+    new Viewer(manifest, raster, probs, mPreds, mSurprise, ccfCoords,
+               brainMesh, regionMeshes, regionsIndex, regionAct);
+  } catch (e) {
+    document.body.innerHTML =
+      `<div class="err">failed to load: ${e.message}<br><br>` +
+      `did you run <code>python prep_session.py</code> and <code>python fetch_brain_mesh.py</code>?<br>` +
+      `and is the server serving this directory?</div>`;
+    console.error(e);
+  }
+})();
+</script>
+</body>
+</html>
