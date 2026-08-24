@@ -44,6 +44,8 @@ import pandas as pd
 
 mpl.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
+from matplotlib.cm import ScalarMappable  # noqa: E402
+from matplotlib.colors import Normalize  # noqa: E402
 from matplotlib.lines import Line2D  # noqa: E402
 from matplotlib.patches import Patch  # noqa: E402
 
@@ -333,6 +335,58 @@ def stacked_composition(ax, table: pd.DataFrame, labels, fontsize=6, min_label=7
     ax.set_axisbelow(True)
 
 
+# ─────────────────── optional continuous colour ───────────────────
+
+# `--color-by` swaps the three-class palette of panels C and G for a
+# continuous scale on one per-synapse number. The default stays the classes:
+# panel K stacks and groups by them, and the 3-class scheme is what keeps this
+# column comparable to the mesoscope column (#156). `robust_snr` is offered
+# because it is the obvious "SNR", but it is a poor gradient — its class
+# medians (2.32 / 2.65 / 2.70 archive-wide) overlap almost completely, and
+# every synapse above 10 is in the glutamate + calcium cohort, whose
+# non-negative dF/F shrinks sigma. `median_event_raw_sd` is the default: same
+# unit as the rest of panel G, and spearman 0.99 with the > 4 SD fraction the
+# classes are ordered by.
+GRADIENT_CMAP = plt.get_cmap("viridis")
+GRADIENT_HALO = "#111111"
+GRADIENT_LABELS = {
+    "median_event_raw_sd": "median event amplitude (SD of noise)",
+    "robust_snr": "95/50 SNR  (P95 − P50) / σ",
+    "frac_events_gt4sd": "% of the synapse's events > 4 SD",
+}
+
+
+def gradient_values(m: pd.DataFrame, col: str) -> pd.Series:
+    """Per-synapse values in the unit the colourbar is labelled with."""
+    v = pd.to_numeric(m[col], errors="coerce")
+    return 100 * v if col.startswith("frac_") else v
+
+
+def gradient_norm(m: pd.DataFrame, col: str) -> Normalize:
+    """2–98th percentile scale; the colourbar is drawn with both extends."""
+    v = gradient_values(m, col).to_numpy(dtype=float)
+    return Normalize(*np.percentile(v[np.isfinite(v)], [2, 98]))
+
+
+def gradient_colorbar(fig, rect, norm, label: str, orientation: str = "horizontal"):
+    """Colourbar at `rect` (figure coordinates), labelled in real units."""
+    cax = fig.add_axes(rect)
+    cb = fig.colorbar(ScalarMappable(norm=norm, cmap=GRADIENT_CMAP), cax=cax,
+                      orientation=orientation, extend="both")
+    cb.outline.set_visible(False)
+    cb.ax.tick_params(labelsize=6, color=INK_2, labelcolor=INK_2, width=0.5, length=2.0)
+    if orientation == "horizontal":
+        cax.set_title(label, fontsize=6.3, color=INK, loc="right", pad=3)
+    else:
+        cb.set_label(label, fontsize=6.3, color=INK)
+    return cb
+
+
+def gradient_suffix(color_by: str | None) -> str:
+    """Gradient variants are written next to the default panels, not over them."""
+    return "" if color_by is None else "_gradient"
+
+
 # ───────────────────────── panel C ─────────────────────────
 
 def coverage_bbox(outlines: list[np.ndarray], pad: int = 12) -> tuple[int, int, int, int]:
@@ -369,7 +423,8 @@ def imaged_segments(activity: np.ndarray, outlines: list[np.ndarray]) -> list[di
     return segs
 
 
-def render_panel_c(sess: dict, metrics: pd.DataFrame, out: Path, dmd: int = 1) -> int:
+def render_panel_c(sess: dict, metrics: pd.DataFrame, out: Path, dmd: int = 1,
+                   color_by: str | None = None) -> int:
     """Both imaging planes, one example synapse footprint, and its trace + events.
 
     Both DMDs are drawn: recording proximal and apical dendrites of the same
@@ -381,6 +436,7 @@ def render_panel_c(sess: dict, metrics: pd.DataFrame, out: Path, dmd: int = 1) -
         raise RuntimeError(f"DMD{dmd} is missing its activity image or segmentation.")
     _, mean_img, outlines = planes[dmd]
     ex = example_synapse(metrics, dmd)
+    norm = None if color_by is None else gradient_norm(usable(metrics), color_by)
 
     tr = sess["traces"][dmd]
     trace, ts = tr["data"][:, ex], tr["ts"]
@@ -391,6 +447,8 @@ def render_panel_c(sess: dict, metrics: pd.DataFrame, out: Path, dmd: int = 1) -
     fig_w = 7.2
     left, right = 0.065, 0.985
     TOP_IN, GAP_IN, ROW2_IN, BOT_IN, PLANE_GAP_IN = 0.42, 0.66, 1.30, 0.52, 0.46
+    if color_by is not None:
+        TOP_IN = 0.95            # headroom for the colourbar that replaces the legend
     avail_in = (right - left) * fig_w
 
     crops = {}
@@ -422,12 +480,22 @@ def render_panel_c(sess: dict, metrics: pd.DataFrame, out: Path, dmd: int = 1) -
                   vmax=np.nanpercentile(crop, 99.5), interpolation="nearest",
                   aspect="equal")
         md = metrics[metrics.dmd == d].set_index("roi")
+        vals = (None if color_by is None
+                else gradient_values(md[md.quality_class.isin(CLASS_ORDER)], color_by))
         for i, ol in enumerate(outs):
             if not ol.any():
                 continue
-            cls = md.quality_class.get(i, "")
-            ax.contour(ol[by0:by1, bx0:bx1], levels=[0.5],
-                       colors=[CLASS_COLORS.get(cls, MUTED)], linewidths=0.55)
+            crop_ol = ol[by0:by1, bx0:bx1]
+            if color_by is None:
+                colour = CLASS_COLORS.get(md.quality_class.get(i, ""), MUTED)
+            else:
+                v = vals.get(i, np.nan)
+                colour = GRADIENT_CMAP(norm(v)) if np.isfinite(v) else MUTED
+                # A dark stroke underneath keeps both ends of the ramp legible:
+                # ROIs sit on bright puncta, the gaps between them are black.
+                ax.contour(crop_ol, levels=[0.5], colors=[GRADIENT_HALO],
+                           linewidths=1.2, alpha=0.55)
+            ax.contour(crop_ol, levels=[0.5], colors=[colour], linewidths=0.55)
         if d == dmd:
             cy, cx = np.argwhere(outlines[ex]).mean(0)
             ax.plot(cx - bx0, cy - by0, marker="o", ms=9, mfc="none", mec=ORANGE, mew=1.0)
@@ -448,11 +516,19 @@ def render_panel_c(sess: dict, metrics: pd.DataFrame, out: Path, dmd: int = 1) -
                      f"segment{'s' if len(segs) != 1 else ''} (dashed)",
                      loc="left", color=INK, pad=6 if k else 14)
         hide_frame(ax)
-        if k == 0:
+        if k == 0 and color_by is None:
             handles = [Line2D([], [], color=CLASS_COLORS[c], lw=1.6, label=c) for c in CLASS_ORDER]
             ax.legend(handles=handles, loc="lower right", ncol=3, handlelength=1.2,
                       labelcolor=INK_2, bbox_to_anchor=(1.0, 1.005), columnspacing=1.2)
         y_cursor -= h_frac + PLANE_GAP_IN / fig_h
+
+    if color_by is not None:
+        cb_w_in = 1.35
+        gradient_colorbar(fig, [right - cb_w_in / fig_w, 1 - 0.36 / fig_h,
+                                cb_w_in / fig_w, 0.075 / fig_h], norm,
+                          GRADIENT_LABELS[color_by])
+        fig.text(right, 1 - 0.62 / fig_h, "colour scale: 2–98th percentile of this session",
+                 ha="right", va="top", fontsize=5.4, color=MUTED)
 
     row2_h = ROW2_IN / fig_h
     trace_w = 0.655
@@ -468,7 +544,14 @@ def render_panel_c(sess: dict, metrics: pd.DataFrame, out: Path, dmd: int = 1) -
     ax.imshow(sub, cmap="gray", vmin=np.nanpercentile(sub, 2),
               vmax=np.nanpercentile(sub, 99.5), interpolation="nearest")
     ax.contour(outlines[ex][zy0:zy1, zx0:zx1], levels=[0.5], colors=[ORANGE], linewidths=1.2)
-    ax.set_title(f"Synapse {ex} footprint\n(mean image)", loc="left", color=INK)
+    if color_by is None:
+        ax.set_title(f"Synapse {ex} footprint\n(mean image)", loc="left", color=INK)
+    else:
+        v = gradient_values(metrics[(metrics.dmd == dmd) & (metrics.roi == ex)],
+                            color_by).iloc[0]
+        ax.set_title(f"Synapse {ex} footprint (mean image)\n"
+                     f"{GRADIENT_LABELS[color_by].split(' (')[0]} {v:.1f}",
+                     loc="left", color=INK)
     hide_frame(ax)
 
     # C-iii: 20 s of ΔF/F for that synapse with detected events.
@@ -495,7 +578,7 @@ def render_panel_c(sess: dict, metrics: pd.DataFrame, out: Path, dmd: int = 1) -
     ax.set_axisbelow(True)
 
     panel_tag(fig, "C")
-    save_panel(fig, out, "figure7_panelC_slap2_glutamate")
+    save_panel(fig, out, "figure7_panelC_slap2_glutamate" + gradient_suffix(color_by))
     print(f"panel C  → example synapse {ex} (DMD{dmd}), {ev['idx'].size} events, "
           f"class {metrics[(metrics.dmd == dmd) & (metrics.roi == ex)].quality_class.iloc[0]}")
     return ex
@@ -572,7 +655,8 @@ def _draw_measurement(ax_z, ax_raw, sess, dmd: int, roi: int, width: float = 5.0
     return t0
 
 
-def _draw_class_examples(axes, sess, metrics: pd.DataFrame, examples: dict) -> None:
+def _draw_class_examples(axes, sess, metrics: pd.DataFrame, examples: dict,
+                         color_by: str | None = None, norm=None) -> None:
     """G-ii: the event-amplitude histogram of one synapse per class."""
     lo_edge, hi_edge = -2.0, 14.0
     bins = np.arange(lo_edge, hi_edge + 0.01, 0.25)
@@ -584,11 +668,17 @@ def _draw_class_examples(axes, sess, metrics: pd.DataFrame, examples: dict) -> N
         tr = sess["traces"][d]
         ev = event_table(tr["data"][:, r], tr["ts"], tr["dt"])
         amps = ev["amp_raw"][np.isfinite(ev["amp_raw"])]
+        if color_by is None:
+            colour, title = CLASS_COLORS[cls], f"{cls} — synapse {r}, DMD{d}"
+        else:
+            v = gradient_values(metrics[(metrics.dmd == d) & (metrics.roi == r)],
+                                color_by).iloc[0]
+            colour, title = GRADIENT_CMAP(norm(v)), f"synapse {r}, DMD{d} — {v:.1f}"
         ax.axvspan(lo_edge, 2, color=BIN_GREYS["lt2"], alpha=0.45, lw=0)
         ax.axvspan(2, SD_LARGE, color=BIN_GREYS["mid"], alpha=0.30, lw=0)
         ax.axvspan(SD_LARGE, hi_edge, color=BIN_GREYS["gt4"], alpha=0.18, lw=0)
         counts, _, _ = ax.hist(np.clip(amps, lo_edge, hi_edge - 1e-6), bins=bins,
-                               color=CLASS_COLORS[cls], edgecolor="white", linewidth=0.3)
+                               color=colour, edgecolor="white", linewidth=0.3)
         ax.set_ylim(0, 1.55 * counts.max())
         f = [(amps < 2).mean(), ((amps >= 2) & (amps < SD_LARGE)).mean(), (amps >= SD_LARGE).mean()]
         for x, frac, b in zip((0.0, 3.0, 9.0), f, ("lt2", "mid", "gt4")):
@@ -598,8 +688,7 @@ def _draw_class_examples(axes, sess, metrics: pd.DataFrame, examples: dict) -> N
         ax.set_xlim(lo_edge, hi_edge)
         ax.set_yticks([])
         ax.spines["left"].set_visible(False)
-        ax.set_title(f"{cls} — synapse {r}, DMD{d}", loc="left", color=INK,
-                     fontsize=6.2, pad=3)
+        ax.set_title(title, loc="left", color=INK, fontsize=6.2, pad=3)
         ax.text(0.985, 0.5, f"{amps.size:,}\nevents", transform=ax.transAxes, ha="right",
                 va="center", fontsize=5.6, color=INK_2, linespacing=1.3)
         ax.set_xticks([0, 2, 4, 8, 12])
@@ -610,34 +699,44 @@ def _draw_class_examples(axes, sess, metrics: pd.DataFrame, examples: dict) -> N
 
 
 def _draw_feature_space(ax, m: pd.DataFrame, title: str, rings: pd.DataFrame | None,
-                        xlim, ylim, legend_loc="upper right") -> None:
+                        xlim, ylim, legend_loc="upper right",
+                        color_by: str | None = None, norm=None) -> None:
     """G-iii: every synapse of one cohort in the (<2 SD %, >4 SD %) plane."""
     n = {c: int((m.quality_class == c).sum()) for c in CLASS_ORDER}
-    for cls in CLASS_ORDER:
-        sel = m[m.quality_class == cls]
-        ax.scatter(100 * sel.frac_events_lt2sd, 100 * sel.frac_events_gt4sd, s=4,
-                   alpha=0.6, color=CLASS_COLORS[cls], linewidths=0, rasterized=True)
+    if color_by is None:
+        for cls in CLASS_ORDER:
+            sel = m[m.quality_class == cls]
+            ax.scatter(100 * sel.frac_events_lt2sd, 100 * sel.frac_events_gt4sd, s=4,
+                       alpha=0.6, color=CLASS_COLORS[cls], linewidths=0, rasterized=True)
+    else:
+        ax.scatter(100 * m.frac_events_lt2sd, 100 * m.frac_events_gt4sd, s=4, alpha=0.75,
+                   c=gradient_values(m, color_by), cmap=GRADIENT_CMAP, norm=norm,
+                   linewidths=0, rasterized=True)
     if rings is not None:
         ax.scatter(100 * rings.frac_events_lt2sd, 100 * rings.frac_events_gt4sd, s=48,
                    facecolors="none", edgecolors=ORANGE, linewidths=1.1, zorder=6)
     ax.set_xlim(*xlim); ax.set_ylim(*ylim)
     ax.set_xlabel("% of the synapse's events < 2 SD")
     ax.set_title(title, loc="left", color=INK, fontsize=6.8)
-    class_legend(ax, n, loc=legend_loc, handlelength=0.9, handleheight=0.9,
-                 handletextpad=0.4, borderpad=0.25, labelspacing=0.3, fontsize=6)
+    if color_by is None:
+        class_legend(ax, n, loc=legend_loc, handlelength=0.9, handleheight=0.9,
+                     handletextpad=0.4, borderpad=0.25, labelspacing=0.3, fontsize=6)
     ax.grid(alpha=0.7)
     ax.set_axisbelow(True)
 
 
 def render_panel_g(sess: dict, m_ex: pd.DataFrame, m_all: pd.DataFrame,
-                   summary: pd.DataFrame, out: Path, dmd: int = 1) -> None:
+                   summary: pd.DataFrame, out: Path, dmd: int = 1,
+                   color_by: str | None = None) -> None:
     """Signal/noise measurement on a trace, and the class definition."""
     roi = example_synapse(m_ex, dmd)
     examples = class_examples(m_ex)
+    norm = None if color_by is None else gradient_norm(usable(m_all), color_by)
 
     fig = plt.figure(figsize=(7.2, 5.3))
-    outer = fig.add_gridspec(2, 1, height_ratios=[1.0, 1.3], hspace=0.42,
-                             left=0.075, right=0.965, top=0.93, bottom=0.09)
+    outer = fig.add_gridspec(2, 1, height_ratios=[1.0, 1.3], hspace=0.42, left=0.075,
+                             right=0.965 if color_by is None else 0.915,
+                             top=0.93, bottom=0.09)
     top = outer[0].subgridspec(2, 1, hspace=0.12, height_ratios=[1.0, 1.15])
     ax_z = fig.add_subplot(top[0])
     ax_raw = fig.add_subplot(top[1], sharex=ax_z)
@@ -648,7 +747,7 @@ def render_panel_g(sess: dict, m_ex: pd.DataFrame, m_all: pd.DataFrame,
     bot = outer[1].subgridspec(1, 3, width_ratios=[1.18, 1.0, 1.0], wspace=0.26)
     hist_gs = bot[0].subgridspec(3, 1, hspace=0.55)
     hist_axes = [fig.add_subplot(hist_gs[i]) for i in range(3)]
-    _draw_class_examples(hist_axes, sess, m_ex, examples)
+    _draw_class_examples(hist_axes, sess, m_ex, examples, color_by, norm)
 
     # Feature space, one axis per acquisition cohort (the cohorts were
     # packaged by different extraction pipelines and classes are fitted within
@@ -667,17 +766,27 @@ def render_panel_g(sess: dict, m_ex: pd.DataFrame, m_all: pd.DataFrame,
         _draw_feature_space(
             ax, mc, f"{COHORT[coh]}\n{len(sc)} sessions, {sc.subject.nunique()} mice, "
                     f"{len(mc):,} synapses", rings, xlim, ylim,
-            legend_loc="lower right" if coh else "upper right")
+            legend_loc="lower right" if coh else "upper right",
+            color_by=color_by, norm=norm)
     axes_fs[0].set_ylabel("% of the synapse's events > 4 SD")
     axes_fs[1].tick_params(labelleft=False)
-    axes_fs[0].text(0, -0.2, "k-means (k = 3) on each synapse's (< 2, 2–4, > 4 SD) "
-                    "fractions, fitted per acquisition cohort; classes ordered by the > 4 SD "
-                    "fraction.\nRings: the three example synapses at left.",
+    if color_by is None:
+        caption = ("k-means (k = 3) on each synapse's (< 2, 2–4, > 4 SD) fractions, fitted "
+                   "per acquisition cohort; classes ordered by the > 4 SD fraction.")
+    else:
+        fig.canvas.draw()
+        pos = axes_fs[1].get_position()
+        gradient_colorbar(fig, [pos.x1 + 0.016, pos.y0, 0.013, pos.height], norm,
+                          GRADIENT_LABELS[color_by], orientation="vertical")
+        caption = ("Colour: each synapse's own value on the scale at right — one continuum, "
+                   "not three classes.\nThe glutamate + calcium cohort reads warmer because "
+                   "its ΔF/F is non-negative (NMF-denoised), which shrinks σ.")
+    axes_fs[0].text(0, -0.2, caption + "\nRings: the three example synapses at left.",
                     transform=axes_fs[0].transAxes, fontsize=5.8, color=MUTED, va="top",
                     linespacing=1.4)
 
     panel_tag(fig, "G")
-    save_panel(fig, out, "figure7_panelG_slap2_glutamate")
+    save_panel(fig, out, "figure7_panelG_slap2_glutamate" + gradient_suffix(color_by))
     print(f"panel G  → trace window from {t0 - np.nanmin(sess['traces'][dmd]['ts']):.0f} s; "
           f"class examples {examples}")
 
@@ -847,6 +956,10 @@ def main() -> None:
     ap.add_argument("--cache", type=Path, default=None,
                     help="local directory to cache the example session's arrays (.npz)")
     ap.add_argument("--only", default="CGK", help="subset of panels to render, e.g. GK")
+    ap.add_argument("--color-by", default=None, choices=list(GRADIENT_LABELS),
+                    help="colour panels C and G by this per-synapse value on a continuous "
+                         "scale instead of the three quality classes; writes *_gradient "
+                         "files next to the defaults (panel K always uses the classes)")
     args = ap.parse_args()
 
     args.output.mkdir(parents=True, exist_ok=True)
@@ -868,9 +981,9 @@ def main() -> None:
 
     sess = load_session_cached(args.nwb, args.cache) if set("CG") & set(args.only) else None
     if "C" in args.only:
-        render_panel_c(sess, m_ex, args.output)
+        render_panel_c(sess, m_ex, args.output, color_by=args.color_by)
     if "G" in args.only:
-        render_panel_g(sess, m_ex, m_all, summary, args.output)
+        render_panel_g(sess, m_ex, m_all, summary, args.output, color_by=args.color_by)
     if "K" in args.only:
         render_panel_k(m_all, ctx_all, args.output)
     print(f"\nWrote panels to {args.output}")
