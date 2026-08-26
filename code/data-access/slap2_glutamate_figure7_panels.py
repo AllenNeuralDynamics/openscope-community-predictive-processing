@@ -701,7 +701,7 @@ def _draw_class_examples(axes, sess, metrics: pd.DataFrame, examples: dict,
 def _draw_feature_space(ax, m: pd.DataFrame, title: str, rings: pd.DataFrame | None,
                         xlim, ylim, legend_loc="upper right",
                         color_by: str | None = None, norm=None) -> None:
-    """G-iii: every synapse of one cohort in the (<2 SD %, >4 SD %) plane."""
+    """G-iii: every classified synapse of the archive in the (<2 SD %, >4 SD %) plane."""
     n = {c: int((m.quality_class == c).sum()) for c in CLASS_ORDER}
     if color_by is None:
         for cls in CLASS_ORDER:
@@ -744,46 +744,38 @@ def render_panel_g(sess: dict, m_ex: pd.DataFrame, m_all: pd.DataFrame,
     ax_z.set_title(f"Measuring signal and noise on a trace — synapse {roi}, "
                    f"{COMPARTMENT[dmd]}", loc="left", color=INK, pad=5)
 
-    bot = outer[1].subgridspec(1, 3, width_ratios=[1.18, 1.0, 1.0], wspace=0.26)
+    bot = outer[1].subgridspec(1, 2, width_ratios=[1.0, 1.3], wspace=0.24)
     hist_gs = bot[0].subgridspec(3, 1, hspace=0.55)
     hist_axes = [fig.add_subplot(hist_gs[i]) for i in range(3)]
     _draw_class_examples(hist_axes, sess, m_ex, examples, color_by, norm)
 
-    # Feature space, one axis per acquisition cohort (the cohorts were
-    # packaged by different extraction pipelines and classes are fitted within
-    # each; see slap2_glutamate_qc_batch.fit_cohort_classes).
+    # Feature space: every classified synapse of the archive, one class fit
+    # over all sessions (slap2_glutamate_qc_batch.fit_archive_classes).
     m = usable(m_all)
     xlim = (0, np.ceil(100 * m.frac_events_lt2sd.max() / 5) * 5)
     ylim = (np.floor(100 * m.frac_events_gt4sd.min() / 10) * 10, 100)
-    axes_fs = [fig.add_subplot(bot[1]), fig.add_subplot(bot[2])]
-    for ax, coh in zip(axes_fs, (False, True)):
-        mc = m[m.has_calcium.astype(bool) == coh]
-        sc = summary[summary.has_calcium.astype(bool) == coh]
-        rings = None
-        if coh == bool(m_ex.has_calcium.iloc[0]):
-            keys = set(examples.values())
-            rings = m_ex[[(d, r) in keys for d, r in zip(m_ex.dmd, m_ex.roi)]]
-        _draw_feature_space(
-            ax, mc, f"{COHORT[coh]}\n{len(sc)} sessions, {sc.subject.nunique()} mice, "
-                    f"{len(mc):,} synapses", rings, xlim, ylim,
-            legend_loc="lower right" if coh else "upper right",
-            color_by=color_by, norm=norm)
-    axes_fs[0].set_ylabel("% of the synapse's events > 4 SD")
-    axes_fs[1].tick_params(labelleft=False)
+    ax_fs = fig.add_subplot(bot[1])
+    keys = set(examples.values())
+    rings = m_ex[[(d, r) in keys for d, r in zip(m_ex.dmd, m_ex.roi)]]
+    _draw_feature_space(
+        ax_fs, m, f"All sessions — {summary.session.nunique()} sessions, "
+                  f"{summary.subject.nunique()} mice, {len(m):,} synapses",
+        rings, xlim, ylim, legend_loc="upper right", color_by=color_by, norm=norm)
+    ax_fs.set_ylabel("% of the synapse's events > 4 SD")
     if color_by is None:
-        caption = ("k-means (k = 3) on each synapse's (< 2, 2–4, > 4 SD) fractions, fitted "
-                   "per acquisition cohort; classes ordered by the > 4 SD fraction.")
+        caption = ("k-means (k = 3) on each synapse's (< 2, 2–4, > 4 SD) fractions, one fit "
+                   "over all sessions; classes ordered by the > 4 SD fraction.")
     else:
         fig.canvas.draw()
-        pos = axes_fs[1].get_position()
+        pos = ax_fs.get_position()
         gradient_colorbar(fig, [pos.x1 + 0.016, pos.y0, 0.013, pos.height], norm,
                           GRADIENT_LABELS[color_by], orientation="vertical")
         caption = ("Colour: each synapse's own value on the scale at right — one continuum, "
-                   "not three classes.\nThe glutamate + calcium cohort reads warmer because "
-                   "its ΔF/F is non-negative (NMF-denoised), which shrinks σ.")
-    axes_fs[0].text(0, -0.2, caption + "\nRings: the three example synapses at left.",
-                    transform=axes_fs[0].transAxes, fontsize=5.8, color=MUTED, va="top",
-                    linespacing=1.4)
+                   "not three classes.\nThe glutamate + calcium sessions read warmer because "
+                   "their ΔF/F is non-negative (NMF-denoised), which shrinks σ.")
+    ax_fs.text(0, -0.2, caption + "\nRings: the three example synapses at left.",
+               transform=ax_fs.transAxes, fontsize=5.8, color=MUTED, va="top",
+               linespacing=1.4)
 
     panel_tag(fig, "G")
     save_panel(fig, out, "figure7_panelG_slap2_glutamate" + gradient_suffix(color_by))
@@ -792,6 +784,9 @@ def render_panel_g(sess: dict, m_ex: pd.DataFrame, m_all: pd.DataFrame,
 
 
 # ───────────────────────── panel K ─────────────────────────
+
+MIN_CLASS_N = 10   # a class with fewer synapses in a cohort gets no bars
+
 
 def _rate_bars(ax, d: pd.DataFrame, contexts: list[tuple[str, str]],
                n_cls: dict) -> None:
@@ -802,6 +797,8 @@ def _rate_bars(ax, d: pd.DataFrame, contexts: list[tuple[str, str]],
         means, errs = [], []
         for c, _ in contexts:
             v = d[(d.context == c) & (d.quality_class == cls)]["rate_hz"].dropna()
+            if n_cls[cls] < MIN_CLASS_N:
+                v = v.iloc[:0]
             means.append(v.mean() if len(v) else np.nan)
             errs.append(v.std(ddof=1) / np.sqrt(len(v)) if len(v) > 1 else np.nan)
         ax.bar(xs + (k - 1) * width, means, width * 0.92, yerr=errs, capsize=1.3,
@@ -842,9 +839,11 @@ def render_panel_k(m_all: pd.DataFrame, ctx: pd.DataFrame, out: Path) -> None:
         mc = m[m.session.isin(sessions)]
         n_cls = {c: int((mc.quality_class == c).sum()) for c in CLASS_ORDER}
         _rate_bars(ax, d, cs, n_cls)
+        hidden = [c for c in CLASS_ORDER if n_cls[c] < MIN_CLASS_N]
         ax.set_title(f"{COHORT[coh]} — {len(sessions)} sessions, {mc.subject.nunique()} mice\n"
                      f"Low {n_cls['Low SNR']:,} · Intermediate {n_cls['Intermediate']:,} · "
-                     f"High {n_cls['High SNR']:,} synapses",
+                     f"High {n_cls['High SNR']:,} synapses"
+                     + (f" ({', '.join(hidden)} not drawn: n < {MIN_CLASS_N})" if hidden else ""),
                      loc="left", color=INK, fontsize=5.9, pad=4)
         if coh:
             ax.tick_params(axis="x", labelsize=5.1)
@@ -926,11 +925,11 @@ def render_panel_k(m_all: pd.DataFrame, ctx: pd.DataFrame, out: Path) -> None:
                  loc="left", color=INK, fontsize=6.8, pad=27)
     ax.grid(axis="y", alpha=0.7)
     ax.set_axisbelow(True)
-    fig.text(0.075, 0.012, "Classes are fitted per acquisition cohort: the two cohorts were "
-             "packaged by different extraction pipelines (glutamate + calcium ΔF/F is "
-             "non-negative and denoised),\nso the class split is not a prep-quality "
-             "comparison between them.", fontsize=5.8, color=MUTED, va="bottom",
-             linespacing=1.4)
+    fig.text(0.075, 0.012, "One class fit over all sessions. The two cohorts were packaged by "
+             "different extraction pipelines (glutamate + calcium ΔF/F is non-negative and "
+             "denoised, so its noise σ is smaller),\nwhich is why nearly all of that cohort's "
+             "synapses fall in the High SNR class — not a prep-quality comparison.",
+             fontsize=5.8, color=MUTED, va="bottom", linespacing=1.4)
 
     panel_tag(fig, "K")
     save_panel(fig, out, "figure7_panelK_slap2_glutamate")
@@ -969,7 +968,7 @@ def main() -> None:
     ctx_all = pd.read_csv(args.metrics / "slap2_context_rates_all_sessions.csv")
     summary = pd.read_csv(args.metrics / "slap2_session_summary.csv")
     if "quality_class" not in m_all.columns or not m_all.quality_class.isin(CLASS_ORDER).any():
-        raise SystemExit("metrics table has no cohort classes — run "
+        raise SystemExit("metrics table has no quality classes — run "
                          "`slap2_glutamate_qc_batch.py --refit-only` first")
 
     sid = session_id(args.nwb)

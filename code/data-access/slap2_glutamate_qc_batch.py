@@ -22,15 +22,16 @@ Quality classes come in two flavours, both kept in the metrics table:
 
   quality_class_session   k-means fitted within each session (what
                           `slap2_glutamate_qc_events.compute` gives for a single file)
-  quality_class           k-means fitted once per acquisition cohort — this is
-                          the label the Figure 7 panels use, and the one copied
-                          into the context-rate table.
+  quality_class           k-means fitted once over all sessions of the archive —
+                          this is the label the Figure 7 panels use, and the one
+                          copied into the context-rate table.
 
-The cohort split is forced by the archive: the 12 glutamate-only sessions ship
-two-sided ΔF/F (about a quarter of the samples below zero), while the 8
-glutamate + calcium sessions ship non-negative, NMF-denoised traces. The two are
-on different noise scales, so one fit over all 20 sessions would mostly sort
-synapses by pipeline rather than by signal quality.
+One yardstick for the whole archive means the two acquisition cohorts are not
+on equal footing: the 12 glutamate-only sessions ship two-sided ΔF/F (about a
+quarter of the samples below zero), while the 8 glutamate + calcium sessions
+ship non-negative, NMF-denoised traces whose noise σ is smaller. Under the
+archive-wide fit nearly all synapses of the second cohort land in the High SNR
+class; that is a property of how the traces were packaged, not of the preps.
 
 Usage:
     python slap2_glutamate_qc_batch.py --output docs/notebooks/plots_figure7_slap2_glutamate \
@@ -227,14 +228,14 @@ def process(nwb_path: Path, subject: str, session: str):
         io.close()
 
 
-def fit_cohort_classes(out_dir: Path) -> pd.DataFrame:
-    """Fit quality classes once per acquisition cohort and write them back.
+def fit_archive_classes(out_dir: Path) -> pd.DataFrame:
+    """Fit quality classes once over every session and write them back.
 
-    Reads `slap2_metrics_all_sessions.csv`, runs `assign_classes` separately on
-    the glutamate-only and the glutamate + calcium sessions, stores the result
-    as `quality_class` (keeping `quality_class_session`), and copies the label
-    into `slap2_context_rates_all_sessions.csv`. Safe to re-run; it only
-    touches the class columns.
+    Reads `slap2_metrics_all_sessions.csv`, runs `assign_classes` on all
+    synapses of the archive together, stores the result as `quality_class`
+    (keeping `quality_class_session`), and copies the label into
+    `slap2_context_rates_all_sessions.csv`. Safe to re-run; it only touches
+    the class columns.
     """
     mpath = out_dir / "slap2_metrics_all_sessions.csv"
     cpath = out_dir / "slap2_context_rates_all_sessions.csv"
@@ -243,10 +244,7 @@ def fit_cohort_classes(out_dir: Path) -> pd.DataFrame:
         m = m.rename(columns={"quality_class": "quality_class_session"})
     m = m.drop(columns=["quality_class"], errors="ignore")
 
-    parts = []
-    for _, grp in m.groupby("has_calcium", sort=True):
-        parts.append(assign_classes(grp.reset_index(drop=True)))
-    m = pd.concat(parts, ignore_index=True).sort_values(
+    m = assign_classes(m.reset_index(drop=True)).sort_values(
         ["subject", "session", "dmd", "roi"]).reset_index(drop=True)
     m.to_csv(mpath, index=False)
 
@@ -266,7 +264,7 @@ def fit_cohort_classes(out_dir: Path) -> pd.DataFrame:
         summ = pd.read_csv(spath).drop(columns=list(cols.values()), errors="ignore")
         summ.merge(counts, on=["subject", "session"], how="left").to_csv(spath, index=False)
 
-    print("\nQuality classes per cohort (k-means within cohort):")
+    print("\nQuality classes (one k-means fit over all sessions), by cohort:")
     tab = pd.crosstab(m.has_calcium.map({False: "glutamate only",
                                          True: "glutamate + calcium"}),
                       m.quality_class)
@@ -314,13 +312,13 @@ def main() -> None:
                          "them (use with --only to re-run a single session)")
     ap.add_argument("--keep-downloads", action="store_true")
     ap.add_argument("--refit-only", action="store_true",
-                    help="skip the per-session pass; only refit the cohort "
+                    help="skip the per-session pass; only refit the archive-wide "
                          "classes on the existing metrics table")
     args = ap.parse_args()
 
     args.output.mkdir(parents=True, exist_ok=True)
     if args.refit_only:
-        fit_cohort_classes(args.output)
+        fit_archive_classes(args.output)
         return
     args.cache.mkdir(parents=True, exist_ok=True)
 
@@ -371,7 +369,7 @@ def main() -> None:
     for f in failures:
         print(f"  FAILED {f['session']}: {f['error']}")
     if summaries:
-        fit_cohort_classes(args.output)
+        fit_archive_classes(args.output)
 
 
 if __name__ == "__main__":
