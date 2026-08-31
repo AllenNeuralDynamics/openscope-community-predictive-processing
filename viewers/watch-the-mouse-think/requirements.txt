@@ -1,0 +1,7 @@
+pynwb
+hdmf
+dandi
+h5py
+numpy<2
+scikit-learn
+tqdm
