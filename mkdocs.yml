@@ -36,6 +36,7 @@ nav:
   - Analysis:
     - SLAP2 pilot data analysis: pilotanalysis.md
     - SLAP2 pilot notebook: notebooks/pilot_analysis_rfs.ipynb
+    - SLAP2 glutamate Figure 7 panels (C, G, K): notebooks/slap2_glutamate_figure7_panels.ipynb
     - DFF calculation notebook: notebooks/dff_calculation.ipynb
     - Intro to Ephys NWBs: notebooks/intro_to_ephys_nwbs.ipynb
     - Stream NWB from S3: notebooks/stream_nwb_from_s3.ipynb
