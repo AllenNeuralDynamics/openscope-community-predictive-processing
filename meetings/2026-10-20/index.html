@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html class="writer-html5" lang="en" >
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><link rel="canonical" href="https://allenneuraldynamics.github.io/openscope-community-predictive-processing/meetings/2026-10-20/" />
+      <link rel="shortcut icon" href="../../img/favicon.ico" />
+    <title>2026-10-20 - OpenScope Community Predictive Processing</title>
+    <link rel="stylesheet" href="../../css/theme.css" />
+    <link rel="stylesheet" href="../../css/theme_extra.css" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css" />
+        <link href="../../custom.css" rel="stylesheet" />
+    
+      <script>
+        // Current page data
+        var mkdocs_page_name = "2026-10-20";
+        var mkdocs_page_input_path = "meetings/2026-10-20.md";
+        var mkdocs_page_url = "/openscope-community-predictive-processing/meetings/2026-10-20/";
+      </script>
+    
+    <!--[if lt IE 9]>
+      <script src="../../js/html5shiv.min.js"></script>
+    <![endif]-->
+      <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+      <script>hljs.highlightAll();</script> 
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+    <div class="wy-side-scroll">
+      <div class="wy-side-nav-search">
+          <a href="../.." class="icon icon-home"> OpenScope Community Predictive Processing
+        </a><div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+      <input type="text" name="q" placeholder="Search docs" aria-label="Search docs" title="Type search term here" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="Navigation menu">
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../..">Home</a>
+                </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../data-access/">Data Access</a>
+                </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Plan</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../experimental-plan/">Overview</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../detailed-experimental-plan/">Experimental Plan</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../analysis-plan/">Analysis Plan</a>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Resources</span></p>
+              <ul>
+                  <li class="toctree-l1"><a class="reference internal" href="../../experiment-summary/">Experiment Summary</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Stimuli</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/bonsai_introduction/">Introduction to Bonsai</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/bonsai_instructions/">Bonsai Instructions</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/bonsai_for_python_programmers/">Bonsai for Python Programmers</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/experimental-launcher/">Experimental Launcher</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/list_scripts/">List of scripts</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/standard-oddball/">Standard Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/standard-oddball-jitter-random/">Standard Oddball Jitter Random</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/sensory-motor-closed-loop/">Sensory-Motor Closed-Loop</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/sensory-motor-coupling/">Sensory-Motor Coupling</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/sequence-mismatch/">Sequence Mismatch</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/generic-oddball/">Generic Oddball</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../stimuli/gamma-calibration/">Gamma Calibration</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Hardware</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware-overview/">Hardware Overview</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/behavior_training/">Behavioral</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_slap2_hardware/">SLAP2</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_neuropixels_hardware/">Neuropixels</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/allen_institute_mesoscope_hardware/">Mesoscope</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../hardware/wheel_encoder_plugin/">Wheel Encoder Plugin</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Templates</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../template-files/mouse_experiment_template/">Experiment Template</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../template-files/meeting_template/">Meeting Template</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Analysis</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../pilotanalysis/">SLAP2 pilot data analysis</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/pilot_analysis_rfs/">SLAP2 pilot notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/dff_calculation/">DFF calculation notebook</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/intro_to_ephys_nwbs/">Intro to Ephys NWBs</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/stream_nwb_from_s3/">Stream NWB from S3</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../notebooks/examine_ophys_nwb/">Examine Ophys NWB</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Experiments</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" >allen_institute</a>
+    <ul>
+                <li class="toctree-l3"><a class="reference internal" >ecephys</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-4/">allen_institute_820454_2025-11-4</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-5/">allen_institute_820454_2025-11-5</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-6/">allen_institute_820454_2025-11-6</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820454_2025-11-7/">allen_institute_820454_2025-11-7</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-10/">allen_institute_820459_2025-11-10</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_820459_2025-11-12/">allen_institute_820459_2025-11-12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/ecephys/allen_institute_mouseID_YYYY-MM-DD/">allen_institute_mouseID_YYYY-MM-DD</a>
+                </li>
+    </ul>
+                </li>
+                <li class="toctree-l3"><a class="reference internal" >slap2</a>
+    <ul>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_776270_2025-07-02/">allen_institute_776270_2025-07-02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_787727_2025-03-27/">allen_institute_787727_2025-03-27</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-04-03/">allen_institute_794237_2025-04-03</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-04-24/">allen_institute_794237_2025-04-24</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_794237_2025-05-08/">allen_institute_794237_2025-05-08</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_08_25/">allen_institute_796630_2025_08_25</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_08_28/">allen_institute_796630_2025_08_28</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_09_26/">allen_institute_796630_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796630_2025_10_01/">allen_institute_796630_2025_10_01</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_796632_2025_09_26/">allen_institute_796632_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025-05-29/">allen_institute_801381_2025-05-29</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025-06-05/">allen_institute_801381_2025-06-05</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025_09_26/">allen_institute_801381_2025_09_26</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_801381_2025_10_02/">allen_institute_801381_2025_10_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_803496_2025_07_02/">allen_institute_803496_2025_07_02</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_809006_2025_08_22/">allen_institute_809006_2025_08_22</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_820409_2025_11_11/">allen_institute_820409_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_11/">allen_institute_828408_2025_11_11</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_12/">allen_institute_828408_2025_11_12</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_828408_2025_11_13/">allen_institute_828408_2025_11_13</a>
+                </li>
+                <li class="toctree-l4"><a class="reference internal" href="../../experiments/allen_institute/slap2/allen_institute_NA_2025-03-20/">allen_institute_NA_2025-03-20</a>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <p class="caption"><span class="caption-text">Project Management</span></p>
+              <ul class="current">
+                  <li class="toctree-l1"><a class="reference internal" href="../../people/">Team</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../how_to_contribute/">How to Contribute</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../collaboration-policy/">Collaboration Policy</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" href="../../project-tracking/">Project Tracking</a>
+                  </li>
+                  <li class="toctree-l1"><a class="reference internal" >Website Development</a>
+    <ul>
+                <li class="toctree-l2"><a class="reference internal" href="../../how_to_serve_locally/">Serving Locally</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../../github-actions-automation/">GitHub Actions Automation</a>
+                </li>
+    </ul>
+                  </li>
+                  <li class="toctree-l1 current"><a class="reference internal current" >Meetings</a>
+    <ul class="current">
+                <li class="toctree-l2"><a class="reference internal" href="../2025-04-21/">2025-04-21</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-05-06/">2025-05-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-05-13/">2025-05-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-05-20/">2025-05-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-05-27/">2025-05-27</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-06-03/">2025-06-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-06-10/">2025-06-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-06-17/">2025-06-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-06-24/">2025-06-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-07-01/">2025-07-01</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-07-08/">2025-07-08</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-07-15/">2025-07-15</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-07-22/">2025-07-22</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-07-29/">2025-07-29</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-08-05/">2025-08-05</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-08-12/">2025-08-12</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-08-19/">2025-08-19</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-08-26/">2025-08-26</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-09-02/">2025-09-02</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-09-09/">2025-09-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-09-16/">2025-09-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-09-23/">2025-09-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-09-30/">2025-09-30</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-10-03/">2025-10-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-10-07/">2025-10-07</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-10-14/">2025-10-14</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-10-20/">2025-10-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-10-28/">2025-10-28</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-11-18/">2025-11-18</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-11-25/">2025-11-25</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-12-09/">2025-12-09</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-12-16/">2025-12-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2025-12-23/">2025-12-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-01-06/">2026-01-06</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-01-13/">2026-01-13</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-01-20/">2026-01-20</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-02-03/">2026-02-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-02-10/">2026-02-10</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-02-17/">2026-02-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-02-24/">2026-02-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-03-03/">2026-03-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-03-17/">2026-03-17</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-03-24/">2026-03-24</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-03-31/">2026-03-31</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-04-07/">2026-04-07</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-04-14/">2026-04-14</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-04-21/">2026-04-21</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-05-05/">2026-05-05</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-05-12/">2026-05-12</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-05-19/">2026-05-19</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-05-26/">2026-05-26</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-06-02/">2026-06-02</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-06-16/">2026-06-16</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-06-23/">2026-06-23</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-06-30/">2026-06-30</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-07-07/">2026-07-07</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-07-14/">2026-07-14</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-07-21/">2026-07-21</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-08-04/">2026-08-04</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-08-11/">2026-08-11</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-08-18/">2026-08-18</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-08-25/">2026-08-25</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-09-01/">2026-09-01</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-09-08/">2026-09-08</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-09-15/">2026-09-15</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-09-22/">2026-09-22</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-10-06/">2026-10-06</a>
+                </li>
+                <li class="toctree-l2 current"><a class="reference internal current" href="#">2026-10-20</a>
+    <ul class="current">
+    </ul>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-11-03/">2026-11-03</a>
+                </li>
+                <li class="toctree-l2"><a class="reference internal" href="../2026-11-10/">2026-11-10</a>
+                </li>
+    </ul>
+                  </li>
+              </ul>
+              <ul>
+                <li class="toctree-l1"><a class="reference internal" href="../../faq/">FAQ</a>
+                </li>
+              </ul>
+      </div>
+    </div>
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+      <nav class="wy-nav-top" role="navigation" aria-label="Mobile navigation menu">
+          <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+          <a href="../..">OpenScope Community Predictive Processing</a>
+        
+      </nav>
+      <div class="wy-nav-content">
+        <div class="rst-content"><div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../.." class="icon icon-home" aria-label="Docs"></a></li>
+          <li class="breadcrumb-item">Project Management</li>
+          <li class="breadcrumb-item">Meetings</li>
+      <li class="breadcrumb-item active">2026-10-20</li>
+    <li class="wy-breadcrumbs-aside">
+          <a href="https://github.com/allenneuraldynamics/openscope-community-predictive-processing/edit/main/docs/meetings/2026-10-20.md">Edit</a>
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main" class="document" itemscope="itemscope" itemtype="http://schema.org/Article">
+            <div class="section" itemprop="articleBody">
+              
+                <ul>
+<li><strong>Date:</strong> 2026-10-20</li>
+<li><strong>Time:</strong> 09:00AM (PT)</li>
+<li><strong>Location:</strong> <a href="https://teams.microsoft.com/l/meetup-join/19%3ameeting_ZDIxNjk0YTEtZTc4Ny00MGE5LWE4YmYtZmJiZDMwZmU4MGQ0%40thread.v2/0?context=%7b%22Tid%22%3a%2232669cd6-737f-4b39-8bdd-d6951120d3fc%22%2c%22Oid%22%3a%229396d18b-b5cf-4bed-98a0-1cfb7dc82663%22%7d">Teams Meeting</a></li>
+</ul>
+<h2 id="agenda">Agenda</h2>
+<p>We will have a presentation from Marina Garrett's team on spatial trasnscriptomic + mesoscope imaging. They will present some of the earliest spatial transcriptomics results to map inhibitory cell types in the mesoscope mice from our community data release. 
+@matchings
+@mattjdavis
+@jkim0731</p>
+<h2 id="meeting-recording">Meeting Recording</h2>
+<iframe width="100%" height="450" src="https://www.youtube.com/embed/gadJoUHNK40" title="OpenScope Predictive Processing Weekly Meeting" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen></iframe>
+<p>.</p>
+<h2 id="meeting-notes">Meeting Notes</h2>
+<p><strong>Scientific Motivation And Cell-Type Analysis</strong> Marina explained that adding spatial transcriptomic cell-type labels to the P3 mesoscope recordings will support direct analysis of excitatory and inhibitory contributions to prediction errors, including subtype-specific interactions that cannot be resolved reliably across separate experiments. </p>
+<p>Prediction-Error Question: Marina framed the central question as how excitatory and inhibitory neurons contribute to different prediction errors. VIP and SST populations have shown different responses to mismatch, oddball, novelty, and expectation across prior studies, but differences in paradigms and recording methods make those findings difficult to reconcile. </p>
+<p>Multimodal Strategy: The P3 project addresses this by measuring multiple predictive computations in the same animals and neurons using mesoscope calcium imaging, neuropixels, and synaptic-level imaging. Spatial transcriptomics adds genetic identities to the physiological recordings. </p>
+<p>Subtype Diversity: Marina emphasized that canonical VIP, SST, and PV circuit descriptions are simplified. Additional markers such as Calb2, NPY, and related genes can distinguish subpopulations with different layers, inputs, connectivity, and likely roles in predictive processing. </p>
+<p>Analysis Opportunities: The resulting data can be analyzed either using discrete cell-type labels or continuous gene-expression values, allowing researchers to compare physiological responses across inhibitory subclasses and finer subtypes. </p>
+<p><strong>Targeted Tissue Collection And HCR Processing:</strong> Jazmin described how the team extracts the mesoscope field of view from tissue with a cranial window, labels multiple genes through expansion microscopy and multi-round HCR, and images the resulting sample with light-sheet microscopy. </p>
+<p>Targeted Sectioning: Because mesoscope mice retain a cranial window, the team uses tangential sectioning and vascular landmarks to locate the recorded field of view. In-vivo vascular images are matched to ex-vivo vasculature, enabling a guide-based microdissection that produces a small tissue piece centered on the target region. </p>
+<p>Targeted Imaging: The tissue is first imaged at overview scale, then the sectioning and macrodissection images are used to target a small area around the recorded field of view, typically represented by a 5-by-5 tile image. This targeting is intended to preserve image quality and make downstream processing more efficient. </p>
+<p>Expansion And HCR: The microdissected tissue is embedded in gel, cleared, expanded, and processed using Hybridization Chain Reaction. Multiple genes are labeled across successive rounds, followed by light-sheet imaging after each round until the experiment is complete. </p>
+<p>Vascular-Image Clarification: In response to Jerome's question, Jazmin clarified that vascular stacks support sectioning and targeting. Marina added that the surface image is primarily used for alignment and targeting, while the full volume is used later during co-registration. </p>
+<p><strong>Multimodal Registration And Gene Quantification:</strong> Matt detailed the computational workflow that aligns in-vivo mesoscope volumes with ex-vivo HCR tissue, detects transcript spots, assigns them to cells, and produces cell-by-gene tables with cross-session and cross-modality identifiers. </p>
+<p>Registration Workflow: The workflow matches individual imaging planes across sessions, assigns unified cell IDs, registers those planes to a three-dimensional cortical z-stack, and then co-registers the z-stack with the HCR light-sheet volume. Jinho and Omid contributed to the automated registration process. </p>
+<p>Gene Panel: The first HCR round labels Slc17a7 as an excitatory marker. The second labels Calb2, Npy, and Pvalb, and the third labels Gad2, Vip, and Sst, providing broad excitatory and inhibitory identification plus subclass and subtype information. </p>
+<p>Transcript Detection: For each channel and round, the pipeline applies cell segmentation masks, sets background using the 25th percentile, performs a Laplacian-of-Gaussian transform and local-maxima detection, filters peaks using signal thresholds, prunes duplicate detections, fits Gaussian spot centroids, and assigns each transcript to a cell. </p>
+<p>Data Products: The principal output is a cell-by-gene table containing transcript counts for each cell, accompanied by identifiers linking cells to imaging sessions, cortical planes, the three-dimensional z-stack, and HCR tissue. </p>
+<p><strong>Cell Typing And Registration Yield:</strong> Matt showed initial results for one mouse, including inhibitory-cell clustering and cortical depth distributions, while the group discussed registration yield, missing layer annotations, and planned improvements for dense pan-neuronal data. </p>
+<p>Inhibitory Clustering: For the initial mouse, Matt reported approximately 7,350 detected inhibitory cells. GAD2-positive cells were assigned to Pvalb, SST, VIP, or residual Lamp5 subclasses using thresholds, and K-means clustering within each subclass used markers including Pvalb, SST, VIP, NPY, and Calb2 to identify additional subtypes. </p>
+<p>Spatial Validation: The subtype distributions followed expected cortical organization: Lamp5 cells were biased toward superficial regions, VIP cells toward layers two and three, and SST and Pvalb cells toward deeper layers. Matt and Marina described this agreement with known biology as an initial validation of the labels. </p>
+<p>Co-Registered Cells: The first demonstrated dataset contained 54 co-registered inhibitory cells with physiology and transcriptomic identities. The team was refining quality control and attempting to recover cells from a deeper imaging plane affected by low signal-to-noise. </p>
+<p>Yield Limitations: David and Peter asked whether all imaged cells receive transcriptomic labels. Matt estimated roughly 50% for this dataset, with losses occurring during segmentation and registration; Marina noted that earlier sparse-label experiments achieved approximately 70% and that dense pan-neuronal labeling is more difficult. </p>
+<p>Layer Coordinates: Peter confirmed that the displayed depths were light-sheet depths in expanded tissue rather than cortical-z-stack-adjusted coordinates. Matt said explicit layer boundaries were not currently provided, although density changes and gene-expression information could support development of a future layer-classification method. </p>
+<p><strong>Physiology Analysis And Behavioral Confounds:</strong> Matt illustrated how transcriptomic labels can be linked to calcium traces across stimulus blocks, while Stefan and Jerome identified running behavior as an important confound for interpreting control and mismatch conditions. </p>
+<p>Labeled Activity Traces: Matt displayed dF/F traces from co-registered Lamp5, VIP, SST, Pvalb, and excitatory cells across the session, aligned to control, sensory-motor mismatch, and movie blocks, with running speed shown below. The labeled traces provide a basis for comparing subclass-specific responses. </p>
+<p>Running Confound: Stefan noted that the example mouse ran during some control conditions but stopped during the sensory-motor mismatch block. He cautioned that if running occurs primarily in one condition, regression or GLM analyses may not be able to separate behavioral state from stimulus-related effects. </p>
+<p>Analysis Response: Jerome agreed that behavior must be incorporated and proposed using repeated control blocks across the multiple mesoscope sessions in which the same neurons were imaged. Stefan agreed that variability in running across sessions could help address the confound. </p>
+<p>Future Design Consideration: Stefan suggested interleaving stimulus and control conditions in future experiments to increase the likelihood of comparable behavior across conditions. Marina clarified that the current dataset is already collected, so this suggestion applies to future designs rather than changes to the present experiment. </p>
+<p>Mouse-Line Differences: The group also noted that mesoscope mice appeared to run more than EFIS mice. Marina suggested that documented behavioral differences between transgenic lines may contribute more than the recording modality, while Jerome said the source of the difference remains unresolved. </p>
+<p><strong>Data Completion And Release Plan:</strong> Matt reported that most samples have been collected and that the team expects to complete quality control and co-registration for the remaining mice within the following weeks, while Jerome outlined a staged release and later joint analysis plan. </p>
+<p>Processing Status: Matt showed a tracking table covering sample collection, HCR upload and processing, z-stack processing, plane-to-z-stack matching, z-stack-to-HCR matching, and packaging. The first mouse had completed an initial pass, pending additional quality-control refinement. </p>
+<p>Remaining Samples: The dataset includes two sensory-motor mismatch mice and four sequence mice. Matt expected the first mouse's refined processing by the end of the week and the remaining mice to move through the workflow over the next few weeks as the process becomes more streamlined. </p>
+<p>Release Packaging: The final HCR package will be generated as Code Ocean data assets, stored in an open S3 data bucket, and packaged in the standard AND transcriptomics format. It will include expression data and identifiers for the co-registration steps; the team also discussed whether an additional GitHub distribution would be useful. </p>
+<p>Primary Outputs: Marina identified the cell-by-gene expression table and the co-registration labels as the main analysis products. These allow users to analyze all transcriptomic cells or restrict analyses to cells linked to in-vivo physiology. </p>
+<p>Staged Publication: Jerome said the initial data-release paper is planned without the new transcriptomic modality around the time of SFN. A later version toward the end of the year is expected to add the spatial transcriptomics and mesoscope integration with fuller documentation and packaging, followed by collaborative analysis in the fall. </p>
+<p>Excitatory-Cell Question: Lucas asked about co-registered excitatory-cell counts and whether their proportions match the transcriptomic population. Matt recalled approximately 400–450 co-registered excitatory cells but said he would need to check the dashboard to provide exact counts and ratios. </p>
+<!-- DISCUSSION_LINK_START -->
+<div class="discussion-link">
+    <hr>
+    <p>
+        <a href="https://github.com/AllenNeuralDynamics/openscope-community-predictive-processing/discussions/188" target="_blank">
+            💬 Join the discussion for this page on GitHub
+        </a>
+    </p>
+</div>
+<!-- DISCUSSION_LINK_END -->
+              
+            </div>
+          </div><footer>
+    <div class="rst-footer-buttons" role="navigation" aria-label="Footer Navigation">
+        <a href="../2026-10-06/" class="btn btn-neutral float-left" title="2026-10-06"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+        <a href="../2026-11-03/" class="btn btn-neutral float-right" title="2026-11-03">Next <span class="icon icon-circle-arrow-right"></span></a>
+    </div>
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+  </div>
+
+  Built with <a href="https://www.mkdocs.org/">MkDocs</a> using a <a href="https://github.com/readthedocs/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+          
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+
+  <div class="rst-versions" role="note" aria-label="Versions">
+  <span class="rst-current-version" data-toggle="rst-current-version">
+    
+    
+      <span><a href="../2026-10-06/" style="color: #fcfcfc">&laquo; Previous</a></span>
+    
+    
+      <span><a href="../2026-11-03/" style="color: #fcfcfc">Next &raquo;</a></span>
+    
+  </span>
+</div>
+    <script src="../../js/jquery-3.6.0.min.js"></script>
+    <script>var base_url = "../..";</script>
+    <script src="../../js/theme_extra.js"></script>
+    <script src="../../js/theme.js"></script>
+      <script src="../../js/github-profiles.js"></script>
+      <script src="../../js/analytics.js"></script>
+      <script src="https://www.googletagmanager.com/gtag/js?id=G-DT93KEXV5Q"></script>
+      <script src="../../search/main.js"></script>
+    <script>
+        jQuery(function () {
+            SphinxRtdTheme.Navigation.enable(true);
+        });
+    </script>
+
+</body>
+</html>
