@@ -60,6 +60,7 @@ Full team information including GitHub handles:
 | Katharina Wilmes | katharina.wilmes@gmail.com | |
 | Yihan Sophy Xiong | yihan.xiong@vanderbilt.edu | |
 | Hajar Almutairi | hajaralm@uw.edu | @HajarAlm |
+| Junlong (Jason) Shen | junlong6@ualberta.ca | @jlshen025 |
 
 ## Contributing Laboratories
 
