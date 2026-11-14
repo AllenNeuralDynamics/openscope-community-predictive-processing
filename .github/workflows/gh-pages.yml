@@ -15,7 +15,7 @@ on:
 
 jobs:
   deploy:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     # Only run if triggered by push or if the workflow_run was successful
     if: github.event_name == 'push' || github.event.workflow_run.conclusion == 'success'
 
